@@ -1,7 +1,8 @@
 /**
  * Doctor Day Care Home - Real-time day care monitoring dashboard
+ * Uses real API data
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,6 +10,7 @@ import {
   ScrollView,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,123 +18,107 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { Card, Avatar, Badge, Button } from '../../src/components';
 import { useAuthStore } from '../../src/store/authStore';
-
-interface ActivePatient {
-  id: string;
-  name: string;
-  chair: number;
-  protocol: string;
-  drug: string;
-  progress: number;
-  startTime: string;
-  estimatedEnd: string;
-  status: 'infusing' | 'monitoring' | 'premedication' | 'completed' | 'alert';
-  nurseAssigned: string;
-  vitalsStatus: 'normal' | 'warning' | 'critical';
-}
+import { doctorService, type PatientSummaryAPI, type AppointmentAPI, type DashboardStats } from '../../src/services/doctorService';
 
 export default function DoctorDayCareHomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalPatients: 0,
+    todayAppointments: 0,
+    activeTreatments: 0,
+    pendingAlerts: 0,
+  });
+  const [todayAppointments, setTodayAppointments] = useState<AppointmentAPI[]>([]);
+  const [patients, setPatients] = useState<PatientSummaryAPI[]>([]);
 
-  // Mock data - active patients in day care
-  const activePatients: ActivePatient[] = [
-    {
-      id: '1',
-      name: 'John Smith',
-      chair: 1,
-      protocol: 'FOLFOX',
-      drug: 'Oxaliplatin',
-      progress: 65,
-      startTime: '08:30',
-      estimatedEnd: '12:30',
-      status: 'infusing',
-      nurseAssigned: 'Sarah',
-      vitalsStatus: 'normal',
-    },
-    {
-      id: '2',
-      name: 'Maria Garcia',
-      chair: 3,
-      protocol: 'R-CHOP',
-      drug: 'Rituximab',
-      progress: 30,
-      startTime: '09:00',
-      estimatedEnd: '14:00',
-      status: 'monitoring',
-      nurseAssigned: 'Emily',
-      vitalsStatus: 'warning',
-    },
-    {
-      id: '3',
-      name: 'Robert Johnson',
-      chair: 5,
-      protocol: 'ABVD',
-      drug: 'Doxorubicin',
-      progress: 0,
-      startTime: '09:30',
-      estimatedEnd: '13:00',
-      status: 'premedication',
-      nurseAssigned: 'Michael',
-      vitalsStatus: 'normal',
-    },
-    {
-      id: '4',
-      name: 'Lisa Chen',
-      chair: 2,
-      protocol: 'Paclitaxel',
-      drug: 'Paclitaxel',
-      progress: 45,
-      startTime: '08:00',
-      estimatedEnd: '11:00',
-      status: 'alert',
-      nurseAssigned: 'Sarah',
-      vitalsStatus: 'critical',
-    },
-  ];
-
-  const stats = {
-    totalChairs: 12,
-    occupied: 4,
-    scheduled: 6,
-    alerts: 1,
+  const loadData = async () => {
+    try {
+      const [dashStats, appts, patientList] = await Promise.all([
+        doctorService.getDashboardStats(),
+        doctorService.getTodayAppointments(),
+        doctorService.getPatients({ limit: 50 }),
+      ]);
+      setStats(dashStats);
+      setTodayAppointments(appts);
+      setPatients(patientList);
+    } catch (error) {
+      console.error('Error loading dashboard:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const onRefresh = async () => {
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await loadData();
     setRefreshing(false);
-  };
+  }, []);
 
-  const getStatusColor = (status: ActivePatient['status']) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'infusing': return Colors.success;
-      case 'monitoring': return Colors.info;
-      case 'premedication': return Colors.warning;
+      case 'in_progress': return Colors.success;
+      case 'checked_in': return Colors.info;
+      case 'scheduled': case 'confirmed': return Colors.warning;
       case 'completed': return Colors.textSecondary;
-      case 'alert': return Colors.error;
+      case 'cancelled': return Colors.error;
+      default: return Colors.textSecondary;
     }
   };
 
-  const getStatusLabel = (status: ActivePatient['status']) => {
+  const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'infusing': return 'Infusing';
-      case 'monitoring': return 'Monitoring';
-      case 'premedication': return 'Pre-Med';
+      case 'in_progress': return 'In Progress';
+      case 'checked_in': return 'Checked In';
+      case 'scheduled': return 'Scheduled';
+      case 'confirmed': return 'Confirmed';
       case 'completed': return 'Completed';
-      case 'alert': return 'ALERT';
+      case 'cancelled': return 'Cancelled';
+      default: return status;
     }
   };
 
-  const getVitalsIcon = (status: ActivePatient['vitalsStatus']) => {
-    switch (status) {
-      case 'normal': return 'checkmark-circle';
-      case 'warning': return 'warning';
-      case 'critical': return 'alert-circle';
+  const formatTime = (timeStr: string) => {
+    const [hours, minutes] = timeStr.split(':');
+    const hour = parseInt(hours, 10);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return hour12 + ':' + minutes + ' ' + ampm;
+  };
+
+  const getAppointmentTypeLabel = (type: string) => {
+    switch (type) {
+      case 'daycare_chemo': return 'Chemotherapy';
+      case 'opd_consultation': return 'OPD';
+      case 'follow_up': return 'Follow Up';
+      case 'lab_work': return 'Lab Work';
+      default: return type;
     }
   };
+
+  const getPatientName = (patientId: string) => {
+    const patient = patients.find(p => p.id === patientId);
+    if (patient) {
+      return patient.firstName + ' ' + patient.lastName;
+    }
+    return 'Unknown Patient';
+  };
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer, { paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={styles.loadingText}>Loading dashboard...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -144,12 +130,14 @@ export default function DoctorDayCareHomeScreen() {
         </View>
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.alertButton}>
-            <Ionicons name="notifications" size={24} color={Colors.error} />
-            <View style={styles.alertBadge}>
-              <Text style={styles.alertBadgeText}>{stats.alerts}</Text>
-            </View>
+            <Ionicons name="notifications" size={24} color={stats.pendingAlerts > 0 ? Colors.error : Colors.textSecondary} />
+            {stats.pendingAlerts > 0 && (
+              <View style={styles.alertBadge}>
+                <Text style={styles.alertBadgeText}>{stats.pendingAlerts}</Text>
+              </View>
+            )}
           </TouchableOpacity>
-          <Avatar source={user?.avatar ? { uri: user.avatar } : undefined} name={user?.full_name} size="medium" />
+          <Avatar source={user?.avatar ? { uri: user.avatar } : undefined} name={user?.fullName} size="medium" />
         </View>
       </View>
 
@@ -164,104 +152,89 @@ export default function DoctorDayCareHomeScreen() {
         {/* Overview Stats */}
         <View style={styles.overviewCard}>
           <View style={styles.overviewItem}>
-            <Text style={styles.overviewValue}>{stats.occupied}/{stats.totalChairs}</Text>
-            <Text style={styles.overviewLabel}>Chairs Occupied</Text>
+            <Text style={styles.overviewValue}>{stats.activeTreatments}</Text>
+            <Text style={styles.overviewLabel}>Active Now</Text>
           </View>
           <View style={styles.overviewDivider} />
           <View style={styles.overviewItem}>
-            <Text style={styles.overviewValue}>{stats.scheduled}</Text>
-            <Text style={styles.overviewLabel}>Scheduled Today</Text>
+            <Text style={styles.overviewValue}>{stats.todayAppointments}</Text>
+            <Text style={styles.overviewLabel}>Today</Text>
           </View>
           <View style={styles.overviewDivider} />
           <View style={styles.overviewItem}>
-            <Text style={[styles.overviewValue, stats.alerts > 0 && styles.alertValue]}>
-              {stats.alerts}
-            </Text>
-            <Text style={styles.overviewLabel}>Active Alerts</Text>
+            <Text style={styles.overviewValue}>{stats.totalPatients}</Text>
+            <Text style={styles.overviewLabel}>Total Patients</Text>
           </View>
         </View>
 
-        {/* Alerts Section */}
-        {stats.alerts > 0 && (
-          <Card variant="outlined" padding="medium" style={styles.alertCard}>
-            <View style={styles.alertHeader}>
-              <Ionicons name="alert-circle" size={20} color={Colors.error} />
-              <Text style={styles.alertTitle}>Active Alert</Text>
-            </View>
-            <Text style={styles.alertText}>
-              Chair 2 - Lisa Chen: Possible reaction detected. Vital signs abnormal.
-            </Text>
-            <View style={styles.alertActions}>
-              <Button title="View Details" variant="danger" size="small" onPress={() => {}} />
-              <Button title="Acknowledge" variant="outline" size="small" onPress={() => {}} />
-            </View>
-          </Card>
-        )}
-
-        {/* Active Patients */}
+        {/* Today's Appointments */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Active Patients</Text>
+          <Text style={styles.sectionTitle}>Today's Appointments</Text>
           <TouchableOpacity onPress={() => router.push('/(doctor-daycare)/active')}>
             <Text style={styles.seeAllText}>See All</Text>
           </TouchableOpacity>
         </View>
 
-        {activePatients.map((patient) => (
-          <TouchableOpacity key={patient.id}>
-            <Card
-              variant={patient.status === 'alert' ? 'outlined' : 'default'}
-              padding="medium"
-              style={[
-                styles.patientCard,
-                patient.status === 'alert' ? styles.alertPatientCard : undefined,
-              ]}
-            >
-              <View style={styles.patientHeader}>
-                <View style={styles.chairBadge}>
-                  <Text style={styles.chairNumber}>{patient.chair}</Text>
-                </View>
-                <View style={styles.patientInfo}>
-                  <Text style={styles.patientName}>{patient.name}</Text>
-                  <Text style={styles.patientProtocol}>{patient.protocol} - {patient.drug}</Text>
-                </View>
-                <Badge
-                  label={getStatusLabel(patient.status)}
-                  variant={
-                    patient.status === 'alert' ? 'error' :
-                    patient.status === 'infusing' ? 'success' :
-                    patient.status === 'monitoring' ? 'info' : 'warning'
-                  }
-                  size="small"
-                />
-              </View>
-
-              {/* Progress Bar */}
-              {patient.status !== 'premedication' && (
-                <View style={styles.progressSection}>
-                  <View style={styles.progressBar}>
-                    <View style={[styles.progressFill, { width: `${patient.progress}%` }]} />
+        {todayAppointments.length === 0 ? (
+          <Card variant="default" padding="large" style={styles.emptyCard}>
+            <Ionicons name="calendar-outline" size={48} color={Colors.textSecondary} />
+            <Text style={styles.emptyText}>No appointments scheduled for today</Text>
+          </Card>
+        ) : (
+          todayAppointments.slice(0, 5).map((apt) => (
+            <TouchableOpacity key={apt.id}>
+              <Card variant="default" padding="medium" style={styles.appointmentCard}>
+                <View style={styles.appointmentHeader}>
+                  <View style={styles.timeBox}>
+                    <Text style={styles.timeText}>{formatTime(apt.scheduledTime)}</Text>
                   </View>
-                  <Text style={styles.progressText}>{patient.progress}%</Text>
-                </View>
-              )}
-
-              {/* Bottom Row */}
-              <View style={styles.patientFooter}>
-                <View style={styles.timeInfo}>
-                  <Ionicons name="time-outline" size={14} color={Colors.textSecondary} />
-                  <Text style={styles.timeText}>{patient.startTime} - {patient.estimatedEnd}</Text>
-                </View>
-                <View style={styles.vitalsIndicator}>
-                  <Ionicons
-                    name={getVitalsIcon(patient.vitalsStatus) as any}
-                    size={16}
-                    color={
-                      patient.vitalsStatus === 'normal' ? Colors.success :
-                      patient.vitalsStatus === 'warning' ? Colors.warning : Colors.error
+                  <View style={styles.appointmentInfo}>
+                    <Text style={styles.patientName}>{getPatientName(apt.patientId)}</Text>
+                    <Text style={styles.appointmentType}>{getAppointmentTypeLabel(apt.appointmentType)}</Text>
+                  </View>
+                  <Badge
+                    label={getStatusLabel(apt.status)}
+                    variant={
+                      apt.status === 'in_progress' ? 'success' :
+                      apt.status === 'checked_in' ? 'info' :
+                      apt.status === 'completed' ? 'neutral' : 'warning'
                     }
+                    size="small"
                   />
-                  <Text style={styles.nurseText}>Nurse: {patient.nurseAssigned}</Text>
                 </View>
+                {apt.chairNumber && (
+                  <View style={styles.appointmentFooter}>
+                    <Ionicons name="bed-outline" size={14} color={Colors.textSecondary} />
+                    <Text style={styles.chairText}>Chair {apt.chairNumber}</Text>
+                    <Text style={styles.durationText}>{apt.durationMins} mins</Text>
+                  </View>
+                )}
+              </Card>
+            </TouchableOpacity>
+          ))
+        )}
+
+        {/* Patients Section */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Recent Patients</Text>
+          <TouchableOpacity>
+            <Text style={styles.seeAllText}>View All</Text>
+          </TouchableOpacity>
+        </View>
+
+        {patients.slice(0, 4).map((patient) => (
+          <TouchableOpacity key={patient.id}>
+            <Card variant="default" padding="medium" style={styles.patientCard}>
+              <View style={styles.patientRow}>
+                <Avatar name={patient.firstName + ' ' + patient.lastName} size="medium" />
+                <View style={styles.patientInfo}>
+                  <Text style={styles.patientNameText}>{patient.firstName} {patient.lastName}</Text>
+                  <Text style={styles.patientDetails}>
+                    {patient.cancerType || 'Cancer type not specified'}
+                    {patient.cancerStage ? ' • Stage ' + patient.cancerStage : ''}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color={Colors.textSecondary} />
               </View>
             </Card>
           </TouchableOpacity>
@@ -294,249 +267,47 @@ export default function DoctorDayCareHomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.md,
-  },
-  headerTitle: {
-    fontFamily: Typography.fontFamily.bold,
-    fontSize: Typography.fontSize.xl,
-    color: Colors.textPrimary,
-  },
-  headerSubtitle: {
-    fontFamily: Typography.fontFamily.regular,
-    fontSize: Typography.fontSize.sm,
-    color: Colors.textSecondary,
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  alertButton: {
-    position: 'relative',
-  },
-  alertBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    backgroundColor: Colors.error,
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  alertBadgeText: {
-    fontFamily: Typography.fontFamily.bold,
-    fontSize: 10,
-    color: Colors.white,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: Spacing.lg,
-    paddingBottom: Spacing.xxl,
-  },
-  overviewCard: {
-    flexDirection: 'row',
-    backgroundColor: Colors.white,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    marginBottom: Spacing.lg,
-    ...Shadows.small,
-  },
-  overviewItem: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  overviewDivider: {
-    width: 1,
-    backgroundColor: Colors.border,
-  },
-  overviewValue: {
-    fontFamily: Typography.fontFamily.bold,
-    fontSize: Typography.fontSize.xxl,
-    color: Colors.textPrimary,
-  },
-  overviewLabel: {
-    fontFamily: Typography.fontFamily.regular,
-    fontSize: Typography.fontSize.xs,
-    color: Colors.textSecondary,
-    marginTop: 2,
-    textAlign: 'center',
-  },
-  alertValue: {
-    color: Colors.error,
-  },
-  alertCard: {
-    borderColor: Colors.error,
-    backgroundColor: Colors.errorLight,
-    marginBottom: Spacing.lg,
-  },
-  alertHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.sm,
-  },
-  alertTitle: {
-    fontFamily: Typography.fontFamily.semiBold,
-    fontSize: Typography.fontSize.md,
-    color: Colors.error,
-    marginLeft: Spacing.xs,
-  },
-  alertText: {
-    fontFamily: Typography.fontFamily.regular,
-    fontSize: Typography.fontSize.sm,
-    color: Colors.textPrimary,
-    marginBottom: Spacing.md,
-  },
-  alertActions: {
-    flexDirection: 'row',
-    gap: Spacing.sm,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  sectionTitle: {
-    fontFamily: Typography.fontFamily.semiBold,
-    fontSize: Typography.fontSize.md,
-    color: Colors.textPrimary,
-  },
-  seeAllText: {
-    fontFamily: Typography.fontFamily.medium,
-    fontSize: Typography.fontSize.sm,
-    color: Colors.primary,
-  },
-  patientCard: {
-    marginBottom: Spacing.sm,
-  },
-  alertPatientCard: {
-    borderColor: Colors.error,
-  },
-  patientHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  chairBadge: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: Colors.primaryLight,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: Spacing.md,
-  },
-  chairNumber: {
-    fontFamily: Typography.fontFamily.bold,
-    fontSize: Typography.fontSize.md,
-    color: Colors.primary,
-  },
-  patientInfo: {
-    flex: 1,
-  },
-  patientName: {
-    fontFamily: Typography.fontFamily.semiBold,
-    fontSize: Typography.fontSize.md,
-    color: Colors.textPrimary,
-  },
-  patientProtocol: {
-    fontFamily: Typography.fontFamily.regular,
-    fontSize: Typography.fontSize.xs,
-    color: Colors.textSecondary,
-  },
-  progressSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: Spacing.md,
-    gap: Spacing.sm,
-  },
-  progressBar: {
-    flex: 1,
-    height: 6,
-    backgroundColor: Colors.backgroundSecondary,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: Colors.success,
-    borderRadius: 3,
-  },
-  progressText: {
-    fontFamily: Typography.fontFamily.semiBold,
-    fontSize: Typography.fontSize.sm,
-    color: Colors.textPrimary,
-    minWidth: 40,
-    textAlign: 'right',
-  },
-  patientFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: Spacing.sm,
-    paddingTop: Spacing.sm,
-    borderTopWidth: 1,
-    borderTopColor: Colors.border,
-  },
-  timeInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-  },
-  timeText: {
-    fontFamily: Typography.fontFamily.regular,
-    fontSize: Typography.fontSize.xs,
-    color: Colors.textSecondary,
-  },
-  vitalsIndicator: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.xs,
-  },
-  nurseText: {
-    fontFamily: Typography.fontFamily.regular,
-    fontSize: Typography.fontSize.xs,
-    color: Colors.textSecondary,
-  },
-  aiCard: {
-    marginTop: Spacing.lg,
-  },
-  aiHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: Spacing.md,
-  },
-  aiTitle: {
-    fontFamily: Typography.fontFamily.semiBold,
-    fontSize: Typography.fontSize.md,
-    color: Colors.textPrimary,
-    marginLeft: Spacing.xs,
-  },
-  aiActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  aiActionButton: {
-    alignItems: 'center',
-    padding: Spacing.md,
-  },
-  aiActionText: {
-    fontFamily: Typography.fontFamily.medium,
-    fontSize: Typography.fontSize.xs,
-    color: Colors.textSecondary,
-    marginTop: Spacing.xs,
-    textAlign: 'center',
-  },
+  container: { flex: 1, backgroundColor: Colors.background },
+  loadingContainer: { justifyContent: 'center', alignItems: 'center' },
+  loadingText: { marginTop: Spacing.md, color: Colors.textSecondary, fontSize: Typography.fontSize.md },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.lg, paddingVertical: Spacing.md },
+  headerTitle: { fontFamily: Typography.fontFamily.bold, fontSize: Typography.fontSize.xl, color: Colors.textPrimary },
+  headerSubtitle: { fontFamily: Typography.fontFamily.regular, fontSize: Typography.fontSize.sm, color: Colors.textSecondary },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  alertButton: { position: 'relative' },
+  alertBadge: { position: 'absolute', top: -4, right: -4, backgroundColor: Colors.error, borderRadius: 8, minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
+  alertBadgeText: { fontFamily: Typography.fontFamily.bold, fontSize: 10, color: Colors.white },
+  scrollView: { flex: 1 },
+  scrollContent: { paddingHorizontal: Spacing.lg, paddingBottom: Spacing.xxl },
+  overviewCard: { flexDirection: 'row', backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.lg, marginBottom: Spacing.lg, ...Shadows.small },
+  overviewItem: { flex: 1, alignItems: 'center' },
+  overviewDivider: { width: 1, backgroundColor: Colors.border },
+  overviewValue: { fontFamily: Typography.fontFamily.bold, fontSize: Typography.fontSize.xxl, color: Colors.textPrimary },
+  overviewLabel: { fontFamily: Typography.fontFamily.regular, fontSize: Typography.fontSize.xs, color: Colors.textSecondary, marginTop: 2, textAlign: 'center' },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md, marginTop: Spacing.lg },
+  sectionTitle: { fontFamily: Typography.fontFamily.semiBold, fontSize: Typography.fontSize.md, color: Colors.textPrimary },
+  seeAllText: { fontFamily: Typography.fontFamily.medium, fontSize: Typography.fontSize.sm, color: Colors.primary },
+  emptyCard: { alignItems: 'center', marginBottom: Spacing.md },
+  emptyText: { marginTop: Spacing.md, color: Colors.textSecondary, fontSize: Typography.fontSize.sm },
+  appointmentCard: { marginBottom: Spacing.sm },
+  appointmentHeader: { flexDirection: 'row', alignItems: 'center' },
+  timeBox: { backgroundColor: Colors.primaryLight, borderRadius: BorderRadius.md, paddingHorizontal: Spacing.sm, paddingVertical: Spacing.xs, marginRight: Spacing.md },
+  timeText: { fontFamily: Typography.fontFamily.semiBold, fontSize: Typography.fontSize.sm, color: Colors.primary },
+  appointmentInfo: { flex: 1 },
+  patientName: { fontFamily: Typography.fontFamily.semiBold, fontSize: Typography.fontSize.md, color: Colors.textPrimary },
+  appointmentType: { fontFamily: Typography.fontFamily.regular, fontSize: Typography.fontSize.xs, color: Colors.textSecondary },
+  appointmentFooter: { flexDirection: 'row', alignItems: 'center', marginTop: Spacing.sm, paddingTop: Spacing.sm, borderTopWidth: 1, borderTopColor: Colors.border, gap: Spacing.xs },
+  chairText: { fontFamily: Typography.fontFamily.regular, fontSize: Typography.fontSize.xs, color: Colors.textSecondary },
+  durationText: { fontFamily: Typography.fontFamily.regular, fontSize: Typography.fontSize.xs, color: Colors.textSecondary, marginLeft: 'auto' },
+  patientCard: { marginBottom: Spacing.sm },
+  patientRow: { flexDirection: 'row', alignItems: 'center' },
+  patientInfo: { flex: 1, marginLeft: Spacing.md },
+  patientNameText: { fontFamily: Typography.fontFamily.semiBold, fontSize: Typography.fontSize.md, color: Colors.textPrimary },
+  patientDetails: { fontFamily: Typography.fontFamily.regular, fontSize: Typography.fontSize.xs, color: Colors.textSecondary },
+  aiCard: { marginTop: Spacing.lg },
+  aiHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.md },
+  aiTitle: { fontFamily: Typography.fontFamily.semiBold, fontSize: Typography.fontSize.md, color: Colors.textPrimary, marginLeft: Spacing.xs },
+  aiActions: { flexDirection: 'row', justifyContent: 'space-around' },
+  aiActionButton: { alignItems: 'center', padding: Spacing.md },
+  aiActionText: { fontFamily: Typography.fontFamily.medium, fontSize: Typography.fontSize.xs, color: Colors.textSecondary, marginTop: Spacing.xs, textAlign: 'center' },
 });

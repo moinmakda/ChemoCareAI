@@ -25,9 +25,7 @@ export default function IndexScreen() {
   }
 
   // Redirect based on user role
-  const userRole = user?.role;
-  
-  switch (userRole) {
+  switch (user?.role) {
     case 'patient':
       return <Redirect href="/(patient)/home" />;
     case 'doctor_opd':
@@ -37,7 +35,6 @@ export default function IndexScreen() {
     case 'nurse':
       return <Redirect href="/(nurse)/home" />;
     case 'admin':
-      // Admin uses doctor-daycare portal for now (admin portal coming soon)
       return <Redirect href="/(doctor-daycare)/home" />;
     default:
       return <Redirect href="/(auth)/login" />;

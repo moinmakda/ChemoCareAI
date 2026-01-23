@@ -3,7 +3,8 @@ Pydantic schemas for patients.
 """
 from datetime import date, datetime
 from typing import Optional, List, Any
-from pydantic import BaseModel, Field
+from uuid import UUID
+from pydantic import BaseModel, Field, field_serializer
 from app.models.patient import Gender, BloodGroup
 
 
@@ -79,8 +80,8 @@ class PatientUpdate(BaseModel):
 
 class PatientResponse(PatientBase):
     """Schema for patient response."""
-    id: str
-    user_id: Optional[str] = None
+    id: UUID
+    user_id: Optional[UUID] = None
     address: Optional[str] = None
     city: Optional[str] = None
     state: Optional[str] = None
@@ -108,11 +109,17 @@ class PatientResponse(PatientBase):
     
     class Config:
         from_attributes = True
+    
+    @field_serializer('id', 'user_id')
+    def serialize_uuid(self, v):
+        if v is None:
+            return None
+        return str(v)
 
 
 class PatientSummary(BaseModel):
     """Simplified patient summary for lists."""
-    id: str
+    id: UUID
     first_name: str
     last_name: str
     cancer_type: Optional[str] = None
@@ -121,3 +128,7 @@ class PatientSummary(BaseModel):
     
     class Config:
         from_attributes = True
+    
+    @field_serializer('id')
+    def serialize_uuid(self, v):
+        return str(v)

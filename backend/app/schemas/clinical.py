@@ -3,7 +3,8 @@ Pydantic schemas for clinical data (vitals, documents, appointments, etc.).
 """
 from datetime import date, time, datetime
 from typing import Optional, List, Any, Dict
-from pydantic import BaseModel, Field
+from uuid import UUID
+from pydantic import BaseModel, Field, field_serializer
 from app.models.clinical import (
     DocumentType,
     AppointmentType,
@@ -67,11 +68,11 @@ class VitalCreate(BaseModel):
 
 class VitalResponse(BaseModel):
     """Schema for vital response."""
-    id: str
-    patient_id: str
-    cycle_id: Optional[str] = None
+    id: UUID
+    patient_id: UUID
+    cycle_id: Optional[UUID] = None
     recorded_at: datetime
-    recorded_by: Optional[str] = None
+    recorded_by: Optional[UUID] = None
     temperature_f: Optional[float] = None
     pulse_bpm: Optional[int] = None
     blood_pressure_systolic: Optional[int] = None
@@ -88,6 +89,12 @@ class VitalResponse(BaseModel):
     
     class Config:
         from_attributes = True
+    
+    @field_serializer('id', 'patient_id', 'cycle_id', 'recorded_by')
+    def serialize_uuid(self, v):
+        if v is None:
+            return None
+        return str(v)
 
 
 # Appointment Schemas
@@ -120,16 +127,16 @@ class AppointmentUpdate(BaseModel):
 
 class AppointmentResponse(BaseModel):
     """Schema for appointment response."""
-    id: str
-    patient_id: str
+    id: UUID
+    patient_id: UUID
     appointment_type: AppointmentType
     scheduled_date: date
     scheduled_time: time
     duration_mins: int
-    cycle_id: Optional[str] = None
+    cycle_id: Optional[UUID] = None
     chair_number: Optional[int] = None
-    doctor_id: Optional[str] = None
-    nurse_id: Optional[str] = None
+    doctor_id: Optional[UUID] = None
+    nurse_id: Optional[UUID] = None
     status: AppointmentStatus
     checked_in_at: Optional[datetime] = None
     checked_out_at: Optional[datetime] = None
@@ -140,6 +147,12 @@ class AppointmentResponse(BaseModel):
     
     class Config:
         from_attributes = True
+    
+    @field_serializer('id', 'patient_id', 'cycle_id', 'doctor_id', 'nurse_id')
+    def serialize_uuid(self, v):
+        if v is None:
+            return None
+        return str(v)
 
 
 # Notification Schemas
@@ -154,8 +167,8 @@ class NotificationCreate(BaseModel):
 
 class NotificationResponse(BaseModel):
     """Schema for notification response."""
-    id: str
-    user_id: str
+    id: UUID
+    user_id: UUID
     type: NotificationType
     title: str
     body: str
@@ -166,12 +179,18 @@ class NotificationResponse(BaseModel):
     
     class Config:
         from_attributes = True
+    
+    @field_serializer('id', 'user_id')
+    def serialize_uuid(self, v):
+        if v is None:
+            return None
+        return str(v)
 
 
 # Symptom Entry Schemas
 class SymptomEntryCreate(BaseModel):
     """Schema for creating a symptom entry."""
-    patient_id: str
+    patient_id: Optional[str] = None  # Optional for /symptoms/me endpoint
     cycle_id: Optional[str] = None
     nausea_score: Optional[int] = Field(None, ge=0, le=10)
     vomiting_count: Optional[int] = None
@@ -191,9 +210,9 @@ class SymptomEntryCreate(BaseModel):
 
 class SymptomEntryResponse(BaseModel):
     """Schema for symptom entry response."""
-    id: str
-    patient_id: str
-    cycle_id: Optional[str] = None
+    id: UUID
+    patient_id: UUID
+    cycle_id: Optional[UUID] = None
     recorded_at: datetime
     nausea_score: Optional[int] = None
     vomiting_count: Optional[int] = None
@@ -215,3 +234,9 @@ class SymptomEntryResponse(BaseModel):
     
     class Config:
         from_attributes = True
+    
+    @field_serializer('id', 'patient_id', 'cycle_id')
+    def serialize_uuid(self, v):
+        if v is None:
+            return None
+        return str(v)

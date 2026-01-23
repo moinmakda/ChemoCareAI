@@ -21,11 +21,13 @@ from app.services.gemini_ai import (
     analyze_labs_for_treatment,
     analyze_patient_symptoms,
     get_treatment_recommendations,
+    patient_chat as ai_patient_chat,
     ProtocolGenerationResult,
     DoseCalculationResult,
     DrugInteractionResult,
     LabAnalysisResult,
     SymptomAnalysisResult,
+    PatientChatResponse,
 )
 
 router = APIRouter(prefix="/ai", tags=["AI Services (Gemini)"])
@@ -113,6 +115,15 @@ class RiskAssessmentRequest(BaseModel):
 class RecommendationRequest(BaseModel):
     """Request for treatment recommendations."""
     patient_id: str = Field(description="UUID of the patient")
+
+
+class PatientChatRequest(BaseModel):
+    """Request for patient chat AI assistant."""
+    message: str = Field(description="The patient's message")
+    conversation_history: Optional[List[Dict[str, str]]] = Field(
+        default=None,
+        description="Previous messages in format [{'role': 'user|assistant', 'content': '...'}]"
+    )
 
 
 # =============================================================================
@@ -489,7 +500,59 @@ async def health_check():
             "Symptom Analysis",
             "Risk Assessment",
             "Treatment Recommendations",
+            "Patient Chat",
         ],
         "structured_output": True,
         "response_format": "application/json",
     }
+
+
+@router.post(
+    "/chat",
+    response_model=PatientChatResponse,
+    summary="Patient Chat Assistant",
+    description="AI-powered chat assistant for patients to ask questions about their treatment."
+)
+async def patient_chat(
+    request: PatientChatRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user = Depends(get_current_user),
+):
+    """
+    Chat with the AI assistant for patients undergoing chemotherapy.
+    
+    The AI provides supportive, empathetic responses while identifying
+    any symptoms that may require medical attention.
+    """
+    # Get patient information if user is a patient
+    patient_name = current_user.full_name or "Patient"
+    patient_diagnosis = None
+    current_treatment = None
+    
+    if current_user.role == "patient":
+        result = await db.execute(
+            select(Patient).where(Patient.user_id == current_user.id)
+        )
+        patient = result.scalar_one_or_none()
+        
+        if patient:
+            patient_diagnosis = f"{patient.cancer_type or ''} {patient.cancer_stage or ''}".strip() or None
+            # TODO: Get current treatment from active treatment plan
+            current_treatment = None
+    
+    try:
+        response = await ai_patient_chat(
+            patient_name=patient_name,
+            patient_diagnosis=patient_diagnosis,
+            current_treatment=current_treatment,
+            message=request.message,
+            conversation_history=request.conversation_history,
+        )
+        
+        return response
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"AI chat service error: {str(e)}",
+        )

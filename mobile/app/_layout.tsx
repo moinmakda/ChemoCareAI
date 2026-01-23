@@ -21,7 +21,6 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    // Check authentication status on app start
     checkAuth();
   }, []);
 

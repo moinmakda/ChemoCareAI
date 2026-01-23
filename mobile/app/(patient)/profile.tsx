@@ -128,7 +128,7 @@ export default function PatientProfileScreen() {
           <View style={styles.profileHeader}>
             <Avatar
               source={user?.avatar ? { uri: user.avatar } : undefined}
-              name={user?.full_name || 'Patient'}
+              name={user?.fullName || 'Patient'}
               size="xlarge"
             />
             <TouchableOpacity style={styles.editAvatarButton}>
@@ -136,7 +136,7 @@ export default function PatientProfileScreen() {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.profileName}>{user?.full_name || 'Patient Name'}</Text>
+          <Text style={styles.profileName}>{user?.fullName || 'Patient Name'}</Text>
           <Text style={styles.profileEmail}>{user?.email || 'email@example.com'}</Text>
 
           <View style={styles.profileStats}>

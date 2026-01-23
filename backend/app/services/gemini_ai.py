@@ -197,7 +197,7 @@ For elderly patients (>70), consider dose reductions. Flag any concerning lab va
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
-            response_json_schema=ProtocolGenerationResult.model_json_schema(),
+            response_schema=ProtocolGenerationResult,
             temperature=0.3,  # Lower temperature for more consistent medical advice
         ),
     )
@@ -249,7 +249,7 @@ Provide your confidence level in this calculation.
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
-            response_json_schema=DoseCalculationResult.model_json_schema(),
+            response_schema=DoseCalculationResult,
             temperature=0.1,  # Very low temperature for precise calculations
         ),
     )
@@ -298,7 +298,7 @@ Provide an overall risk assessment and summary.
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
-            response_json_schema=DrugInteractionResult.model_json_schema(),
+            response_schema=DrugInteractionResult,
             temperature=0.2,
         ),
     )
@@ -347,7 +347,7 @@ Include any required actions before treatment can proceed.
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
-            response_json_schema=LabAnalysisResult.model_json_schema(),
+            response_schema=LabAnalysisResult,
             temperature=0.2,
         ),
     )
@@ -400,7 +400,7 @@ Provide differential diagnoses and clinical recommendations.
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
-            response_json_schema=SymptomAnalysisResult.model_json_schema(),
+            response_schema=SymptomAnalysisResult,
             temperature=0.3,
         ),
     )
@@ -452,10 +452,115 @@ Base recommendations on NCCN, ESMO, and ASCO guidelines where applicable.
         contents=prompt,
         config=types.GenerateContentConfig(
             response_mime_type="application/json",
-            response_json_schema=RecommendationResult.model_json_schema(),
+            response_schema=RecommendationResult,
             temperature=0.4,
         ),
     )
     
     result = RecommendationResult.model_validate_json(response.text)
     return result.model_dump()
+
+
+# =============================================================================
+# PATIENT CHAT AI ASSISTANT
+# =============================================================================
+
+class PatientChatResponse(BaseModel):
+    """Response from patient chat AI assistant."""
+    message: str = Field(description="The AI's response message to the patient")
+    is_urgent: bool = Field(description="Whether the response indicates an urgent situation")
+    suggested_actions: List[str] = Field(description="Suggested actions for the patient")
+    should_contact_care_team: bool = Field(description="Whether patient should contact their care team")
+    symptom_severity: Optional[str] = Field(
+        default=None,
+        description="If symptoms mentioned: low, moderate, high, critical"
+    )
+
+
+async def patient_chat(
+    patient_name: str,
+    patient_diagnosis: Optional[str],
+    current_treatment: Optional[str],
+    message: str,
+    conversation_history: Optional[List[Dict[str, str]]] = None,
+) -> PatientChatResponse:
+    """
+    AI chat assistant for patients undergoing chemotherapy.
+    
+    Provides supportive, empathetic responses while identifying
+    any concerning symptoms that may require medical attention.
+    """
+    history_text = ""
+    if conversation_history:
+        for msg in conversation_history[-5:]:  # Last 5 messages for context
+            role = "Patient" if msg.get("role") == "user" else "Assistant"
+            history_text += f"{role}: {msg.get('content', '')}\n"
+
+    prompt = f"""
+You are ChemoCare AI, a compassionate and knowledgeable AI assistant for cancer patients 
+undergoing chemotherapy treatment. You provide supportive, empathetic responses while 
+being vigilant about symptoms that may require medical attention.
+
+PATIENT CONTEXT:
+- Name: {patient_name}
+- Diagnosis: {patient_diagnosis or 'Not specified'}
+- Current Treatment: {current_treatment or 'Not specified'}
+
+CONVERSATION HISTORY:
+{history_text if history_text else 'This is the start of the conversation'}
+
+PATIENT MESSAGE:
+{message}
+
+GUIDELINES FOR YOUR RESPONSE:
+1. Be warm, supportive, and empathetic - acknowledge emotions
+2. Provide accurate, helpful information about chemotherapy side effects and management
+3. NEVER provide medical diagnoses or treatment recommendations
+4. Encourage them to contact their care team for medical concerns
+5. Identify any symptoms that might be concerning (fever, severe pain, bleeding, breathing difficulty)
+6. Keep responses concise but caring (2-3 paragraphs max)
+7. Use simple, non-medical language when possible
+8. If they mention concerning symptoms, flag as urgent and recommend contacting their care team
+
+IMPORTANT SYMPTOM RED FLAGS (mark as urgent if mentioned):
+- Fever over 100.4°F (38°C)
+- Severe or uncontrolled pain
+- Difficulty breathing or shortness of breath
+- Bleeding that won't stop
+- Persistent vomiting (can't keep fluids down)
+- Signs of infection
+- Confusion or disorientation
+- Chest pain
+
+Respond as a caring healthcare companion, not a chatbot.
+"""
+
+    try:
+        response = client.models.generate_content(
+            model=settings.GEMINI_MODEL,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                response_mime_type="application/json",
+                response_schema=PatientChatResponse,
+                temperature=0.7,  # Slightly higher for more natural conversation
+            ),
+        )
+        
+        return PatientChatResponse.model_validate_json(response.text)
+    except Exception as e:
+        # Fallback to unstructured response if schema fails
+        fallback_response = client.models.generate_content(
+            model=settings.GEMINI_MODEL,
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.7,
+            ),
+        )
+        # Return a basic response
+        return PatientChatResponse(
+            message=fallback_response.text,
+            is_urgent=False,
+            suggested_actions=[],
+            should_contact_care_team=False,
+            symptom_severity=None,
+        )

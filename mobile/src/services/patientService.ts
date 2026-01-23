@@ -9,7 +9,7 @@ export const patientService = {
    * Get all patients (staff only)
    */
   async listPatients(params?: { skip?: number; limit?: number; search?: string }): Promise<Patient[]> {
-    const response = await apiClient.get('/patients', { params });
+    const response = await apiClient.get('/patients/', { params });
     return response.data;
   },
 
@@ -17,7 +17,7 @@ export const patientService = {
    * Get current patient profile (for patient users)
    */
   async getMyProfile(): Promise<Patient> {
-    const response = await apiClient.get('/patients/me');
+    const response = await apiClient.get('/patients/me/');
     return response.data;
   },
 
@@ -33,7 +33,25 @@ export const patientService = {
    * Create a new patient
    */
   async createPatient(data: Partial<Patient>): Promise<Patient> {
-    const response = await apiClient.post('/patients', data);
+    // Convert camelCase to snake_case for API
+    const apiData = {
+      first_name: data.firstName,
+      last_name: data.lastName,
+      date_of_birth: data.dateOfBirth,
+      gender: data.gender,
+      blood_group: data.bloodGroup,
+      cancer_type: data.cancerType,
+      cancer_stage: data.cancerStage,
+      diagnosis_date: data.diagnosisDate,
+      allergies: data.allergies || [],
+      comorbidities: data.comorbidities || [],
+      emergency_contact_name: data.emergencyContactName,
+      emergency_contact_phone: data.emergencyContactPhone,
+      emergency_contact_relation: data.emergencyContactRelation,
+      height_cm: data.heightCm,
+      weight_kg: data.weightKg,
+    };
+    const response = await apiClient.post('/patients/', apiData);
     return response.data;
   },
 
@@ -67,7 +85,7 @@ export const patientService = {
    * Get patient treatment plans
    */
   async getTreatmentPlans(patientId: string): Promise<TreatmentPlan[]> {
-    const response = await apiClient.get(`/patients/${patientId}/treatments`);
+    const response = await apiClient.get(`/treatment-plans/`, { params: { patient_id: patientId } });
     return response.data;
   },
 
@@ -75,7 +93,7 @@ export const patientService = {
    * Get patient vitals history
    */
   async getVitals(patientId: string, limit?: number): Promise<Vital[]> {
-    const response = await apiClient.get(`/vitals/${patientId}`, { params: { limit } });
+    const response = await apiClient.get(`/vitals/`, { params: { patient_id: patientId, limit } });
     return response.data;
   },
 
@@ -83,7 +101,7 @@ export const patientService = {
    * Get patient symptom diary
    */
   async getSymptomEntries(patientId: string, limit?: number): Promise<SymptomEntry[]> {
-    const response = await apiClient.get(`/patients/${patientId}/symptoms`, { params: { limit } });
+    const response = await apiClient.get(`/symptoms/`, { params: { patient_id: patientId, limit } });
     return response.data;
   },
 
@@ -91,7 +109,7 @@ export const patientService = {
    * Log symptoms
    */
   async logSymptoms(patientId: string, symptoms: Partial<SymptomEntry>): Promise<SymptomEntry> {
-    const response = await apiClient.post(`/patients/${patientId}/symptoms`, symptoms);
+    const response = await apiClient.post(`/symptoms/`, { ...symptoms, patient_id: patientId });
     return response.data;
   },
 

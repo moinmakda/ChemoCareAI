@@ -74,7 +74,7 @@ export default function DoctorDaycareProfileScreen() {
           <View style={styles.profileHeader}>
             <Avatar
               source={user?.avatar ? { uri: user.avatar } : undefined}
-              name={user?.full_name || 'Doctor'}
+              name={user?.fullName || 'Doctor'}
               size="xlarge"
             />
             <TouchableOpacity style={styles.editAvatarButton}>
@@ -82,7 +82,7 @@ export default function DoctorDaycareProfileScreen() {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.profileName}>{user?.full_name || 'Doctor Name'}</Text>
+          <Text style={styles.profileName}>{user?.fullName || 'Doctor Name'}</Text>
           <Text style={styles.profileRole}>Day Care Oncologist</Text>
           <Text style={styles.profileEmail}>{user?.email || 'email@example.com'}</Text>
 

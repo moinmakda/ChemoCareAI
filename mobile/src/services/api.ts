@@ -11,6 +11,27 @@ const STORAGE_KEYS = {
   REFRESH_TOKEN: 'refresh_token',
 };
 
+// Convert snake_case to camelCase
+const toCamelCase = (str: string): string => {
+  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+};
+
+// Recursively convert object keys from snake_case to camelCase
+const convertKeysToCamelCase = (obj: any): any => {
+  if (obj === null || obj === undefined) return obj;
+  if (Array.isArray(obj)) return obj.map(convertKeysToCamelCase);
+  if (typeof obj !== 'object') return obj;
+  
+  const converted: any = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const camelKey = toCamelCase(key);
+      converted[camelKey] = convertKeysToCamelCase(obj[key]);
+    }
+  }
+  return converted;
+};
+
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -36,9 +57,15 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for token refresh
+// Response interceptor for token refresh and case conversion
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Convert snake_case to camelCase for all responses
+    if (response.data) {
+      response.data = convertKeysToCamelCase(response.data);
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     

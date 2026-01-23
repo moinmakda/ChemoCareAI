@@ -55,11 +55,11 @@ export default function PatientLayout() {
         }}
       />
       <Tabs.Screen
-        name="chat"
+        name="symptoms"
         options={{
-          title: 'Chat',
+          title: 'Symptoms',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="chatbubbles-outline" size={size} color={color} />
+            <Ionicons name="medical-outline" size={size} color={color} />
           ),
         }}
       />
@@ -70,6 +70,25 @@ export default function PatientLayout() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person-outline" size={size} color={color} />
           ),
+        }}
+      />
+      {/* Hide these from tabs */}
+      <Tabs.Screen
+        name="chat"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="onboarding"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="vitals-old"
+        options={{
+          href: null,
         }}
       />
     </Tabs>

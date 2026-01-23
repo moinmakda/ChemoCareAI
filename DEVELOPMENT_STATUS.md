@@ -7,16 +7,16 @@
 
 **ChemoCare AI** is an intelligent chemotherapy day care management system that streamlines the entire cancer treatment workflow from OPD consultation to day care administration, with AI-powered assistance at every step.
 
-### Current Status: **MVP (Minimum Viable Product) - 60% Complete**
+### Current Status: **MVP (Minimum Viable Product) - 90% Complete**
 
 | Component | Status | Completion |
 |-----------|--------|------------|
-| Backend API | ✅ Working | 70% |
-| Mobile App (React Native) | ✅ Working | 55% |
-| Database Schema | ✅ Complete | 80% |
-| AI Integration (Gemini) | ✅ Working | 40% |
-| Authentication | ✅ Working | 90% |
-| Real Data Flow | ⏳ In Progress | 30% |
+| Backend API | ✅ Working | 95% |
+| Mobile App (React Native) | ✅ Working | 90% |
+| Database Schema | ✅ Complete | 95% |
+| AI Integration (Gemini) | ✅ Working | 85% |
+| Authentication | ✅ Working | 100% |
+| Real Data Flow | ✅ Connected | 90% |
 
 ---
 
@@ -52,40 +52,44 @@
 
 ## 1. Patient Portal
 
-| Screen | Hardcoded Data | What Needs Real API |
-|--------|----------------|---------------------|
-| **Home** | Treatment progress (75%), next appointment date, medication list | Fetch from `/patients/{id}/treatment-plan`, `/appointments` |
-| **Schedule** | Appointment list with times/locations | Fetch from `/appointments?patient_id={id}` |
-| **Vitals** | Blood pressure, weight, temperature history | Fetch from `/patients/{id}/vitals` |
-| **Chat** | AI conversation history | Connect to `/ai/chat` endpoint |
-| **Profile** | Stats (3 cycles, 12 appointments, 6 months) | Aggregate from patient data |
+| Screen | Status | Notes |
+|--------|--------|-------|
+| **Home** | ✅ Connected | Shows real vitals, appointments, onboarding flow |
+| **Schedule** | ✅ Connected | Real appointments from `/appointments` API |
+| **Vitals** | ✅ Connected | Logs/displays vitals via `/vitals` API |
+| **Symptoms** | ✅ Connected | Symptom diary via `/symptoms` API |
+| **Chat** | ✅ Connected | AI-powered chat via `/ai/chat` API with typing indicators |
+| **Profile** | ✅ Connected | Real patient data with edit capability |
 
 ## 2. Doctor OPD Portal
 
-| Screen | Hardcoded Data | What Needs Real API |
-|--------|----------------|---------------------|
-| **Home** | Today's appointments count, patient queue | Fetch from `/doctors/{id}/appointments` |
-| **Patients** | Patient list with diagnoses | Fetch from `/patients?doctor_id={id}` |
-| **Protocols** | Treatment protocol templates | Fetch from `/protocols` |
-| **Schedule** | Weekly calendar view | Fetch from `/doctors/{id}/schedule` |
+| Screen | Status | Notes |
+|--------|--------|-------|
+| **Home** | ✅ Connected | Real stats, appointments, patients from API |
+| **Appointments** | ✅ Connected | Full appointments list with filters (All/Today/Upcoming/Completed) |
+| **Patients** | ✅ Connected | Patient search and list from API |
+| **Protocols** | ✅ Complete | Protocol reference library (FOLFOX, AC-T, CHOP, R-CHOP, CAPOX) |
+| **Profile** | ✅ Connected | Profile with logout |
 
 ## 3. Doctor Day Care Portal
 
-| Screen | Hardcoded Data | What Needs Real API |
-|--------|----------------|---------------------|
-| **Home** | Active infusions, chair occupancy | Fetch from `/daycare/status` |
-| **Patients** | Today's day care patients | Fetch from `/daycare/patients?date=today` |
-| **Monitor** | Real-time vitals, infusion progress | WebSocket `/ws/daycare/monitor` |
-| **Protocols** | Active protocols per chair | Fetch from `/daycare/active-treatments` |
+| Screen | Status | Notes |
+|--------|--------|-------|
+| **Home** | ✅ Connected | Real stats, appointments, patients from API |
+| **Active** | ✅ Connected | Real-time active treatments with progress bars, auto-refresh |
+| **AI** | ✅ Connected | Clinical decision support AI with drug interactions, dose calculations |
+| **Protocols** | ✅ Complete | Protocol reference library |
+| **Profile** | ✅ Connected | Profile with logout |
 
 ## 4. Nurse Portal
 
-| Screen | Hardcoded Data | What Needs Real API |
-|--------|----------------|---------------------|
-| **Home** | Tasks list, alerts, chair status | Fetch from `/nurses/{id}/tasks` |
-| **Patients** | Assigned patients | Fetch from `/nurses/{id}/patients` |
-| **Vitals** | Vitals entry form data | POST to `/patients/{id}/vitals` |
-| **Medications** | Drug administration checklist | Fetch from `/daycare/medications` |
+| Screen | Status | Notes |
+|--------|--------|-------|
+| **Home** | ✅ Connected | Real stats, active/awaiting patients from API |
+| **Patients** | ✅ Connected | Patient list with search, vitals quick-entry |
+| **Vitals** | ✅ Connected | Full vitals recording modal with all parameters |
+| **Medications** | ✅ Partial | Medication tracking (mock data, needs treatment cycles API) |
+| **Profile** | ✅ Connected | Profile with logout |
 
 ---
 
@@ -96,16 +100,43 @@
 ```
 ✅ POST /api/v1/auth/register     - User registration
 ✅ POST /api/v1/auth/login        - User login (JWT tokens)
-✅ POST /api/v1/auth/refresh      - Token refresh
+✅ POST /api/v1/auth/refresh      - Token refresh (FIXED: role optional)
 ✅ GET  /api/v1/auth/me           - Get current user
 ✅ POST /api/v1/ai/chat           - Gemini AI chat
 ✅ POST /api/v1/ai/analyze-labs   - Lab result analysis
 ✅ POST /api/v1/ai/symptom-check  - Symptom assessment
-✅ GET  /api/v1/patients          - List patients (needs connection)
-✅ GET  /api/v1/treatments        - List treatments (needs connection)
+✅ GET  /api/v1/patients          - List patients (staff only)
+✅ GET  /api/v1/patients/me       - Get current patient profile
+✅ POST /api/v1/patients          - Create patient profile
+✅ PUT  /api/v1/patients/{id}     - Update patient profile
+✅ GET  /api/v1/vitals            - List vitals (with filters)
+✅ POST /api/v1/vitals            - Log vitals
+✅ GET  /api/v1/vitals/me         - Patient's own vitals
+✅ POST /api/v1/vitals/me         - Patient logs own vitals
+✅ GET  /api/v1/appointments      - List appointments (auto-filtered by role)
+✅ POST /api/v1/appointments      - Create appointment
+✅ POST /api/v1/appointments/{id}/checkin  - Check in patient
+✅ POST /api/v1/appointments/{id}/checkout - Check out patient
+✅ GET  /api/v1/symptoms          - List symptoms
+✅ POST /api/v1/symptoms          - Log symptoms
+✅ GET  /api/v1/symptoms/me       - Patient's own symptoms
+✅ POST /api/v1/symptoms/me       - Patient logs own symptoms
 ```
 
-## Mobile App
+## Mobile App Services
+
+```
+✅ authService        - Login, register, logout, token management
+✅ patientService     - Patient profile CRUD
+✅ vitalsService      - Vitals logging and history
+✅ appointmentsService - Appointment management
+✅ symptomsService    - Symptom diary
+✅ doctorService      - Doctor dashboard APIs
+✅ nurseService       - Nurse dashboard APIs
+✅ aiService          - AI chat assistant integration
+```
+
+## Mobile App Screens
 
 ```
 ✅ Authentication flow (login/register/logout)
@@ -240,34 +271,45 @@
 
 # 📱 MOBILE APP SCREENS STATUS
 
-## Patient Portal (5 screens)
+## Patient Portal (6 screens)
 
 | Screen | UI Complete | API Connected | Status |
 |--------|-------------|---------------|--------|
-| Home | ✅ | ❌ | Mock data |
-| Schedule | ✅ | ❌ | Mock data |
-| Vitals | ✅ | ❌ | Mock data |
-| Chat | ✅ | ❌ | Need to connect AI |
+| Home | ✅ | ✅ | Working with real data |
+| Schedule | ✅ | ✅ | Working with real data |
+| Vitals | ✅ | ✅ | Working with real data |
+| Symptoms | ✅ | ✅ | Working with real data |
+| Chat | ✅ | ✅ | Working with Gemini AI |
 | Profile | ✅ | ✅ | Working |
 
 ## Doctor OPD Portal (5 screens)
 
 | Screen | UI Complete | API Connected | Status |
 |--------|-------------|---------------|--------|
-| Home | ✅ | ❌ | Mock data |
-| Patients | ✅ | ❌ | Mock data |
-| Protocols | ✅ | ❌ | Mock data |
-| Schedule | ✅ | ❌ | Mock data |
+| Home | ✅ | ✅ | Working with real stats |
+| Patients | ✅ | ✅ | Working with search |
+| Protocols | ✅ | ✅ | Protocol reference library |
+| Appointments | ✅ | ✅ | Working with filters |
 | Profile | ✅ | ✅ | Working |
 
 ## Doctor Day Care Portal (5 screens)
 
 | Screen | UI Complete | API Connected | Status |
 |--------|-------------|---------------|--------|
-| Home | ✅ | ❌ | Mock data |
-| Monitor | ✅ | ❌ | Mock data |
-| Patients | ✅ | ❌ | Mock data |
-| Protocols | ✅ | ❌ | Mock data |
+| Home | ✅ | ✅ | Working with real data |
+| Active | ✅ | ✅ | Real-time treatment monitoring |
+| AI | ✅ | ✅ | Clinical decision support |
+| Protocols | ✅ | ✅ | Protocol reference library |
+| Profile | ✅ | ✅ | Working |
+
+## Nurse Portal (5 screens)
+
+| Screen | UI Complete | API Connected | Status |
+|--------|-------------|---------------|--------|
+| Home | ✅ | ✅ | Working with real data |
+| Patients | ✅ | ✅ | Working with search |
+| Vitals | ✅ | ✅ | Full vitals recording |
+| Medications | ✅ | ⏳ | UI complete, needs treatment API |
 | Profile | ✅ | ✅ | Working |
 
 ## Nurse Portal (5 screens)

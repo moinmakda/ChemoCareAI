@@ -110,6 +110,41 @@ async def create_protocol(
 
 
 # Treatment Plans
+@router.get("/treatment-plans", response_model=List[TreatmentPlanResponse])
+async def list_treatment_plans(
+    patient_id: Optional[UUID] = None,
+    status: Optional[PlanStatus] = None,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(50, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """List treatment plans. Patients can only see their own plans."""
+    from app.models import UserRole
+    
+    query = select(TreatmentPlan)
+    
+    # If patient, only show their own plans
+    if current_user.role == UserRole.PATIENT:
+        result = await db.execute(select(Patient).where(Patient.user_id == current_user.id))
+        patient = result.scalar_one_or_none()
+        if patient:
+            query = query.where(TreatmentPlan.patient_id == patient.id)
+        else:
+            return []  # No patient profile yet
+    elif patient_id:
+        query = query.where(TreatmentPlan.patient_id == patient_id)
+    
+    if status:
+        query = query.where(TreatmentPlan.status == status)
+    
+    query = query.offset(skip).limit(limit)
+    result = await db.execute(query)
+    plans = result.scalars().all()
+    
+    return plans
+
+
 @router.post("/treatment-plans", response_model=TreatmentPlanResponse, status_code=status.HTTP_201_CREATED)
 async def create_treatment_plan(
     plan_data: TreatmentPlanCreate,

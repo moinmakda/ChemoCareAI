@@ -1,7 +1,7 @@
 /**
- * Patient Chat Screen - Communication with care team
+ * Patient Chat Screen - AI-powered communication assistant
  */
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -13,72 +13,57 @@ import {
   Platform,
   ViewStyle,
   TextStyle,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, spacing, borderRadius } from '../../src/constants/theme';
-import { Header, Avatar } from '../../src/components';
+import { Header, Avatar, Badge } from '../../src/components';
+import { aiService, ChatMessage, ChatResponse } from '../../src/services/aiService';
 
-interface Message {
+interface DisplayMessage {
   id: string;
   text: string;
-  sender: 'user' | 'care_team';
-  senderName?: string;
+  sender: 'user' | 'assistant';
   timestamp: string;
-  read: boolean;
+  isUrgent?: boolean;
+  shouldContactCareTeam?: boolean;
+  suggestedActions?: string[];
 }
 
 export default function PatientChatScreen() {
   const insets = useSafeAreaInsets();
   const flatListRef = useRef<FlatList>(null);
   const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  // Mock messages
-  const [messages, setMessages] = useState<Message[]>([
+  // Messages with initial welcome message
+  const [messages, setMessages] = useState<DisplayMessage[]>([
     {
-      id: '1',
-      text: 'Hello! How are you feeling after your last treatment session?',
-      sender: 'care_team',
-      senderName: 'Nurse Sarah',
-      timestamp: '10:30 AM',
-      read: true,
-    },
-    {
-      id: '2',
-      text: "I'm feeling much better today, thank you. The nausea has mostly subsided.",
-      sender: 'user',
-      timestamp: '10:35 AM',
-      read: true,
-    },
-    {
-      id: '3',
-      text: "That's great to hear! Remember to stay hydrated and take your anti-nausea medication as prescribed. Let us know if you experience any new symptoms.",
-      sender: 'care_team',
-      senderName: 'Nurse Sarah',
-      timestamp: '10:38 AM',
-      read: true,
-    },
-    {
-      id: '4',
-      text: 'I will. When should I expect results from my blood work?',
-      sender: 'user',
-      timestamp: '11:00 AM',
-      read: true,
-    },
-    {
-      id: '5',
-      text: 'Your blood work results should be available by tomorrow afternoon. Dr. Johnson will review them and reach out if there are any concerns. You can also view them in your patient portal once available.',
-      sender: 'care_team',
-      senderName: 'Nurse Sarah',
-      timestamp: '11:05 AM',
-      read: true,
+      id: '0',
+      text: "Hello! I'm your ChemoCare AI assistant. I'm here to help answer your questions about your treatment, side effects, and general care. How are you feeling today?",
+      sender: 'assistant',
+      timestamp: new Date().toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+      }),
+      isUrgent: false,
     },
   ]);
 
-  const handleSend = () => {
-    if (!message.trim()) return;
+  // Convert messages to API format
+  const getConversationHistory = useCallback((): ChatMessage[] => {
+    return messages.map(msg => ({
+      role: msg.sender === 'user' ? 'user' : 'assistant',
+      content: msg.text,
+    }));
+  }, [messages]);
 
-    const newMessage: Message = {
+  const handleSend = async () => {
+    if (!message.trim() || loading) return;
+
+    const userMessage: DisplayMessage = {
       id: Date.now().toString(),
       text: message.trim(),
       sender: 'user',
@@ -86,61 +71,125 @@ export default function PatientChatScreen() {
         hour: 'numeric',
         minute: '2-digit',
       }),
-      read: false,
     };
 
-    setMessages([...messages, newMessage]);
+    setMessages(prev => [...prev, userMessage]);
     setMessage('');
+    setLoading(true);
 
     // Scroll to bottom
     setTimeout(() => {
       flatListRef.current?.scrollToEnd();
     }, 100);
+
+    try {
+      const response = await aiService.chat({
+        message: userMessage.text,
+        conversation_history: getConversationHistory(),
+      });
+
+      const assistantMessage: DisplayMessage = {
+        id: (Date.now() + 1).toString(),
+        text: response.message,
+        sender: 'assistant',
+        timestamp: new Date().toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+        }),
+        isUrgent: response.is_urgent,
+        shouldContactCareTeam: response.should_contact_care_team,
+        suggestedActions: response.suggested_actions,
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+
+      // Show alert if urgent
+      if (response.is_urgent) {
+        Alert.alert(
+          '⚠️ Important Notice',
+          'Based on what you shared, I recommend contacting your care team promptly.',
+          [
+            { text: 'Call Care Team', onPress: () => {} },
+            { text: 'Continue Chat', style: 'cancel' },
+          ]
+        );
+      }
+    } catch (error) {
+      console.error('Chat error:', error);
+      // Add fallback message
+      const fallbackMessage: DisplayMessage = {
+        id: (Date.now() + 1).toString(),
+        text: "I'm sorry, I'm having trouble connecting right now. For any urgent concerns, please contact your care team directly. Is there anything else I can try to help with?",
+        sender: 'assistant',
+        timestamp: new Date().toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit',
+        }),
+      };
+      setMessages(prev => [...prev, fallbackMessage]);
+    } finally {
+      setLoading(false);
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd();
+      }, 100);
+    }
   };
 
-  const renderMessage = ({ item }: { item: Message }) => {
+  const renderMessage = ({ item }: { item: DisplayMessage }) => {
     const isUser = item.sender === 'user';
 
     return (
-      <View
-        style={[
-          styles.messageContainer,
-          isUser ? styles.userMessageContainer : styles.careTeamMessageContainer,
-        ]}
-      >
-        {!isUser && (
-          <Avatar name={item.senderName} size="small" style={styles.avatar} />
-        )}
+      <View>
         <View
           style={[
-            styles.messageBubble,
-            isUser ? styles.userBubble : styles.careTeamBubble,
+            styles.messageContainer,
+            isUser ? styles.userMessageContainer : styles.careTeamMessageContainer,
           ]}
         >
-          {!isUser && item.senderName && (
-            <Text style={styles.senderName}>{item.senderName}</Text>
+          {!isUser && (
+            <View style={styles.aiAvatarContainer}>
+              <Ionicons name="sparkles" size={20} color={colors.primary[500]} />
+            </View>
           )}
-          <Text
-            style={[styles.messageText, isUser && styles.userMessageText]}
+          <View
+            style={[
+              styles.messageBubble,
+              isUser ? styles.userBubble : styles.careTeamBubble,
+              item.isUrgent && styles.urgentBubble,
+            ]}
           >
-            {item.text}
-          </Text>
-          <View style={styles.timestampRow}>
-            <Text
-              style={[styles.timestamp, isUser && styles.userTimestamp]}
-            >
-              {item.timestamp}
-            </Text>
-            {isUser && (
-              <Ionicons
-                name={item.read ? 'checkmark-done' : 'checkmark'}
-                size={14}
-                color={item.read ? colors.info : colors.neutral[0]}
-                style={styles.readIcon}
-              />
+            {!isUser && (
+              <View style={styles.senderRow}>
+                <Text style={styles.senderName}>ChemoCare AI</Text>
+                {item.isUrgent && <Badge label="Urgent" variant="error" size="small" />}
+              </View>
             )}
+            <Text
+              style={[styles.messageText, isUser && styles.userMessageText]}
+            >
+              {item.text}
+            </Text>
+            <View style={styles.timestampRow}>
+              <Text
+                style={[styles.timestamp, isUser && styles.userTimestamp]}
+              >
+                {item.timestamp}
+              </Text>
+            </View>
           </View>
         </View>
+        
+        {/* Suggested Actions */}
+        {item.suggestedActions && item.suggestedActions.length > 0 && (
+          <View style={styles.suggestedActions}>
+            {item.suggestedActions.slice(0, 2).map((action, idx) => (
+              <TouchableOpacity key={idx} style={styles.suggestedAction}>
+                <Ionicons name="arrow-forward-circle-outline" size={16} color={colors.primary[500]} />
+                <Text style={styles.suggestedActionText} numberOfLines={1}>{action}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
       </View>
     );
   };
@@ -152,15 +201,15 @@ export default function PatientChatScreen() {
       keyboardVerticalOffset={0}
     >
       <Header
-        title="Care Team"
+        title="AI Assistant"
         showBackButton
       />
 
-      {/* Care Team Info Banner */}
+      {/* Info Banner */}
       <View style={styles.infoBanner}>
-        <Ionicons name="information-circle-outline" size={18} color={colors.info} />
+        <Ionicons name="sparkles" size={18} color={colors.primary[500]} />
         <Text style={styles.infoBannerText}>
-          For emergencies, please call the emergency hotline or visit the nearest ER.
+          AI-powered assistant. For emergencies, call your care team directly.
         </Text>
       </View>
 
@@ -174,33 +223,41 @@ export default function PatientChatScreen() {
         showsVerticalScrollIndicator={false}
       />
 
+      {/* Typing indicator */}
+      {loading && (
+        <View style={styles.typingIndicator}>
+          <View style={styles.aiAvatarContainerSmall}>
+            <Ionicons name="sparkles" size={14} color={colors.primary[500]} />
+          </View>
+          <Text style={styles.typingText}>ChemoCare AI is typing...</Text>
+          <ActivityIndicator size="small" color={colors.primary[500]} />
+        </View>
+      )}
+
       {/* Input Area */}
       <View style={[styles.inputContainer, { paddingBottom: insets.bottom || spacing.md }]}>
-        <TouchableOpacity style={styles.attachButton}>
-          <Ionicons name="attach" size={24} color={colors.text.secondary} />
-        </TouchableOpacity>
-
         <View style={styles.inputWrapper}>
           <TextInput
             style={styles.input}
-            placeholder="Type your message..."
+            placeholder="Ask about your treatment..."
             placeholderTextColor={colors.text.tertiary}
             value={message}
             onChangeText={setMessage}
             multiline
             maxLength={1000}
+            editable={!loading}
           />
         </View>
 
         <TouchableOpacity
-          style={[styles.sendButton, !message.trim() && styles.sendButtonDisabled]}
+          style={[styles.sendButton, (!message.trim() || loading) && styles.sendButtonDisabled]}
           onPress={handleSend}
-          disabled={!message.trim()}
+          disabled={!message.trim() || loading}
         >
           <Ionicons
             name="send"
             size={20}
-            color={message.trim() ? colors.neutral[0] : colors.text.tertiary}
+            color={message.trim() && !loading ? colors.neutral[0] : colors.text.tertiary}
           />
         </TouchableOpacity>
       </View>
@@ -216,7 +273,7 @@ const styles = StyleSheet.create({
   infoBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.infoLight,
+    backgroundColor: colors.primary[50],
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
     gap: spacing.xs,
@@ -225,7 +282,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontWeight: '400',
     fontSize: 11,
-    color: colors.info,
+    color: colors.primary[600],
   },
   messagesList: {
     paddingHorizontal: spacing.lg,
@@ -242,9 +299,23 @@ const styles = StyleSheet.create({
   careTeamMessageContainer: {
     alignSelf: 'flex-start',
   },
-  avatar: {
+  aiAvatarContainer: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.primary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: spacing.xs,
     marginTop: spacing.xs,
+  } as ViewStyle,
+  aiAvatarContainerSmall: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.primary[50],
+    alignItems: 'center',
+    justifyContent: 'center',
   } as ViewStyle,
   messageBubble: {
     padding: spacing.md,
@@ -258,12 +329,23 @@ const styles = StyleSheet.create({
   careTeamBubble: {
     backgroundColor: colors.neutral[0],
     borderBottomLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: colors.border.light,
+  },
+  urgentBubble: {
+    borderColor: colors.error,
+    borderWidth: 2,
+  },
+  senderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: 4,
   },
   senderName: {
     fontWeight: '600',
     fontSize: 11,
     color: colors.primary[500],
-    marginBottom: 2,
   },
   messageText: {
     fontWeight: '400',
@@ -288,8 +370,39 @@ const styles = StyleSheet.create({
   userTimestamp: {
     color: 'rgba(255, 255, 255, 0.7)',
   },
-  readIcon: {
-    marginLeft: 4,
+  suggestedActions: {
+    marginLeft: 40,
+    marginTop: -4,
+    marginBottom: spacing.md,
+    gap: spacing.xs,
+  },
+  suggestedAction: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.primary[50],
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: borderRadius.md,
+    gap: spacing.xs,
+    alignSelf: 'flex-start',
+  },
+  suggestedActionText: {
+    fontWeight: '500',
+    fontSize: 12,
+    color: colors.primary[600],
+  },
+  typingIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    gap: spacing.sm,
+  },
+  typingText: {
+    fontWeight: '400',
+    fontSize: 12,
+    color: colors.text.secondary,
+    fontStyle: 'italic',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -300,16 +413,13 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border.light,
   },
-  attachButton: {
-    padding: spacing.sm,
-  },
   inputWrapper: {
     flex: 1,
     backgroundColor: colors.background.secondary,
     borderRadius: borderRadius.lg,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
-    marginHorizontal: spacing.xs,
+    marginRight: spacing.xs,
     maxHeight: 120,
   },
   input: {

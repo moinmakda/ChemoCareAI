@@ -11,6 +11,7 @@ import {
   Platform,
   TouchableOpacity,
   TextStyle,
+  Image,
 } from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -58,8 +59,12 @@ export default function LoginScreen() {
         {/* Logo & Welcome */}
         <View style={styles.header}>
           <View style={styles.logoContainer}>
-            <Text style={styles.logoText}>ChemoCare</Text>
-            <Text style={styles.logoSubtext}>AI</Text>
+            <Image 
+              source={require('../../assets/logo.png')} 
+              style={styles.logoImage}
+              resizeMode="contain"
+            />
+            <Text style={styles.logoText}>ChemoCare AI</Text>
           </View>
           <Text style={styles.welcomeText}>Welcome Back</Text>
           <Text style={styles.subtitleText}>Sign in to continue your care journey</Text>
@@ -175,19 +180,18 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     marginBottom: spacing.lg,
   },
-  logoText: {
-    fontSize: 36,
-    fontWeight: typography.largeTitle.fontWeight as TextStyle['fontWeight'],
-    color: colors.primary[500],
+  logoImage: {
+    width: 60,
+    height: 60,
+    marginRight: spacing.sm,
   },
-  logoSubtext: {
-    fontSize: 24,
-    fontWeight: '300',
-    color: colors.primary[300],
-    marginLeft: 4,
+  logoText: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: colors.primary[500],
   },
   welcomeText: {
     fontSize: typography.title1.fontSize,

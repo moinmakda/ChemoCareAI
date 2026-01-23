@@ -52,9 +52,11 @@ export const usePatientStore = create<PatientState>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const patient = await patientService.getMyProfile();
-      set({ currentPatient: patient, isLoading: false });
+      set({ currentPatient: patient, isLoading: false, error: null });
     } catch (error: any) {
-      set({ error: error.message, isLoading: false });
+      const errorMsg = error.response?.data?.detail || error.message || 'Failed to load patient profile';
+      set({ error: errorMsg, isLoading: false, currentPatient: null });
+      throw error;
     }
   },
 

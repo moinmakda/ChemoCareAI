@@ -9,16 +9,19 @@ export const authService = {
    * Login with email and password
    */
   async login(credentials: LoginCredentials): Promise<TokenResponse> {
+    // Clear any old tokens first
+    await clearAuthTokens();
+    
     const response = await apiClient.post('/auth/login', credentials);
     const tokens = response.data;
     
-    await setAuthTokens(tokens.access_token, tokens.refresh_token);
+    await setAuthTokens(tokens.accessToken, tokens.refreshToken);
     
     return {
-      accessToken: tokens.access_token,
-      refreshToken: tokens.refresh_token,
-      tokenType: tokens.token_type,
-      expiresIn: tokens.expires_in,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      tokenType: tokens.tokenType,
+      expiresIn: tokens.expiresIn,
     };
   },
 

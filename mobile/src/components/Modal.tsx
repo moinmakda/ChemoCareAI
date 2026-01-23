@@ -47,15 +47,15 @@ export const Modal: React.FC<ModalProps> = ({
   const getModalHeight = (): ViewStyle['maxHeight'] => {
     switch (size) {
       case 'small':
-        return '40%';
+        return '50%';
       case 'medium':
-        return '60%';
+        return '75%';
       case 'large':
-        return '80%';
+        return '90%';
       case 'fullscreen':
         return '100%';
       default:
-        return '60%';
+        return '75%';
     }
   };
 
@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: spacing.lg,
+    flex: 1,
   },
 });
 

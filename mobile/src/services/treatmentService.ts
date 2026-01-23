@@ -12,7 +12,7 @@ import type {
 export const treatmentService = {
   // Protocol Templates
   async listProtocols(cancerType?: string): Promise<ProtocolTemplate[]> {
-    const response = await apiClient.get('/protocols', { params: { cancer_type: cancerType } });
+    const response = await apiClient.get('/protocols/', { params: { cancer_type: cancerType } });
     return response.data;
   },
 

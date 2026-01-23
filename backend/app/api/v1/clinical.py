@@ -5,6 +5,7 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import date, datetime
 from fastapi import APIRouter, Depends, HTTPException, status, Query
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 
@@ -40,7 +41,7 @@ async def create_vital(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(allow_nurses),
 ):
-    """Record patient vitals."""
+    """Record patient vitals (nurses only)."""
     from app.models import Nurse
     
     # Get nurse ID
@@ -70,6 +71,107 @@ async def create_vital(
     await db.refresh(vital)
     
     return vital
+
+
+# Schema for patient self-logging (without patient_id)
+class PatientVitalCreate(BaseModel):
+    """Schema for patients logging their own vitals."""
+    temperature_f: Optional[float] = None
+    pulse_bpm: Optional[int] = None
+    blood_pressure_systolic: Optional[int] = None
+    blood_pressure_diastolic: Optional[int] = None
+    respiratory_rate: Optional[int] = None
+    oxygen_saturation: Optional[int] = None
+    pain_score: Optional[int] = Field(None, ge=0, le=10)
+    pain_location: Optional[str] = None
+    blood_sugar: Optional[float] = None
+    weight_kg: Optional[float] = None
+    notes: Optional[str] = None
+
+
+@router.post("/vitals/me", response_model=VitalResponse, status_code=status.HTTP_201_CREATED)
+async def log_my_vitals(
+    vital_data: PatientVitalCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Log vitals for the current patient (patient self-logging)."""
+    if current_user.role != UserRole.PATIENT:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only patients can use this endpoint",
+        )
+    
+    # Get patient ID
+    result = await db.execute(select(Patient).where(Patient.user_id == current_user.id))
+    patient = result.scalar_one_or_none()
+    
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Patient profile not found",
+        )
+    
+    vital = Vital(
+        patient_id=patient.id,
+        **vital_data.model_dump(),
+        timing="self_reported",
+    )
+    
+    # AI analysis for alerts
+    alerts = []
+    if vital_data.temperature_f and vital_data.temperature_f > 100.4:
+        alerts.append({"type": "fever", "message": "Fever detected - please contact your care team", "severity": "warning"})
+    if vital_data.blood_pressure_systolic and vital_data.blood_pressure_systolic > 140:
+        alerts.append({"type": "bp_high", "message": "Elevated blood pressure", "severity": "warning"})
+    if vital_data.oxygen_saturation and vital_data.oxygen_saturation < 95:
+        alerts.append({"type": "low_spo2", "message": "Low oxygen - seek immediate medical attention", "severity": "critical"})
+    if vital_data.pulse_bpm and (vital_data.pulse_bpm > 100 or vital_data.pulse_bpm < 60):
+        alerts.append({"type": "abnormal_hr", "message": "Abnormal heart rate", "severity": "warning"})
+    if vital_data.temperature_f and vital_data.temperature_f > 101.3:
+        alerts.append({"type": "high_fever", "message": "High fever - seek immediate medical attention", "severity": "critical"})
+    
+    vital.ai_alerts = alerts
+    
+    db.add(vital)
+    await db.commit()
+    await db.refresh(vital)
+    
+    return vital
+
+
+@router.get("/vitals/me", response_model=List[VitalResponse])
+async def get_my_vitals(
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get vitals history for the current patient."""
+    if current_user.role != UserRole.PATIENT:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only patients can use this endpoint",
+        )
+    
+    # Get patient
+    result = await db.execute(select(Patient).where(Patient.user_id == current_user.id))
+    patient = result.scalar_one_or_none()
+    
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Patient profile not found",
+        )
+    
+    result = await db.execute(
+        select(Vital)
+        .where(Vital.patient_id == patient.id)
+        .order_by(Vital.recorded_at.desc())
+        .limit(limit)
+    )
+    vitals = result.scalars().all()
+    
+    return vitals
 
 
 @router.get("/vitals/{patient_id}", response_model=List[VitalResponse])
@@ -435,6 +537,145 @@ async def get_symptom_entries(
     result = await db.execute(
         select(SymptomEntry)
         .where(SymptomEntry.patient_id == patient_id)
+        .order_by(SymptomEntry.recorded_at.desc())
+        .limit(limit)
+    )
+    entries = result.scalars().all()
+    
+    return entries
+
+
+# Patient self-service symptom endpoints
+class PatientSymptomCreate(BaseModel):
+    """Schema for patient self-logging symptoms"""
+    cycle_id: Optional[UUID] = None
+    nausea_score: Optional[int] = Field(None, ge=0, le=10)
+    vomiting_count: Optional[int] = Field(None, ge=0)
+    fatigue_score: Optional[int] = Field(None, ge=0, le=10)
+    appetite_score: Optional[int] = Field(None, ge=0, le=10)
+    pain_score: Optional[int] = Field(None, ge=0, le=10)
+    has_fever: Optional[bool] = None
+    has_mouth_sores: Optional[bool] = None
+    has_diarrhea: Optional[bool] = None
+    has_constipation: Optional[bool] = None
+    has_numbness: Optional[bool] = None
+    has_hair_loss: Optional[bool] = None
+    has_skin_changes: Optional[bool] = None
+    other_symptoms: Optional[str] = None
+    mood_notes: Optional[str] = None
+
+
+@router.post("/symptoms/me", response_model=SymptomEntryResponse, status_code=status.HTTP_201_CREATED)
+async def log_my_symptoms(
+    symptom_data: PatientSymptomCreate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Log symptoms for the current patient (patient self-logging)."""
+    if current_user.role != UserRole.PATIENT:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only patients can use this endpoint",
+        )
+    
+    # Get patient ID
+    result = await db.execute(select(Patient).where(Patient.user_id == current_user.id))
+    patient = result.scalar_one_or_none()
+    
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Patient profile not found",
+        )
+    
+    symptom_entry = SymptomEntry(
+        patient_id=patient.id,
+        **symptom_data.model_dump(),
+    )
+    
+    # AI severity calculation
+    severity_scores = []
+    if symptom_data.nausea_score:
+        severity_scores.append(symptom_data.nausea_score / 10)
+    if symptom_data.fatigue_score:
+        severity_scores.append(symptom_data.fatigue_score / 10)
+    if symptom_data.pain_score:
+        severity_scores.append(symptom_data.pain_score / 10)
+    if symptom_data.appetite_score:
+        # Invert appetite (0 = severe, 10 = good)
+        severity_scores.append((10 - symptom_data.appetite_score) / 10)
+    
+    # Count boolean symptoms
+    boolean_symptoms = [
+        symptom_data.has_fever,
+        symptom_data.has_mouth_sores,
+        symptom_data.has_diarrhea,
+        symptom_data.has_constipation,
+        symptom_data.has_numbness,
+        symptom_data.has_hair_loss,
+        symptom_data.has_skin_changes,
+    ]
+    active_booleans = sum(1 for s in boolean_symptoms if s)
+    
+    if severity_scores:
+        avg_severity = sum(severity_scores) / len(severity_scores)
+        symptom_entry.ai_severity_score = round(avg_severity, 2)
+        
+        # Determine alert level
+        if avg_severity > 0.7 or symptom_data.has_fever or (symptom_data.pain_score and symptom_data.pain_score >= 8):
+            symptom_entry.ai_alert_level = "urgent"
+            symptom_entry.ai_recommendations = "Your symptoms are concerning. Please contact your care team immediately or visit the emergency room if symptoms are severe."
+        elif avg_severity > 0.4 or active_booleans >= 3:
+            symptom_entry.ai_alert_level = "monitor"
+            symptom_entry.ai_recommendations = "Monitor your symptoms closely. Stay hydrated, rest, and contact your care team if symptoms worsen or persist."
+        else:
+            symptom_entry.ai_alert_level = "normal"
+            symptom_entry.ai_recommendations = "Your symptoms appear manageable. Continue with prescribed medications, rest well, and maintain good nutrition."
+    else:
+        # Just boolean symptoms
+        if symptom_data.has_fever:
+            symptom_entry.ai_alert_level = "urgent"
+            symptom_entry.ai_recommendations = "Fever detected. Please contact your care team immediately."
+        elif active_booleans >= 3:
+            symptom_entry.ai_alert_level = "monitor"
+            symptom_entry.ai_recommendations = "Multiple symptoms noted. Monitor closely and contact care team if symptoms worsen."
+        else:
+            symptom_entry.ai_alert_level = "normal"
+            symptom_entry.ai_recommendations = "Symptoms noted. Continue with your care plan and report any changes."
+    
+    db.add(symptom_entry)
+    await db.commit()
+    await db.refresh(symptom_entry)
+    
+    return symptom_entry
+
+
+@router.get("/symptoms/me", response_model=List[SymptomEntryResponse])
+async def get_my_symptoms(
+    limit: int = Query(30, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Get symptom diary entries for the current patient."""
+    if current_user.role != UserRole.PATIENT:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only patients can use this endpoint",
+        )
+    
+    # Get patient
+    result = await db.execute(select(Patient).where(Patient.user_id == current_user.id))
+    patient = result.scalar_one_or_none()
+    
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Patient profile not found",
+        )
+    
+    result = await db.execute(
+        select(SymptomEntry)
+        .where(SymptomEntry.patient_id == patient.id)
         .order_by(SymptomEntry.recorded_at.desc())
         .limit(limit)
     )

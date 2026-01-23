@@ -1,13 +1,15 @@
 /**
  * Doctor OPD Home - Dashboard with patient overview
  */
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,30 +17,101 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { Card, Avatar, Badge, Button } from '../../src/components';
 import { useAuthStore } from '../../src/store/authStore';
+import { doctorService, PatientSummaryAPI, AppointmentAPI, DashboardStats } from '../../src/services/doctorService';
+
+interface AppointmentWithPatient extends AppointmentAPI {
+  patientName?: string;
+}
 
 export default function DoctorOPDHomeScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user } = useAuthStore();
 
-  // Mock data
-  const stats = [
-    { label: 'Today\'s Patients', value: 12, icon: 'people', color: Colors.primary },
-    { label: 'Pending Reviews', value: 5, icon: 'clipboard', color: Colors.warning },
-    { label: 'Active Protocols', value: 28, icon: 'document-text', color: Colors.success },
-    { label: 'Day Care Referrals', value: 3, icon: 'arrow-forward-circle', color: Colors.info },
-  ];
+  // State
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalPatients: 0,
+    todayAppointments: 0,
+    activeTreatments: 0,
+    pendingAlerts: 0,
+  });
+  const [upcomingAppointments, setUpcomingAppointments] = useState<AppointmentWithPatient[]>([]);
+  const [patients, setPatients] = useState<Record<string, PatientSummaryAPI>>({});
 
-  const upcomingAppointments = [
-    { id: '1', name: 'John Smith', time: '9:00 AM', type: 'Follow-up', avatar: null },
-    { id: '2', name: 'Maria Garcia', time: '9:30 AM', type: 'Initial Consultation', avatar: null },
-    { id: '3', name: 'Robert Johnson', time: '10:00 AM', type: 'Protocol Review', avatar: null },
-  ];
+  // Fetch data
+  const fetchData = useCallback(async () => {
+    try {
+      const [statsData, appointmentsData, patientsData] = await Promise.all([
+        doctorService.getDashboardStats(),
+        doctorService.getTodayAppointments(),
+        doctorService.getPatients({ limit: 100 }),
+      ]);
 
-  const pendingActions = [
-    { id: '1', title: 'Review lab results for Sarah Wilson', priority: 'high', type: 'lab' },
-    { id: '2', title: 'Approve treatment plan for Michael Brown', priority: 'medium', type: 'treatment' },
-    { id: '3', title: 'Sign off on cycle completion for James Lee', priority: 'low', type: 'cycle' },
+      setStats(statsData);
+
+      // Create patient lookup map
+      const patientMap: Record<string, PatientSummaryAPI> = {};
+      patientsData.forEach(p => {
+        patientMap[p.id] = p;
+      });
+      setPatients(patientMap);
+
+      // Add patient names to appointments
+      const appointmentsWithNames = appointmentsData.map(apt => ({
+        ...apt,
+        patientName: patientMap[apt.patientId]
+          ? `${patientMap[apt.patientId].firstName} ${patientMap[apt.patientId].lastName}`
+          : 'Unknown Patient',
+      }));
+
+      // Sort by scheduled time and take first 5
+      appointmentsWithNames.sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
+      setUpcomingAppointments(appointmentsWithNames.slice(0, 5));
+    } catch (error) {
+      console.error('Error fetching OPD dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  }, [fetchData]);
+
+  // Format time from 24h to 12h format
+  const formatTime = (time: string) => {
+    const [hours, minutes] = time.split(':');
+    const h = parseInt(hours);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    const hour12 = h % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
+
+  // Get appointment type display name
+  const getAppointmentTypeLabel = (type: string) => {
+    switch (type) {
+      case 'opd_consultation': return 'OPD Consultation';
+      case 'follow_up': return 'Follow-up';
+      case 'chemotherapy': return 'Chemotherapy';
+      case 'lab_work': return 'Lab Work';
+      default: return type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+  };
+
+  // Stats display config
+  const statsDisplay = [
+    { label: 'Total Patients', value: stats.totalPatients, icon: 'people', color: Colors.primary },
+    { label: 'Today\'s Appointments', value: stats.todayAppointments, icon: 'calendar', color: Colors.warning },
+    { label: 'Active Treatments', value: stats.activeTreatments, icon: 'medical', color: Colors.success },
+    { label: 'Pending Alerts', value: stats.pendingAlerts, icon: 'alert-circle', color: Colors.error },
   ];
 
   const getPriorityColor = (priority: string) => {
@@ -50,13 +123,22 @@ export default function DoctorOPDHomeScreen() {
     }
   };
 
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.centerContent, { paddingTop: insets.top }]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+        <Text style={styles.loadingText}>Loading dashboard...</Text>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       {/* Header */}
       <View style={styles.header}>
         <View>
           <Text style={styles.greeting}>Welcome back,</Text>
-          <Text style={styles.userName}>Dr. {user?.full_name?.split(' ')[1] || 'Doctor'}</Text>
+          <Text style={styles.userName}>Dr. {user?.fullName?.split(' ')[1] || 'Doctor'}</Text>
         </View>
         <View style={styles.headerActions}>
           <TouchableOpacity style={styles.headerButton}>
@@ -64,7 +146,7 @@ export default function DoctorOPDHomeScreen() {
             <View style={styles.notificationBadge} />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => router.push('/(doctor-opd)/profile')}>
-            <Avatar source={user?.avatar ? { uri: user.avatar } : undefined} name={user?.full_name} size="medium" />
+            <Avatar source={user?.avatar ? { uri: user.avatar } : undefined} name={user?.fullName} size="medium" />
           </TouchableOpacity>
         </View>
       </View>
@@ -73,10 +155,13 @@ export default function DoctorOPDHomeScreen() {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[Colors.primary]} />
+        }
       >
         {/* Stats Grid */}
         <View style={styles.statsGrid}>
-          {stats.map((stat, index) => (
+          {statsDisplay.map((stat, index) => (
             <TouchableOpacity key={index} style={styles.statCard}>
               <View style={[styles.statIcon, { backgroundColor: `${stat.color}15` }]}>
                 <Ionicons name={stat.icon as any} size={24} color={stat.color} />
@@ -114,42 +199,26 @@ export default function DoctorOPDHomeScreen() {
             </TouchableOpacity>
           </View>
 
-          {upcomingAppointments.map((appointment) => (
-            <TouchableOpacity key={appointment.id} style={styles.appointmentItem}>
-              <Avatar name={appointment.name} size="small" />
-              <View style={styles.appointmentInfo}>
-                <Text style={styles.appointmentName}>{appointment.name}</Text>
-                <Text style={styles.appointmentType}>{appointment.type}</Text>
-              </View>
-              <View style={styles.appointmentTime}>
-                <Ionicons name="time-outline" size={14} color={Colors.textSecondary} />
-                <Text style={styles.timeText}>{appointment.time}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </Card>
-
-        {/* Pending Actions */}
-        <Card variant="default" padding="medium" style={styles.sectionCard}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Pending Actions</Text>
-            <Badge label={`${pendingActions.length}`} variant="warning" size="small" />
-          </View>
-
-          {pendingActions.map((action) => (
-            <TouchableOpacity key={action.id} style={styles.actionItem}>
-              <View style={[styles.priorityIndicator, { backgroundColor: getPriorityColor(action.priority) }]} />
-              <View style={styles.actionContent}>
-                <Text style={styles.actionTitle}>{action.title}</Text>
-                <Badge 
-                  label={action.priority.toUpperCase()} 
-                  variant={action.priority === 'high' ? 'error' : action.priority === 'medium' ? 'warning' : 'success'} 
-                  size="small" 
-                />
-              </View>
-              <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
-            </TouchableOpacity>
-          ))}
+          {upcomingAppointments.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="calendar-outline" size={32} color={Colors.textTertiary} />
+              <Text style={styles.emptyText}>No appointments today</Text>
+            </View>
+          ) : (
+            upcomingAppointments.map((appointment) => (
+              <TouchableOpacity key={appointment.id} style={styles.appointmentItem}>
+                <Avatar name={appointment.patientName || 'Unknown'} size="small" />
+                <View style={styles.appointmentInfo}>
+                  <Text style={styles.appointmentName}>{appointment.patientName}</Text>
+                  <Text style={styles.appointmentType}>{getAppointmentTypeLabel(appointment.appointmentType)}</Text>
+                </View>
+                <View style={styles.appointmentTime}>
+                  <Ionicons name="time-outline" size={14} color={Colors.textSecondary} />
+                  <Text style={styles.timeText}>{formatTime(appointment.scheduledTime)}</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
         </Card>
 
         {/* AI Insights */}
@@ -161,9 +230,9 @@ export default function DoctorOPDHomeScreen() {
             <Text style={styles.aiTitle}>AI Insights</Text>
           </View>
           <Text style={styles.aiText}>
-            2 patients may need protocol adjustments based on recent lab results. Tap to review AI recommendations.
+            AI-powered protocol recommendations and patient insights coming soon.
           </Text>
-          <Button title="Review Insights" variant="primary" size="small" onPress={() => {}} />
+          <Button title="View AI Chat" variant="primary" size="small" onPress={() => {}} />
         </Card>
       </ScrollView>
     </View>
@@ -363,5 +432,25 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginBottom: Spacing.md,
     lineHeight: 20,
+  },
+  centerContent: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    marginTop: Spacing.md,
+  },
+  emptyState: {
+    alignItems: 'center',
+    paddingVertical: Spacing.lg,
+  },
+  emptyText: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textTertiary,
+    marginTop: Spacing.sm,
   },
 });

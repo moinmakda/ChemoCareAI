@@ -41,7 +41,7 @@ class Settings(BaseSettings):
     S3_BUCKET_NAME: str = "chemocare-documents"
     
     # CORS - stored as string, parsed to list
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:8081"
+    CORS_ORIGINS: str = "*"  # Allow all origins in development
     
     # Push Notifications
     EXPO_PUSH_TOKEN: str = ""

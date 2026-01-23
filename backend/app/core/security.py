@@ -16,7 +16,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 class TokenPayload(BaseModel):
     """JWT token payload structure."""
     sub: str  # user_id
-    role: str  # user_role
+    role: Optional[str] = None  # user_role (only in access tokens)
     exp: datetime
     iat: datetime
     type: str = "access"  # access or refresh

@@ -74,7 +74,7 @@ export default function NurseProfileScreen() {
           <View style={styles.profileHeader}>
             <Avatar
               source={user?.avatar ? { uri: user.avatar } : undefined}
-              name={user?.full_name || 'Nurse'}
+              name={user?.fullName || 'Nurse'}
               size="xlarge"
             />
             <TouchableOpacity style={styles.editAvatarButton}>
@@ -82,7 +82,7 @@ export default function NurseProfileScreen() {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.profileName}>{user?.full_name || 'Nurse Name'}</Text>
+          <Text style={styles.profileName}>{user?.fullName || 'Nurse Name'}</Text>
           <Text style={styles.profileRole}>Oncology Nurse</Text>
           <Text style={styles.profileEmail}>{user?.email || 'email@example.com'}</Text>
 
