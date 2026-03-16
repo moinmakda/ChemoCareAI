@@ -65,13 +65,10 @@ export default function PatientSymptomsScreen() {
 
   const loadSymptoms = async () => {
     try {
-      const data = await symptomsService.getMySymptoms(20);
+      const data = await symptomsService.getSymptoms(undefined, 20);
       setSymptoms(data);
-    } catch (error: any) {
-      console.error('Error loading symptoms:', error);
-      if (error.response?.status !== 404) {
-        // Silent fail for symptoms
-      }
+    } catch {
+      // Silent fail — list stays empty
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +106,7 @@ export default function PatientSymptomsScreen() {
   const handleSaveSymptoms = async () => {
     setIsSaving(true);
     try {
-      const result = await symptomsService.logMySymptoms(formData);
+      const result = await symptomsService.logSymptoms(formData);
       
       // Show AI assessment
       if (result.aiAlertLevel === 'urgent') {
@@ -131,7 +128,6 @@ export default function PatientSymptomsScreen() {
       resetForm();
       await loadSymptoms();
     } catch (error: any) {
-      console.error('Error saving symptoms:', error);
       Alert.alert('Error', error.response?.data?.detail || 'Failed to save symptoms');
     } finally {
       setIsSaving(false);
@@ -329,6 +325,7 @@ export default function PatientSymptomsScreen() {
           resetForm();
         }}
         title="Log Symptoms"
+        size="large"
       >
         <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
           <Text style={styles.modalSubtitle}>
@@ -538,7 +535,8 @@ const styles = StyleSheet.create({
     color: colors.primary[700],
   },
   modalScroll: {
-    maxHeight: 500,
+    flex: 1,
+    paddingTop: spacing.sm,
   },
   modalSubtitle: {
     fontSize: typography.body.fontSize,

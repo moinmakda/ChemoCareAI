@@ -1,17 +1,24 @@
 /**
  * Symptoms Service - API calls for symptom tracking
+ *
+ * Single unified endpoint: POST /symptoms and GET /symptoms
+ * Backend is role-aware: patients auto-get their own data, staff supply patient_id.
  */
 import { apiClient } from './api';
 import type { SymptomEntry } from '../types';
 
+/**
+ * Fields sent to backend (snake_case — backend Pydantic models use snake_case).
+ * patient_id is omitted when a patient logs their own symptoms.
+ */
 export interface SymptomCreate {
   patient_id?: string;
   cycle_id?: string;
-  nausea_score?: number; // 0-10
+  nausea_score?: number;
   vomiting_count?: number;
-  fatigue_score?: number; // 0-10
-  appetite_score?: number; // 0-10
-  pain_score?: number; // 0-10
+  fatigue_score?: number;
+  appetite_score?: number;
+  pain_score?: number;
   has_fever?: boolean;
   has_mouth_sores?: boolean;
   has_diarrhea?: boolean;
@@ -25,52 +32,34 @@ export interface SymptomCreate {
 
 export const symptomsService = {
   /**
-   * Get symptom history for a patient (staff use)
+   * Get symptom history.
+   * - Patient: omit patientId — backend resolves from JWT token.
+   * - Staff: pass patientId to filter by patient.
    */
-  async getPatientSymptoms(patientId: string, limit: number = 20): Promise<SymptomEntry[]> {
-    const response = await apiClient.get(`/symptoms/${patientId}`, { params: { limit } });
+  async getSymptoms(patientId?: string, limit = 20): Promise<SymptomEntry[]> {
+    const params: Record<string, unknown> = { limit };
+    if (patientId) params.patient_id = patientId;
+    const response = await apiClient.get('/symptoms', { params });
     return response.data;
   },
 
   /**
-   * Log new symptoms (staff use)
+   * Log symptoms.
+   * - Patient: omit patient_id in data — backend resolves from JWT token.
+   * - Staff: include patient_id in data.
    */
   async logSymptoms(data: SymptomCreate): Promise<SymptomEntry> {
-    const response = await apiClient.post('/symptoms/', data);
+    const response = await apiClient.post('/symptoms', data);
     return response.data;
   },
 
   /**
-   * Get symptoms for a specific cycle
+   * Get the single most recent symptom entry.
+   * - Patient: omit patientId.
+   * - Staff: pass patientId.
    */
-  async getCycleSymptoms(cycleId: string): Promise<SymptomEntry[]> {
-    const response = await apiClient.get(`/symptoms/cycle/${cycleId}`);
-    return response.data;
-  },
-
-  /**
-   * Get latest symptom entry for a patient
-   */
-  async getLatestSymptoms(patientId: string): Promise<SymptomEntry | null> {
-    const symptoms = await this.getPatientSymptoms(patientId, 1);
+  async getLatestSymptom(patientId?: string): Promise<SymptomEntry | null> {
+    const symptoms = await this.getSymptoms(patientId, 1);
     return symptoms.length > 0 ? symptoms[0] : null;
-  },
-
-  // ============ Patient Self-Service Endpoints ============
-
-  /**
-   * Get my symptom history (for logged-in patient)
-   */
-  async getMySymptoms(limit: number = 20): Promise<SymptomEntry[]> {
-    const response = await apiClient.get('/symptoms/me', { params: { limit } });
-    return response.data;
-  },
-
-  /**
-   * Log my symptoms (patient self-logging)
-   */
-  async logMySymptoms(data: Partial<SymptomCreate>): Promise<SymptomEntry> {
-    const response = await apiClient.post('/symptoms/me', data);
-    return response.data;
   },
 };

@@ -15,6 +15,7 @@ import {
   TextInput,
   Modal,
   FlatList,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, Link } from 'expo-router';
@@ -55,17 +56,55 @@ export default function RegisterScreen() {
     phone: '',
     role: 'patient' as UserRole,
   });
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+
+  const validatePassword = (password: string): string[] => {
+    const errors: string[] = [];
+    if (password.length < 8) {
+      errors.push('At least 8 characters');
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push('One uppercase letter');
+    }
+    if (!/[a-z]/.test(password)) {
+      errors.push('One lowercase letter');
+    }
+    if (!/[0-9]/.test(password)) {
+      errors.push('One number');
+    }
+    return errors;
+  };
 
   const updateField = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (field === 'password') {
+      setPasswordErrors(validatePassword(value));
+    }
   };
 
   const handleNext = () => {
     if (step === 1) {
       if (!formData.email.trim() || !formData.password.trim() || !formData.confirmPassword.trim()) {
+        Alert.alert('Required', 'Please fill in all fields');
         return;
       }
+      
+      // Validate email format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        Alert.alert('Invalid Email', 'Please enter a valid email address');
+        return;
+      }
+      
+      // Check password strength
+      const errors = validatePassword(formData.password);
+      if (errors.length > 0) {
+        Alert.alert('Weak Password', 'Your password must have:\n• ' + errors.join('\n• '));
+        return;
+      }
+      
       if (formData.password !== formData.confirmPassword) {
+        Alert.alert('Password Mismatch', "Passwords don't match");
         return;
       }
       setStep(2);
@@ -154,7 +193,12 @@ export default function RegisterScreen() {
               onChangeText={(v: string) => updateField('password', v)}
               secureTextEntry
               leftIcon="lock-closed-outline"
-              helperText="Minimum 8 characters"
+              helperText={
+                formData.password && passwordErrors.length > 0
+                  ? `Need: ${passwordErrors.join(', ')}`
+                  : "Min 8 chars, uppercase, lowercase, number"
+              }
+              error={formData.password && passwordErrors.length > 0 ? ' ' : undefined}
               required
             />
 
@@ -179,6 +223,7 @@ export default function RegisterScreen() {
               disabled={
                 !formData.email.trim() ||
                 !formData.password.trim() ||
+                passwordErrors.length > 0 ||
                 formData.password !== formData.confirmPassword
               }
               fullWidth

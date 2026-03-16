@@ -1,7 +1,7 @@
 /**
  * Doctor Day Care Profile Screen - Account settings and information
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,17 +9,45 @@ import {
   ScrollView,
   TouchableOpacity,
   ViewStyle,
+  Alert,
+  Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, spacing, borderRadius } from '../../src/constants/theme';
 import { Card, Avatar, Header, Modal, Button } from '../../src/components';
 import { useAuthStore } from '../../src/store/authStore';
+import { doctorService } from '../../src/services/doctorService';
+
+const showComingSoon = (feature: string) => {
+  Alert.alert('Coming Soon', `${feature} will be available in a future update.`);
+};
 
 export default function DoctorDaycareProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [patientsToday, setPatientsToday] = useState<number | null>(null);
+  const [patientsMonth, setPatientsMonth] = useState<number | null>(null);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const [todayAppts, allAppts] = await Promise.all([
+          doctorService.getTodayAppointments(),
+          doctorService.getAppointments(),
+        ]);
+        setPatientsToday(todayAppts.length);
+        const thisMonth = new Date();
+        const monthStart = `${thisMonth.getFullYear()}-${String(thisMonth.getMonth() + 1).padStart(2, '0')}-01`;
+        const monthAppts = allAppts.filter(a => a.scheduledDate >= monthStart);
+        setPatientsMonth(monthAppts.length);
+      } catch {
+        // stats unavailable, leave as null
+      }
+    };
+    loadStats();
+  }, []);
 
   const handleLogout = async () => {
     setShowLogoutModal(false);
@@ -31,31 +59,31 @@ export default function DoctorDaycareProfileScreen() {
     {
       title: 'Account',
       items: [
-        { icon: 'person-outline', label: 'Personal Information', onPress: () => {} },
-        { icon: 'medical-outline', label: 'Medical License', onPress: () => {} },
-        { icon: 'calendar-outline', label: 'Schedule Settings', onPress: () => {} },
+        { icon: 'person-outline', label: 'Personal Information', onPress: () => showComingSoon('Personal Information') },
+        { icon: 'medical-outline', label: 'Medical License', onPress: () => showComingSoon('Medical License') },
+        { icon: 'calendar-outline', label: 'Schedule Settings', onPress: () => showComingSoon('Schedule Settings') },
       ],
     },
     {
       title: 'Day Care Settings',
       items: [
-        { icon: 'bed-outline', label: 'Chair Management', onPress: () => {} },
-        { icon: 'flask-outline', label: 'Protocol Templates', onPress: () => {} },
-        { icon: 'people-outline', label: 'Care Team', onPress: () => {} },
+        { icon: 'bed-outline', label: 'Chair Management', onPress: () => showComingSoon('Chair Management') },
+        { icon: 'flask-outline', label: 'Protocol Templates', onPress: () => router.push('/(doctor-daycare)/protocols') },
+        { icon: 'people-outline', label: 'Care Team', onPress: () => showComingSoon('Care Team') },
       ],
     },
     {
       title: 'Preferences',
       items: [
-        { icon: 'notifications-outline', label: 'Notifications', onPress: () => {} },
-        { icon: 'language-outline', label: 'Language', value: 'English', onPress: () => {} },
+        { icon: 'notifications-outline', label: 'Notifications', onPress: () => showComingSoon('Notification Settings') },
+        { icon: 'language-outline', label: 'Language', value: 'English', onPress: () => showComingSoon('Language Settings') },
       ],
     },
     {
       title: 'Support',
       items: [
-        { icon: 'help-circle-outline', label: 'Help Center', onPress: () => {} },
-        { icon: 'chatbubble-ellipses-outline', label: 'Contact Support', onPress: () => {} },
+        { icon: 'help-circle-outline', label: 'Help Center', onPress: () => showComingSoon('Help Center') },
+        { icon: 'chatbubble-ellipses-outline', label: 'Contact Support', onPress: () => Linking.openURL('tel:18002436226') },
       ],
     },
   ];
@@ -77,23 +105,23 @@ export default function DoctorDaycareProfileScreen() {
               name={user?.fullName || 'Doctor'}
               size="xlarge"
             />
-            <TouchableOpacity style={styles.editAvatarButton}>
+            <TouchableOpacity style={styles.editAvatarButton} onPress={() => showComingSoon('Photo Upload')}>
               <Ionicons name="camera" size={16} color={colors.neutral[0]} />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.profileName}>{user?.fullName || 'Doctor Name'}</Text>
+          <Text style={styles.profileName}>{user?.fullName || 'Loading...'}</Text>
           <Text style={styles.profileRole}>Day Care Oncologist</Text>
-          <Text style={styles.profileEmail}>{user?.email || 'email@example.com'}</Text>
+          <Text style={styles.profileEmail}>{user?.email || ''}</Text>
 
           <View style={styles.profileStats}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>24</Text>
+              <Text style={styles.statValue}>{patientsToday ?? '—'}</Text>
               <Text style={styles.statLabel}>Patients Today</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>156</Text>
+              <Text style={styles.statValue}>{patientsMonth ?? '—'}</Text>
               <Text style={styles.statLabel}>This Month</Text>
             </View>
           </View>

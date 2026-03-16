@@ -11,3 +11,12 @@ export { symptomsService } from './symptomsService';
 export { doctorService } from './doctorService';
 export { nurseService } from './nurseService';
 export { aiService } from './aiService';
+
+// Protocol workflow exports
+export * from './protocolService';
+
+// Scheduling exports
+export * from './schedulingService';
+
+// Push notifications exports
+export * from './pushNotificationService';

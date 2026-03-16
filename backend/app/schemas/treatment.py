@@ -3,7 +3,8 @@ Pydantic schemas for treatment plans and protocols.
 """
 from datetime import date, datetime
 from typing import Optional, List, Any, Dict
-from pydantic import BaseModel, Field
+from uuid import UUID
+from pydantic import BaseModel
 from app.models.treatment import PlanStatus, CycleStatus, AdminStatus
 
 
@@ -63,7 +64,7 @@ class ProtocolTemplateCreate(ProtocolTemplateBase):
 
 class ProtocolTemplateResponse(ProtocolTemplateBase):
     """Schema for protocol template response."""
-    id: str
+    id: UUID
     drugs: List[Dict[str, Any]]
     pre_medications: List[Dict[str, Any]]
     post_medications: List[Dict[str, Any]]
@@ -83,8 +84,8 @@ class ProtocolTemplateResponse(ProtocolTemplateBase):
 # Treatment Plan Schemas
 class TreatmentPlanCreate(BaseModel):
     """Schema for creating a treatment plan."""
-    patient_id: str
-    protocol_template_id: Optional[str] = None
+    patient_id: UUID
+    protocol_template_id: Optional[UUID] = None
     protocol_name: str
     custom_protocol: Dict[str, Any]
     start_date: Optional[date] = None
@@ -105,11 +106,11 @@ class TreatmentPlanUpdate(BaseModel):
 
 class TreatmentPlanResponse(BaseModel):
     """Schema for treatment plan response."""
-    id: str
-    patient_id: str
-    protocol_template_id: Optional[str] = None
+    id: UUID
+    patient_id: UUID
+    protocol_template_id: Optional[UUID] = None
     protocol_name: str
-    custom_protocol: Dict[str, Any]
+    custom_protocol: Optional[Dict[str, Any]] = None
     start_date: Optional[date] = None
     planned_cycles: int
     completed_cycles: int
@@ -117,11 +118,11 @@ class TreatmentPlanResponse(BaseModel):
     ai_recommendations: Optional[str] = None
     ai_risk_assessment: Optional[Dict[str, Any]] = None
     ai_confidence_score: Optional[float] = None
-    created_by_doctor_id: Optional[str] = None
-    opd_approved_by: Optional[str] = None
+    created_by_doctor_id: Optional[UUID] = None
+    opd_approved_by: Optional[UUID] = None
     opd_approved_at: Optional[datetime] = None
     opd_notes: Optional[str] = None
-    daycare_approved_by: Optional[str] = None
+    daycare_approved_by: Optional[UUID] = None
     daycare_approved_at: Optional[datetime] = None
     daycare_notes: Optional[str] = None
     created_at: datetime
@@ -134,7 +135,7 @@ class TreatmentPlanResponse(BaseModel):
 # Treatment Cycle Schemas
 class TreatmentCycleCreate(BaseModel):
     """Schema for creating a treatment cycle."""
-    treatment_plan_id: str
+    treatment_plan_id: UUID
     cycle_number: int
     scheduled_date: date
 
@@ -158,8 +159,8 @@ class TreatmentCycleUpdate(BaseModel):
 
 class TreatmentCycleResponse(BaseModel):
     """Schema for treatment cycle response."""
-    id: str
-    treatment_plan_id: str
+    id: UUID
+    treatment_plan_id: UUID
     cycle_number: int
     scheduled_date: date
     actual_date: Optional[date] = None
@@ -170,12 +171,12 @@ class TreatmentCycleResponse(BaseModel):
     calculated_bsa: Optional[float] = None
     dose_modifications: Optional[Dict[str, Any]] = None
     modification_reason: Optional[str] = None
-    daycare_doctor_id: Optional[str] = None
+    daycare_doctor_id: Optional[UUID] = None
     approved_at: Optional[datetime] = None
     approval_notes: Optional[str] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
-    administered_by: Optional[str] = None
+    administered_by: Optional[UUID] = None
     immediate_reactions: Optional[Dict[str, Any]] = None
     discharge_notes: Optional[str] = None
     follow_up_instructions: Optional[str] = None
@@ -202,8 +203,8 @@ class DrugAdministrationUpdate(BaseModel):
 
 class DrugAdministrationResponse(BaseModel):
     """Schema for drug administration response."""
-    id: str
-    cycle_id: str
+    id: UUID
+    cycle_id: UUID
     drug_name: str
     planned_dose: float
     actual_dose: Optional[float] = None
@@ -212,15 +213,15 @@ class DrugAdministrationResponse(BaseModel):
     planned_duration_mins: Optional[int] = None
     actual_duration_mins: Optional[int] = None
     status: AdminStatus
-    prepared_by: Optional[str] = None
+    prepared_by: Optional[UUID] = None
     prepared_at: Optional[datetime] = None
     batch_number: Optional[str] = None
     expiry_date: Optional[date] = None
-    verified_by: Optional[str] = None
+    verified_by: Optional[UUID] = None
     verified_at: Optional[datetime] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
-    administered_by: Optional[str] = None
+    administered_by: Optional[UUID] = None
     iv_site: Optional[str] = None
     flow_rate: Optional[str] = None
     reactions: List[Dict[str, Any]] = []

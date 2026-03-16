@@ -98,7 +98,7 @@ export const doctorService = {
    * Get all patients (for staff)
    */
   async getPatients(params?: { search?: string; skip?: number; limit?: number }): Promise<PatientSummaryAPI[]> {
-    const response = await apiClient.get('/patients/', { params });
+    const response = await apiClient.get('/patients', { params });
     return response.data;
   },
 
@@ -113,9 +113,9 @@ export const doctorService = {
   /**
    * Get patient vitals
    */
-  async getPatientVitals(patientId: string, days?: number): Promise<VitalAPI[]> {
-    const response = await apiClient.get('/vitals/', { 
-      params: { patient_id: patientId, days }
+  async getPatientVitals(patientId: string, limit = 20): Promise<VitalAPI[]> {
+    const response = await apiClient.get('/vitals', {
+      params: { patient_id: patientId, limit }
     });
     return response.data;
   },
@@ -124,7 +124,9 @@ export const doctorService = {
    * Get today's appointments
    */
   async getTodayAppointments(): Promise<AppointmentAPI[]> {
-    const today = new Date().toISOString().split('T')[0];
+    const d = new Date();
+    // Create 'YYYY-MM-DD' in local timezone
+    const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const response = await apiClient.get('/appointments', {
       params: { scheduled_date: today }
     });
@@ -147,7 +149,8 @@ export const doctorService = {
    * Get active (in-progress) appointments for day care
    */
   async getActiveAppointments(): Promise<AppointmentAPI[]> {
-    const today = new Date().toISOString().split('T')[0];
+    const d = new Date();
+    const today = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
     const response = await apiClient.get('/appointments', {
       params: { scheduled_date: today }
     });
@@ -183,8 +186,8 @@ export const doctorService = {
   /**
    * Get patient symptoms
    */
-  async getPatientSymptoms(patientId: string, limit?: number): Promise<any[]> {
-    const response = await apiClient.get('/symptoms/', {
+  async getPatientSymptoms(patientId: string, limit = 20): Promise<any[]> {
+    const response = await apiClient.get('/symptoms', {
       params: { patient_id: patientId, limit }
     });
     return response.data;
@@ -204,9 +207,9 @@ export const doctorService = {
     pain_score?: number;
     notes?: string;
   }): Promise<VitalAPI> {
-    const response = await apiClient.post('/vitals/', {
+    const response = await apiClient.post('/vitals', {
       patient_id: patientId,
-      ...vitals
+      ...vitals,
     });
     return response.data;
   },
@@ -216,29 +219,48 @@ export const doctorService = {
    */
   async getDashboardStats(): Promise<DashboardStats> {
     try {
-      const [patients, todayAppts] = await Promise.all([
-        this.getPatients({ limit: 1000 }),
-        this.getTodayAppointments(),
-      ]);
-
-      const activeTreatments = todayAppts.filter(
-        apt => apt.status === 'in_progress' || apt.status === 'checked_in'
-      ).length;
-
+      const response = await apiClient.get('/dashboard/stats');
       return {
-        totalPatients: patients.length,
-        todayAppointments: todayAppts.length,
-        activeTreatments,
-        pendingAlerts: 0, // TODO: implement alerts API
+        totalPatients: response.data.totalPatients,
+        todayAppointments: response.data.todayAppointments,
+        activeTreatments: response.data.activeTreatments,
+        pendingAlerts: response.data.pendingAlerts,
       };
     } catch (error) {
-      console.error('Error fetching dashboard stats:', error);
-      return {
-        totalPatients: 0,
-        todayAppointments: 0,
-        activeTreatments: 0,
-        pendingAlerts: 0,
-      };
+      // Fallback to client-side calculation if endpoint fails
+      try {
+        const [patients, todayAppts] = await Promise.all([
+          this.getPatients({ limit: 1000 }),
+          this.getTodayAppointments(),
+        ]);
+
+        const activeTreatments = todayAppts.filter(
+          apt => apt.status === 'in_progress' || apt.status === 'checked_in'
+        ).length;
+
+        return {
+          totalPatients: patients.length,
+          todayAppointments: todayAppts.length,
+          activeTreatments,
+          pendingAlerts: 0,
+        };
+      } catch {
+        return {
+          totalPatients: 0,
+          todayAppointments: 0,
+          activeTreatments: 0,
+          pendingAlerts: 0,
+        };
+      }
     }
+  },
+
+  /**
+   * Get treatment plans (all or for specific patient)
+   */
+  async getTreatmentPlans(patientId?: string): Promise<any[]> {
+    const params = patientId ? { patient_id: patientId } : {};
+    const response = await apiClient.get('/treatment-plans', { params });
+    return response.data;
   },
 };

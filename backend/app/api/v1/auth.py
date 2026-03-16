@@ -2,9 +2,13 @@
 Authentication API endpoints.
 """
 from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+
+limiter = Limiter(key_func=get_remote_address)
 
 from app.core.database import get_db
 from app.core.security import (
@@ -16,7 +20,8 @@ from app.core.security import (
     create_password_reset_token,
     verify_password_reset_token,
 )
-from app.models import User
+from app.models import User, UserRole
+from app.models.patient import Patient, Gender
 from app.schemas import (
     UserCreate,
     UserLogin,
@@ -28,13 +33,16 @@ from app.schemas import (
     PasswordChange,
 )
 from app.api.deps import get_current_user
+from datetime import date
 from app.core.config import settings
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@limiter.limit("5/minute")
 async def register(
+    request: Request,
     user_data: UserCreate,
     db: AsyncSession = Depends(get_db),
 ):
@@ -68,11 +76,30 @@ async def register(
     await db.commit()
     await db.refresh(user)
     
+    # If registering as a patient, create a Patient record
+    if user_data.role == UserRole.PATIENT:
+        # Parse full_name into first_name and last_name
+        name_parts = user_data.full_name.strip().split(" ", 1)
+        first_name = name_parts[0]
+        last_name = name_parts[1] if len(name_parts) > 1 else ""
+        
+        patient = Patient(
+            user_id=user.id,
+            first_name=first_name,
+            last_name=last_name,
+            date_of_birth=date(1990, 1, 1),  # Placeholder - user updates during onboarding
+            gender=Gender.OTHER,  # Placeholder - user updates during onboarding
+        )
+        db.add(patient)
+        await db.commit()
+    
     return user
 
 
 @router.post("/login", response_model=TokenResponse)
+@limiter.limit("10/minute")
 async def login(
+    request: Request,
     credentials: UserLogin,
     db: AsyncSession = Depends(get_db),
 ):
@@ -155,7 +182,9 @@ async def get_me(
 
 
 @router.post("/forgot-password")
+@limiter.limit("3/minute")
 async def forgot_password(
+    request: Request,
     data: PasswordReset,
     db: AsyncSession = Depends(get_db),
 ):
@@ -165,7 +194,7 @@ async def forgot_password(
     
     # Don't reveal if email exists
     if user:
-        token = create_password_reset_token(user.email)
+        create_password_reset_token(user.email)  # noqa: F841 - TODO: send email
         # TODO: Send email with reset link
         # await send_password_reset_email(user.email, token)
     
@@ -201,12 +230,30 @@ async def reset_password(
     return {"message": "Password reset successfully"}
 
 
-@router.get("/me", response_model=UserResponse)
-async def get_current_user_info(
+@router.put("/push-token")
+async def update_push_token(
+    data: dict,
     current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
 ):
-    """Get current authenticated user info."""
-    return current_user
+    """Register or update Expo push notification token."""
+    push_token = data.get("push_token")
+    if not push_token:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="push_token required")
+    current_user.push_token = push_token
+    await db.commit()
+    return {"message": "Push token registered"}
+
+
+@router.delete("/push-token")
+async def delete_push_token(
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Unregister push notification token on logout."""
+    current_user.push_token = None
+    await db.commit()
+    return {"message": "Push token removed"}
 
 
 @router.post("/change-password")

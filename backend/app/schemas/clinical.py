@@ -1,16 +1,24 @@
 """
 Pydantic schemas for clinical data (vitals, documents, appointments, etc.).
 """
+import re
 from datetime import date, time, datetime
 from typing import Optional, List, Any, Dict
 from uuid import UUID
-from pydantic import BaseModel, Field, field_serializer
+from pydantic import BaseModel, Field, field_serializer, field_validator
 from app.models.clinical import (
     DocumentType,
     AppointmentType,
     AppointmentStatus,
     NotificationType,
 )
+
+
+def _strip_tags(value: Optional[str]) -> Optional[str]:
+    """Remove HTML/script tags from free-text input to prevent stored XSS."""
+    if value is None:
+        return None
+    return re.sub(r'<[^>]+>', '', value).strip()
 
 
 # Document Schemas
@@ -64,6 +72,11 @@ class VitalCreate(BaseModel):
     weight_kg: Optional[float] = None
     notes: Optional[str] = None
     timing: Optional[str] = None
+
+    @field_validator('notes', 'pain_location', 'timing', mode='before')
+    @classmethod
+    def sanitize_text(cls, v):
+        return _strip_tags(v)
 
 
 class VitalResponse(BaseModel):
@@ -206,6 +219,11 @@ class SymptomEntryCreate(BaseModel):
     has_skin_changes: bool = False
     other_symptoms: Optional[str] = None
     mood_notes: Optional[str] = None
+
+    @field_validator('other_symptoms', 'mood_notes', mode='before')
+    @classmethod
+    def sanitize_text(cls, v):
+        return _strip_tags(v)
 
 
 class SymptomEntryResponse(BaseModel):

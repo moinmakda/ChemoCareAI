@@ -13,12 +13,21 @@ class UserBase(BaseModel):
     email: EmailStr
     phone: Optional[str] = None
     full_name: Optional[str] = None
+    avatar: Optional[str] = None
     role: UserRole
 
 
 class UserCreate(UserBase):
     """Schema for creating a new user."""
     password: str = Field(..., min_length=8)
+
+    @field_validator('role')
+    @classmethod
+    def role_must_be_patient(cls, v):
+        from app.models.user import UserRole
+        if v != UserRole.PATIENT:
+            raise ValueError("Self-registration is only allowed for the patient role")
+        return v
 
 
 class UserLogin(BaseModel):

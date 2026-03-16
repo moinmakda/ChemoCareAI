@@ -1,90 +1,71 @@
 /**
  * Doctor OPD Protocols - AI-powered treatment protocol management
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { Card, Badge, Button, Header } from '../../src/components';
+import { treatmentService } from '../../src/services';
 
-// Common chemotherapy protocols
-const PROTOCOLS = [
-  {
-    id: '1',
-    name: 'FOLFOX',
-    fullName: 'Folinic acid, Fluorouracil, Oxaliplatin',
-    indication: 'Colorectal Cancer',
-    cycles: '12 cycles (6 months)',
-    frequency: 'Every 2 weeks',
-    drugs: ['Oxaliplatin', '5-Fluorouracil', 'Leucovorin'],
-    popularity: 'high',
-  },
-  {
-    id: '2',
-    name: 'AC-T',
-    fullName: 'Doxorubicin, Cyclophosphamide, Paclitaxel',
-    indication: 'Breast Cancer',
-    cycles: '8 cycles (4+4)',
-    frequency: 'Every 2-3 weeks',
-    drugs: ['Doxorubicin', 'Cyclophosphamide', 'Paclitaxel'],
-    popularity: 'high',
-  },
-  {
-    id: '3',
-    name: 'CHOP',
-    fullName: 'Cyclophosphamide, Doxorubicin, Vincristine, Prednisone',
-    indication: 'Non-Hodgkin Lymphoma',
-    cycles: '6-8 cycles',
-    frequency: 'Every 3 weeks',
-    drugs: ['Cyclophosphamide', 'Doxorubicin', 'Vincristine', 'Prednisone'],
-    popularity: 'high',
-  },
-  {
-    id: '4',
-    name: 'Cisplatin + Etoposide',
-    fullName: 'Platinum-based regimen',
-    indication: 'Lung Cancer (SCLC)',
-    cycles: '4-6 cycles',
-    frequency: 'Every 3 weeks',
-    drugs: ['Cisplatin', 'Etoposide'],
-    popularity: 'medium',
-  },
-  {
-    id: '5',
-    name: 'R-CHOP',
-    fullName: 'Rituximab + CHOP',
-    indication: 'B-cell Lymphoma',
-    cycles: '6-8 cycles',
-    frequency: 'Every 3 weeks',
-    drugs: ['Rituximab', 'Cyclophosphamide', 'Doxorubicin', 'Vincristine', 'Prednisone'],
-    popularity: 'high',
-  },
-  {
-    id: '6',
-    name: 'Gemcitabine + Carboplatin',
-    fullName: 'GemCarbo',
-    indication: 'Ovarian/Bladder Cancer',
-    cycles: '6 cycles',
-    frequency: 'Every 3 weeks',
-    drugs: ['Gemcitabine', 'Carboplatin'],
-    popularity: 'medium',
-  },
-];
+interface ProtocolDisplay {
+  id: string;
+  name: string;
+  fullName: string;
+  indication: string;
+  cycles: string;
+  frequency: string;
+  drugs: string[];
+  popularity: 'high' | 'medium' | 'low';
+}
 
 export default function DoctorOPDProtocolsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
+  const [protocols, setProtocols] = useState<ProtocolDisplay[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const filteredProtocols = PROTOCOLS.filter(protocol => {
+  useEffect(() => {
+    fetchProtocols();
+  }, []);
+
+  const fetchProtocols = async () => {
+    try {
+      setIsLoading(true);
+      const data = await treatmentService.listProtocols();
+      
+      // Map API response to display format (all fields camelCase from interceptor)
+      const mappedProtocols: ProtocolDisplay[] = data.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        fullName: p.fullName || p.name,
+        indication: Array.isArray(p.cancerTypes) ? p.cancerTypes.join(', ') : 'General',
+        cycles: `${p.totalCycles ?? 6} cycles`,
+        frequency: `Every ${p.cycleDays ?? 21} days`,
+        drugs: (p.drugs || []).map((d: any) => d.name || d.drugName).slice(0, 5),
+        popularity: (p.drugs?.length >= 4 ? 'high' : 'medium') as 'high' | 'medium' | 'low',
+      }));
+      
+      setProtocols(mappedProtocols);
+    } catch {
+      // Fallback to empty - show message
+      setProtocols([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const filteredProtocols = protocols.filter(protocol => {
     if (!searchQuery) return true;
     const searchLower = searchQuery.toLowerCase();
     return protocol.name.toLowerCase().includes(searchLower) ||
@@ -118,29 +99,29 @@ export default function DoctorOPDProtocolsScreen() {
               </Text>
             </View>
           </View>
-          <Button 
-            title="Ask AI for Recommendations" 
-            variant="primary" 
-            onPress={() => {}}
+          <Button
+            title="Ask AI for Recommendations"
+            variant="primary"
+            onPress={() => router.push('/(doctor-daycare)/ai')}
             icon={<Ionicons name="chatbubbles-outline" size={18} color={Colors.white} />}
           />
         </Card>
 
         {/* Quick Actions */}
         <View style={styles.quickActions}>
-          <TouchableOpacity style={styles.quickAction}>
+          <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/(doctor-opd)/protocols')}>
             <View style={[styles.quickActionIcon, { backgroundColor: Colors.primaryLight }]}>
               <Ionicons name="add-circle-outline" size={24} color={Colors.primary} />
             </View>
             <Text style={styles.quickActionText}>New Protocol</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickAction}>
+          <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/(doctor-opd)/protocols')}>
             <View style={[styles.quickActionIcon, { backgroundColor: `${Colors.success}20` }]}>
               <Ionicons name="calculator-outline" size={24} color={Colors.success} />
             </View>
             <Text style={styles.quickActionText}>Dose Calculator</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickAction}>
+          <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/(doctor-opd)/protocols')}>
             <View style={[styles.quickActionIcon, { backgroundColor: `${Colors.warning}20` }]}>
               <Ionicons name="alert-circle-outline" size={24} color={Colors.warning} />
             </View>
@@ -151,40 +132,54 @@ export default function DoctorOPDProtocolsScreen() {
         {/* Protocol List */}
         <Text style={styles.sectionTitle}>Standard Protocols</Text>
         
-        {filteredProtocols.map((protocol) => (
-          <TouchableOpacity key={protocol.id} style={styles.protocolCard}>
-            <View style={styles.protocolHeader}>
-              <View style={styles.protocolTitleRow}>
-                <Text style={styles.protocolName}>{protocol.name}</Text>
-                {protocol.popularity === 'high' && (
-                  <Badge label="Popular" variant="success" size="small" />
-                )}
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={Colors.primary} />
+            <Text style={styles.loadingText}>Loading protocols...</Text>
+          </View>
+        ) : filteredProtocols.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Ionicons name="document-text-outline" size={48} color={Colors.textSecondary} />
+            <Text style={styles.emptyText}>
+              {searchQuery ? 'No protocols match your search' : 'No protocols available'}
+            </Text>
+          </View>
+        ) : (
+          filteredProtocols.map((protocol) => (
+            <TouchableOpacity key={protocol.id} style={styles.protocolCard} onPress={() => router.push('/(doctor-daycare)/ai')}>
+              <View style={styles.protocolHeader}>
+                <View style={styles.protocolTitleRow}>
+                  <Text style={styles.protocolName}>{protocol.name}</Text>
+                  {protocol.popularity === 'high' && (
+                    <Badge label="Popular" variant="success" size="small" />
+                  )}
+                </View>
+                <Text style={styles.protocolFullName}>{protocol.fullName}</Text>
               </View>
-              <Text style={styles.protocolFullName}>{protocol.fullName}</Text>
-            </View>
-            
-            <View style={styles.protocolMeta}>
-              <View style={styles.metaItem}>
-                <Ionicons name="medical-outline" size={16} color={Colors.primary} />
-                <Text style={styles.metaText}>{protocol.indication}</Text>
+              
+              <View style={styles.protocolMeta}>
+                <View style={styles.metaItem}>
+                  <Ionicons name="medical-outline" size={16} color={Colors.primary} />
+                  <Text style={styles.metaText}>{protocol.indication}</Text>
+                </View>
+                <View style={styles.metaItem}>
+                  <Ionicons name="repeat-outline" size={16} color={Colors.textSecondary} />
+                  <Text style={styles.metaText}>{protocol.cycles}</Text>
+                </View>
+                <View style={styles.metaItem}>
+                  <Ionicons name="time-outline" size={16} color={Colors.textSecondary} />
+                  <Text style={styles.metaText}>{protocol.frequency}</Text>
+                </View>
               </View>
-              <View style={styles.metaItem}>
-                <Ionicons name="repeat-outline" size={16} color={Colors.textSecondary} />
-                <Text style={styles.metaText}>{protocol.cycles}</Text>
-              </View>
-              <View style={styles.metaItem}>
-                <Ionicons name="time-outline" size={16} color={Colors.textSecondary} />
-                <Text style={styles.metaText}>{protocol.frequency}</Text>
-              </View>
-            </View>
 
-            <View style={styles.drugsContainer}>
-              {protocol.drugs.map((drug, idx) => (
-                <Badge key={idx} label={drug} variant="neutral" size="small" />
-              ))}
-            </View>
-          </TouchableOpacity>
-        ))}
+              <View style={styles.drugsContainer}>
+                {protocol.drugs.map((drug, idx) => (
+                  <Badge key={idx} label={drug} variant="neutral" size="small" />
+                ))}
+              </View>
+            </TouchableOpacity>
+          ))
+        )}
       </ScrollView>
     </View>
   );
@@ -314,5 +309,28 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: Spacing.xs,
     marginTop: Spacing.sm,
+  },
+  loadingContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.xxl,
+  },
+  loadingText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.md,
+    color: Colors.textSecondary,
+    marginTop: Spacing.md,
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.xxl,
+  },
+  emptyText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.md,
+    color: Colors.textSecondary,
+    marginTop: Spacing.md,
+    textAlign: 'center',
   },
 });

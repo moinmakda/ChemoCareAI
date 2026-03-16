@@ -11,6 +11,8 @@ import {
   RefreshControl,
   TextStyle,
   ActivityIndicator,
+  Alert,
+  Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -42,10 +44,8 @@ export default function PatientHomeScreen() {
       // If 404, patient needs to complete onboarding
       if (error?.response?.status === 404 || error?.message?.includes('404')) {
         setNeedsOnboarding(true);
-      } else {
-        console.error('Error loading patient:', error);
       }
-    } finally {
+      // Always stop loading even if patient fetch fails
       setLoadingData(false);
     }
   };
@@ -72,12 +72,12 @@ export default function PatientHomeScreen() {
         }
         
         // Load latest vitals
-        const vitals = await vitalsService.getLatestVitals(currentPatient.id);
+        const vitals = await vitalsService.getLatestVital();
         if (vitals) {
           setLatestVitals(vitals);
         }
-      } catch (error) {
-        console.error('Error loading dashboard data:', error);
+      } catch {
+        // silent — dashboard shows empty state, user can pull-to-refresh
       } finally {
         setLoadingData(false);
       }
@@ -101,7 +101,31 @@ export default function PatientHomeScreen() {
   const onRefresh = async () => {
     setRefreshing(true);
     await loadDashboardData();
+    // loadAdditionalData triggers via the useEffect on currentPatient change,
+    // but we also force it here to refresh vitals/appointments immediately
+    if (currentPatient) {
+      try {
+        await fetchTreatmentPlans();
+        const appointments = await appointmentsService.listAppointments();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const upcoming = appointments
+          .filter(apt => new Date(apt.scheduledDate) >= today && apt.status !== 'cancelled')
+          .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
+        setNextAppointment(upcoming[0] || null);
+        const vitals = await vitalsService.getLatestVital();
+        setLatestVitals(vitals);
+      } catch (_) {}
+    }
     setRefreshing(false);
+  };
+
+  // Get time-appropriate greeting
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 17) return 'Good Afternoon';
+    return 'Good Evening';
   };
 
   // Calculate treatment progress from active treatment plan
@@ -176,7 +200,7 @@ export default function PatientHomeScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.greeting}>Good Morning,</Text>
+          <Text style={styles.greeting}>{getGreeting()},</Text>
           <Text style={styles.userName}>{user?.fullName || 'Patient'}</Text>
         </View>
         <TouchableOpacity onPress={() => router.push('/(patient)/profile')}>
@@ -239,7 +263,7 @@ export default function PatientHomeScreen() {
                     size="small"
                     onPress={() => router.push('/(patient)/schedule')}
                   />
-                  <Button title="Reschedule" variant="outline" size="small" onPress={() => {}} />
+                  <Button title="Reschedule" variant="outline" size="small" onPress={() => Alert.alert('Reschedule', 'Please call the clinic to reschedule your appointment.\n\nPhone: 1-800-CHEMO-CARE')} />
                 </View>
               </Card>
             ) : (
@@ -261,7 +285,7 @@ export default function PatientHomeScreen() {
             <Card variant="default" padding="medium" style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Treatment Progress</Text>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => router.push('/(patient)/schedule')}>
                   <Text style={styles.seeAllText}>See Details</Text>
                 </TouchableOpacity>
               </View>
@@ -297,18 +321,18 @@ export default function PatientHomeScreen() {
                 <Text style={styles.quickActionText}>Log Vitals</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.quickAction}>
+              <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/(patient)/schedule')}>
                 <View style={[styles.quickActionIcon, { backgroundColor: colors.successLight }]}>
-                  <Ionicons name="medical" size={24} color={colors.success} />
+                  <Ionicons name="calendar" size={24} color={colors.success} />
                 </View>
-                <Text style={styles.quickActionText}>Medications</Text>
+                <Text style={styles.quickActionText}>Schedule</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.quickAction}>
+              <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/(patient)/symptoms')}>
                 <View style={[styles.quickActionIcon, { backgroundColor: colors.warningLight }]}>
                   <Ionicons name="alert-circle" size={24} color={colors.warning} />
                 </View>
-                <Text style={styles.quickActionText}>Side Effects</Text>
+                <Text style={styles.quickActionText}>Symptoms</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -385,7 +409,17 @@ export default function PatientHomeScreen() {
                   </Text>
                 </View>
               </View>
-              <Button title="Emergency Call" variant="danger" size="small" onPress={() => {}} />
+              <Button title="Emergency Call" variant="danger" size="small" onPress={() => {
+                Alert.alert(
+                  'Emergency Contact',
+                  'Choose how to contact emergency services:',
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Call Clinic', onPress: () => Linking.openURL('tel:18002436226') },
+                    { text: 'Call 911', onPress: () => Linking.openURL('tel:911'), style: 'destructive' },
+                  ]
+                );
+              }} />
             </Card>
           </>
         )}

@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -69,8 +70,8 @@ export default function DoctorOPDHomeScreen() {
       // Sort by scheduled time and take first 5
       appointmentsWithNames.sort((a, b) => a.scheduledTime.localeCompare(b.scheduledTime));
       setUpcomingAppointments(appointmentsWithNames.slice(0, 5));
-    } catch (error) {
-      console.error('Error fetching OPD dashboard data:', error);
+    } catch {
+      // silent — dashboard shows zeros, user can pull-to-refresh
     } finally {
       setLoading(false);
     }
@@ -141,7 +142,7 @@ export default function DoctorOPDHomeScreen() {
           <Text style={styles.userName}>Dr. {user?.fullName?.split(' ')[1] || 'Doctor'}</Text>
         </View>
         <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.headerButton}>
+          <TouchableOpacity style={styles.headerButton} onPress={() => Alert.alert('Alerts', 'You have pending protocol approvals and upcoming appointments. Check the Protocol and Appointments tabs for details.')}>
             <Ionicons name="notifications-outline" size={24} color={Colors.textPrimary} />
             <View style={styles.notificationBadge} />
           </TouchableOpacity>
@@ -178,14 +179,14 @@ export default function DoctorOPDHomeScreen() {
             title="New Patient"
             variant="primary"
             icon={<Ionicons name="person-add" size={18} color={Colors.white} />}
-            onPress={() => {}}
+            onPress={() => Alert.alert('Register Patient', 'To register a new patient, please use the clinic admin portal or contact the registration desk.\n\nPhone: 1-800-CHEMO-CARE')}
             style={styles.quickActionButton}
           />
           <Button
             title="AI Protocol"
             variant="outline"
             icon={<Ionicons name="sparkles" size={18} color={Colors.primary} />}
-            onPress={() => {}}
+            onPress={() => router.push('/(doctor-opd)/protocols')}
             style={styles.quickActionButton}
           />
         </View>
@@ -206,7 +207,7 @@ export default function DoctorOPDHomeScreen() {
             </View>
           ) : (
             upcomingAppointments.map((appointment) => (
-              <TouchableOpacity key={appointment.id} style={styles.appointmentItem}>
+              <TouchableOpacity key={appointment.id} style={styles.appointmentItem} onPress={() => router.push('/(doctor-opd)/appointments')}>
                 <Avatar name={appointment.patientName || 'Unknown'} size="small" />
                 <View style={styles.appointmentInfo}>
                   <Text style={styles.appointmentName}>{appointment.patientName}</Text>
@@ -230,9 +231,9 @@ export default function DoctorOPDHomeScreen() {
             <Text style={styles.aiTitle}>AI Insights</Text>
           </View>
           <Text style={styles.aiText}>
-            AI-powered protocol recommendations and patient insights coming soon.
+            Generate AI-powered chemotherapy protocol recommendations based on patient clinical data.
           </Text>
-          <Button title="View AI Chat" variant="primary" size="small" onPress={() => {}} />
+          <Button title="Open Protocol Generator" variant="primary" size="small" onPress={() => router.push('/(doctor-opd)/protocols')} />
         </Card>
       </ScrollView>
     </View>

@@ -127,39 +127,41 @@ export default function LoginScreen() {
           </Link>
         </View>
 
-        {/* Quick Access for Demo */}
-        <View style={styles.demoSection}>
-          <Text style={styles.demoTitle}>Quick Demo Access</Text>
-          <View style={styles.demoButtons}>
-            <TouchableOpacity
-              style={styles.demoButton}
-              onPress={() => {
-                setEmail('patient@demo.com');
-                setPassword('demo123');
-              }}
-            >
-              <Text style={styles.demoButtonText}>Patient</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.demoButton}
-              onPress={() => {
-                setEmail('doctor@demo.com');
-                setPassword('demo123');
-              }}
-            >
-              <Text style={styles.demoButtonText}>Doctor</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.demoButton}
-              onPress={() => {
-                setEmail('nurse@demo.com');
-                setPassword('demo123');
-              }}
-            >
-              <Text style={styles.demoButtonText}>Nurse</Text>
-            </TouchableOpacity>
+        {/* Quick Access for Demo - Only visible in development */}
+        {__DEV__ && (
+          <View style={styles.demoSection}>
+            <Text style={styles.demoTitle}>Quick Demo Access</Text>
+            <View style={styles.demoButtons}>
+              <TouchableOpacity
+                style={styles.demoButton}
+                onPress={() => {
+                  setEmail('patient@test.com');
+                  setPassword('test1234');
+                }}
+              >
+                <Text style={styles.demoButtonText}>Patient</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.demoButton}
+                onPress={() => {
+                  setEmail('doctor@test.com');
+                  setPassword('test1234');
+                }}
+              >
+                <Text style={styles.demoButtonText}>Doctor</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.demoButton}
+                onPress={() => {
+                  setEmail('nurse@test.com');
+                  setPassword('test1234');
+                }}
+              >
+                <Text style={styles.demoButtonText}>Nurse</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        )}
       </ScrollView>
     </KeyboardAvoidingView>
   );

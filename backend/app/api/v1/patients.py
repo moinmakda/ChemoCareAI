@@ -6,7 +6,6 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
 from app.models import Patient, User, UserRole
@@ -21,10 +20,10 @@ from app.api.deps import get_current_user, allow_medical_staff
 router = APIRouter(prefix="/patients", tags=["Patients"])
 
 
-@router.get("/", response_model=List[PatientSummary])
+@router.get("", response_model=List[PatientSummary])
 async def list_patients(
     skip: int = Query(0, ge=0),
-    limit: int = Query(50, ge=1, le=100),
+    limit: int = Query(50, ge=1, le=1000),
     search: Optional[str] = None,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(allow_medical_staff),
@@ -47,7 +46,7 @@ async def list_patients(
     return patients
 
 
-@router.post("/", response_model=PatientResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=PatientResponse, status_code=status.HTTP_201_CREATED)
 async def create_patient(
     patient_data: PatientCreate,
     db: AsyncSession = Depends(get_db),
@@ -97,6 +96,39 @@ async def get_my_profile(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Patient profile not found",
         )
+    
+    return patient
+
+
+@router.put("/me", response_model=PatientResponse)
+async def update_my_profile(
+    patient_data: PatientUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Update current patient's profile."""
+    if current_user.role != UserRole.PATIENT:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only patients can access this endpoint",
+        )
+    
+    result = await db.execute(select(Patient).where(Patient.user_id == current_user.id))
+    patient = result.scalar_one_or_none()
+    
+    if not patient:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Patient profile not found",
+        )
+    
+    # Update fields
+    update_data = patient_data.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(patient, field, value)
+    
+    await db.commit()
+    await db.refresh(patient)
     
     return patient
 

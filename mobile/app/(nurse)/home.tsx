@@ -10,12 +10,13 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
-import { Card, Avatar, Badge, Button } from '../../src/components';
+import { Card, Avatar, Badge, Button, PendingApprovalsCard } from '../../src/components';
 import { useAuthStore } from '../../src/store/authStore';
 import { nurseService, type PatientSummaryAPI, type AppointmentAPI, type NurseDashboardStats } from '../../src/services/nurseService';
 
@@ -47,8 +48,8 @@ export default function NurseHomeScreen() {
       setActiveAppointments(active);
       setAwaitingAppointments(awaiting);
       setPatients(patientList);
-    } catch (error) {
-      console.error('Error loading dashboard:', error);
+    } catch {
+      // silent — dashboard shows zeros, user can pull-to-refresh
     } finally {
       setIsLoading(false);
     }
@@ -95,8 +96,8 @@ export default function NurseHomeScreen() {
     try {
       await nurseService.checkInPatient(appointmentId);
       await loadData();
-    } catch (error) {
-      console.error('Error checking in patient:', error);
+    } catch (error: any) {
+      Alert.alert('Check-in Failed', error.response?.data?.detail || 'Could not check in patient. Please try again.');
     }
   };
 
@@ -104,8 +105,8 @@ export default function NurseHomeScreen() {
     try {
       await nurseService.checkOutPatient(appointmentId);
       await loadData();
-    } catch (error) {
-      console.error('Error checking out patient:', error);
+    } catch (error: any) {
+      Alert.alert('Check-out Failed', error.response?.data?.detail || 'Could not check out patient. Please try again.');
     }
   };
 
@@ -162,6 +163,18 @@ export default function NurseHomeScreen() {
           </Card>
         </View>
 
+        {/* Pending Approvals */}
+        <PendingApprovalsCard userRole="nurse" />
+
+        {/* Quick Action - New Protocol Request */}
+        <TouchableOpacity
+          style={styles.quickActionButton}
+          onPress={() => router.push('/(nurse)/protocol-request')}
+        >
+          <Ionicons name="add-circle" size={24} color="#FFF" />
+          <Text style={styles.quickActionBtnText}>New Protocol Request</Text>
+        </TouchableOpacity>
+
         {/* Active Patients */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Active Patients</Text>
@@ -192,7 +205,7 @@ export default function NurseHomeScreen() {
                 />
               </View>
               <View style={styles.patientActions}>
-                <TouchableOpacity style={styles.actionBtn} onPress={() => router.push('/(nurse)/vitals')}>
+                <TouchableOpacity style={styles.actionBtn} onPress={() => router.push({ pathname: '/(nurse)/vitals', params: { patientId: apt.patientId } })}>
                   <Ionicons name="pulse" size={18} color={Colors.primary} />
                   <Text style={styles.actionText}>Vitals</Text>
                 </TouchableOpacity>
@@ -302,4 +315,6 @@ const styles = StyleSheet.create({
   quickAction: { flex: 1, alignItems: 'center', backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.lg, ...Shadows.small },
   quickActionIcon: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.sm },
   quickActionText: { fontFamily: Typography.fontFamily.medium, fontSize: Typography.fontSize.xs, color: Colors.textPrimary, textAlign: 'center' },
+  quickActionButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.primary, borderRadius: BorderRadius.lg, padding: Spacing.md, marginBottom: Spacing.lg, gap: Spacing.sm },
+  quickActionBtnText: { fontFamily: Typography.fontFamily.semiBold, fontSize: Typography.fontSize.md, color: Colors.white },
 });

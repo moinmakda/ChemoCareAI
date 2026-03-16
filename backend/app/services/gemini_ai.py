@@ -547,7 +547,7 @@ Respond as a caring healthcare companion, not a chatbot.
         )
         
         return PatientChatResponse.model_validate_json(response.text)
-    except Exception as e:
+    except Exception:
         # Fallback to unstructured response if schema fails
         fallback_response = client.models.generate_content(
             model=settings.GEMINI_MODEL,

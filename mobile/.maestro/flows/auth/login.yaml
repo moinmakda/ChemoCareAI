@@ -1,0 +1,51 @@
+# Login Flow - Patient Login E2E Test
+# Run: maestro test .maestro/flows/auth/login.yaml
+
+appId: com.chemocare.mobile
+
+---
+
+# Start fresh
+- clearState
+
+# Wait for app to load
+- waitForAnimationToEnd
+
+# Verify login screen is displayed
+- assertVisible: "Welcome Back"
+- assertVisible: "Sign in to continue"
+
+# Enter invalid credentials first
+- tapOn: 
+    id: "email-input"
+- inputText: "invalid@email.com"
+- tapOn:
+    id: "password-input"
+- inputText: "wrongpassword"
+- tapOn: "Sign In"
+
+# Verify error message
+- assertVisible: 
+    text: "Invalid credentials"
+    optional: true
+
+# Clear and enter valid patient credentials
+- tapOn:
+    id: "email-input"
+- clearText
+- inputText: "patient@chemocare.com"
+- tapOn:
+    id: "password-input"  
+- clearText
+- inputText: "password123"
+
+# Submit login
+- tapOn: "Sign In"
+
+# Wait for navigation
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Verify successful login - patient home screen
+- assertVisible: "Welcome"
+- assertVisible: "Upcoming Appointments"

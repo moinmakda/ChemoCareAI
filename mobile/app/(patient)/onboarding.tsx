@@ -170,7 +170,8 @@ export default function PatientOnboardingScreen() {
         .map(c => c.trim())
         .filter(c => c.length > 0);
 
-      await patientService.createPatient({
+      // Use updateMyProfile since registration already creates a basic Patient record
+      await patientService.updateMyProfile({
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
         dateOfBirth: formData.dateOfBirth.toISOString().split('T')[0],
@@ -199,8 +200,6 @@ export default function PatientOnboardingScreen() {
       }, 2000);
       
     } catch (error: any) {
-      console.error('Onboarding error:', error);
-      
       // If profile already exists, just go to home
       if (error.response?.status === 400 && error.response?.data?.detail?.includes('already exists')) {
         router.replace('/(patient)/home');

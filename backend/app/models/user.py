@@ -4,7 +4,7 @@ SQLAlchemy models for users and authentication.
 import uuid
 from datetime import datetime
 from enum import Enum as PyEnum
-from sqlalchemy import Column, String, Boolean, DateTime, Enum, text
+from sqlalchemy import Column, String, Boolean, DateTime, Enum
 from sqlalchemy.dialects.postgresql import UUID
 from app.core.database import Base
 
@@ -27,10 +27,12 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False, index=True)
     phone = Column(String(20), unique=True, nullable=True)
     full_name = Column(String(255), nullable=True)
+    avatar = Column(String(500), nullable=True)  # URL to user's avatar image
     password_hash = Column(String(255), nullable=False)
     role = Column(Enum(UserRole), nullable=False)
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
+    push_token = Column(String(255), nullable=True)  # Expo push notification token
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     last_login = Column(DateTime, nullable=True)

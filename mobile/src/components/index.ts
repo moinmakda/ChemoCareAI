@@ -12,3 +12,4 @@ export { Loading, Skeleton, CardSkeleton } from './Loading';
 export { EmptyState } from './EmptyState';
 export { ListItem } from './ListItem';
 export { Select } from './Select';
+export { PendingApprovalsCard } from './PendingApprovalsCard';

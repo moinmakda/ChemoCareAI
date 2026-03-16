@@ -45,17 +45,17 @@ class AppointmentStatus(str, PyEnum):
 
 
 class NotificationType(str, PyEnum):
-    """Notification type options."""
-    APPOINTMENT_REMINDER = "appointment_reminder"
-    LAB_REMINDER = "lab_reminder"
-    APPROVAL_REQUEST = "approval_request"
-    APPROVAL_RECEIVED = "approval_received"
-    CYCLE_COMPLETED = "cycle_completed"
-    VITALS_ALERT = "vitals_alert"
-    REACTION_ALERT = "reaction_alert"
-    DOCUMENT_UPLOADED = "document_uploaded"
-    MESSAGE = "message"
-    SYSTEM = "system"
+    """Notification type options - matches database enum."""
+    APPOINTMENT_REMINDER = "APPOINTMENT_REMINDER"
+    LAB_REMINDER = "LAB_REMINDER"
+    APPROVAL_REQUEST = "APPROVAL_REQUEST"
+    APPROVAL_RECEIVED = "APPROVAL_RECEIVED"
+    CYCLE_COMPLETED = "CYCLE_COMPLETED"
+    VITALS_ALERT = "VITALS_ALERT"
+    REACTION_ALERT = "REACTION_ALERT"
+    DOCUMENT_UPLOADED = "DOCUMENT_UPLOADED"
+    MESSAGE = "MESSAGE"
+    SYSTEM = "SYSTEM"
 
 
 class Document(Base):

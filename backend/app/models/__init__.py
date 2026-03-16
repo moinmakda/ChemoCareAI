@@ -24,6 +24,10 @@ from app.models.clinical import (
     AppointmentStatus,
     NotificationType,
 )
+from app.models.protocol_request import (
+    ProtocolRequest,
+    ProtocolRequestStatus,
+)
 
 __all__ = [
     # User
@@ -54,4 +58,7 @@ __all__ = [
     "AppointmentType",
     "AppointmentStatus",
     "NotificationType",
+    # Protocol Request
+    "ProtocolRequest",
+    "ProtocolRequestStatus",
 ]

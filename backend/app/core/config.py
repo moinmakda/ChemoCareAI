@@ -1,7 +1,7 @@
 """
 Application configuration settings.
 """
-from typing import List, Union
+from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import field_validator
 from functools import lru_cache
@@ -61,6 +61,14 @@ class Settings(BaseSettings):
         case_sensitive=True,
         extra="ignore",
     )
+
+    @field_validator("SECRET_KEY")
+    @classmethod
+    def validate_secret_key(cls, v: str) -> str:
+        if v == "your-secret-key-change-in-production":
+            import warnings
+            warnings.warn("Using default insecure SECRET_KEY. Change this in production!", UserWarning)
+        return v
 
 
 @lru_cache()

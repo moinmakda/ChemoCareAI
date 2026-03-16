@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -66,8 +67,8 @@ export default function DoctorOPDAppointmentsScreen() {
       });
 
       setAppointments(appointmentsWithNames);
-    } catch (error) {
-      console.error('Error fetching appointments:', error);
+    } catch {
+      // silent — list stays empty, user can pull-to-refresh
     } finally {
       setLoading(false);
     }
@@ -151,7 +152,14 @@ export default function DoctorOPDAppointmentsScreen() {
   };
 
   const renderAppointment = ({ item }: { item: AppointmentWithPatient }) => (
-    <TouchableOpacity style={styles.appointmentCard}>
+    <TouchableOpacity
+      style={styles.appointmentCard}
+      onPress={() => Alert.alert(
+        item.patientName || 'Appointment',
+        `${getAppointmentTypeLabel(item.appointmentType)}\n${formatDate(item.scheduledDate)} at ${formatTime(item.scheduledTime)}\nDuration: ${item.durationMins} mins\nStatus: ${item.status}${item.notes ? `\n\nNotes: ${item.notes}` : ''}`,
+        [{ text: 'Close' }]
+      )}
+    >
       <View style={styles.appointmentHeader}>
         <View style={styles.patientInfo}>
           <Avatar 

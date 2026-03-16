@@ -1,0 +1,64 @@
+# Patient Vitals Recording Flow
+# Run: maestro test .maestro/flows/patient/vitals.yaml
+
+appId: com.chemocare.mobile
+
+---
+
+# Login first
+- runFlow: "../shared/login-patient.yaml"
+
+# Navigate to vitals
+- tapOn:
+    id: "tab-vitals"
+    optional: true
+- tapOn:
+    text: "Vitals"
+    optional: true
+
+# Wait for vitals screen
+- waitForAnimationToEnd
+
+# Verify vitals screen
+- assertVisible: "Record Vitals"
+
+# Tap to add new vital reading
+- tapOn: "Add Reading"
+
+# Fill in blood pressure
+- tapOn:
+    id: "systolic-input"
+- inputText: "120"
+
+- tapOn:
+    id: "diastolic-input"
+- inputText: "80"
+
+# Fill in heart rate
+- tapOn:
+    id: "heart-rate-input"
+- inputText: "72"
+
+# Fill in temperature
+- tapOn:
+    id: "temperature-input"
+- inputText: "36.8"
+
+# Fill in oxygen saturation
+- tapOn:
+    id: "oxygen-input"
+- inputText: "98"
+
+# Submit vitals
+- tapOn: "Save"
+
+# Wait for submission
+- waitForAnimationToEnd:
+    timeout: 3000
+
+# Verify success
+- assertVisible: "Vitals recorded successfully"
+
+# Verify new reading appears in history
+- assertVisible: "120/80"
+- assertVisible: "72 bpm"

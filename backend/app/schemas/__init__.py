@@ -47,6 +47,22 @@ from app.schemas.clinical import (
     SymptomEntryCreate,
     SymptomEntryResponse,
 )
+from app.schemas.protocol_request import (
+    ProtocolRequestCreate,
+    ProtocolRequestUpdate,
+    ProtocolRequestResponse,
+    ProtocolRequestListResponse,
+    ClinicalDataCollectionBase,
+    ClinicalDataUpdate,
+    LabReportBase,
+    MedicalHistoryBase,
+    NurseApproval,
+    DoctorApproval,
+    DocumentUploadResponse,
+    ProtocolGenerationResponse,
+    WorkflowStatusResponse,
+    PendingApprovalsResponse,
+)
 
 __all__ = [
     # Auth
@@ -91,4 +107,19 @@ __all__ = [
     "NotificationResponse",
     "SymptomEntryCreate",
     "SymptomEntryResponse",
+    # Protocol Request
+    "ProtocolRequestCreate",
+    "ProtocolRequestUpdate",
+    "ProtocolRequestResponse",
+    "ProtocolRequestListResponse",
+    "ClinicalDataCollectionBase",
+    "ClinicalDataUpdate",
+    "LabReportBase",
+    "MedicalHistoryBase",
+    "NurseApproval",
+    "DoctorApproval",
+    "DocumentUploadResponse",
+    "ProtocolGenerationResponse",
+    "WorkflowStatusResponse",
+    "PendingApprovalsResponse",
 ]

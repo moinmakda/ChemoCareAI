@@ -94,11 +94,8 @@ export const usePatientStore = create<PatientState>((set, get) => ({
   },
 
   fetchAppointments: async () => {
-    const { currentPatient } = get();
-    if (!currentPatient) return;
-    
     try {
-      const appointments = await patientService.getAppointments(currentPatient.id);
+      const appointments = await patientService.getAppointments('');
       set({ appointments });
     } catch (error: any) {
       set({ error: error.message });
@@ -108,12 +105,12 @@ export const usePatientStore = create<PatientState>((set, get) => ({
   fetchDocuments: async () => {
     const { currentPatient } = get();
     if (!currentPatient) return;
-    
+
     try {
       const documents = await patientService.getDocuments(currentPatient.id);
       set({ documents });
-    } catch (error: any) {
-      set({ error: error.message });
+    } catch {
+      // Documents endpoint may not be available; fail silently
     }
   },
 
@@ -134,7 +131,7 @@ export const usePatientStore = create<PatientState>((set, get) => ({
     if (!currentPatient) return;
     
     try {
-      const vitals = await patientService.getVitals(currentPatient.id);
+      const vitals = await patientService.getVitals();
       set({ vitals });
     } catch (error: any) {
       set({ error: error.message });
@@ -146,7 +143,7 @@ export const usePatientStore = create<PatientState>((set, get) => ({
     if (!currentPatient) return;
     
     try {
-      const symptoms = await patientService.getSymptomEntries(currentPatient.id);
+      const symptoms = await patientService.getSymptomEntries();
       set({ symptoms });
     } catch (error: any) {
       set({ error: error.message });
@@ -159,7 +156,7 @@ export const usePatientStore = create<PatientState>((set, get) => ({
     
     set({ isLoading: true, error: null });
     try {
-      await patientService.logSymptoms(currentPatient.id, symptoms);
+      await patientService.logSymptoms(symptoms);
       await get().fetchSymptoms();
       set({ isLoading: false });
     } catch (error: any) {

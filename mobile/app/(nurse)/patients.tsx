@@ -91,8 +91,8 @@ export default function NursePatientsScreen() {
       });
 
       setPatients(patientsWithStatus);
-    } catch (error) {
-      console.error('Error fetching patients:', error);
+    } catch {
+      // silent — list stays empty, user can pull-to-refresh
     } finally {
       setLoading(false);
     }
@@ -152,8 +152,7 @@ export default function NursePatientsScreen() {
       Alert.alert('Success', 'Vitals recorded successfully');
       setShowVitalsModal(false);
       setSelectedPatient(null);
-    } catch (error) {
-      console.error('Error saving vitals:', error);
+    } catch {
       Alert.alert('Error', 'Failed to save vitals. Please try again.');
     } finally {
       setSavingVitals(false);
@@ -163,13 +162,12 @@ export default function NursePatientsScreen() {
   // Check in patient
   const handleCheckIn = async (patient: PatientWithAppointment) => {
     if (!patient.todayAppointment) return;
-    
+
     try {
       await nurseService.checkInPatient(patient.todayAppointment.id);
       Alert.alert('Success', `${patient.firstName} checked in successfully`);
       fetchData();
-    } catch (error) {
-      console.error('Error checking in:', error);
+    } catch {
       Alert.alert('Error', 'Failed to check in patient');
     }
   };
@@ -235,8 +233,9 @@ export default function NursePatientsScreen() {
         )}
         
         {item.status === 'active' && (
-          <TouchableOpacity 
+          <TouchableOpacity
             style={[styles.actionButton, styles.activeButton]}
+            onPress={() => router.push({ pathname: '/(nurse)/vitals', params: { patientId: item.id } })}
           >
             <Ionicons name="medical-outline" size={18} color={Colors.success} />
             <Text style={[styles.actionButtonText, { color: Colors.success }]}>In Treatment</Text>

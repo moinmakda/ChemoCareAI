@@ -5,14 +5,13 @@ Uses structured JSON output with Pydantic models for type-safe responses.
 Documentation: https://ai.google.dev/gemini-api/docs/structured-output
 """
 from typing import Optional, Dict, Any, List
-from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.core.database import get_db
-from app.models import Patient, ProtocolTemplate
+from app.models import Patient, ProtocolTemplate, User
 from app.api.deps import get_current_user, allow_doctors, allow_medical_staff
 from app.services.gemini_ai import (
     generate_protocol as ai_generate_protocol,
@@ -139,7 +138,7 @@ class PatientChatRequest(BaseModel):
 async def generate_protocol(
     request: GenerateProtocolRequest,
     db: AsyncSession = Depends(get_db),
-    current_user = Depends(allow_doctors),
+    current_user: User = Depends(allow_doctors),
 ):
     """
     Generate a personalized chemotherapy protocol using Gemini AI.
@@ -179,19 +178,19 @@ async def generate_protocol(
     # Prepare patient info for AI
     patient_info = {
         "age": patient.age,
-        "gender": patient.gender,
-        "weight": patient.weight,
-        "height": patient.height,
+        "gender": patient.gender.value if patient.gender else "Unknown",
+        "weight": float(patient.weight_kg) if patient.weight_kg else None,
+        "height": float(patient.height_cm) if patient.height_cm else None,
         "bsa": patient.bsa,
-        "ecog": getattr(patient, 'ecog_status', 'Unknown'),
+        "ecog": "Unknown",  # ECOG status not yet in Patient model
     }
     
     try:
         # Call Gemini AI with structured output
         ai_result = await ai_generate_protocol(
             patient_info=patient_info,
-            diagnosis=patient.diagnosis,
-            stage=getattr(patient, 'stage', 'Unknown'),
+            diagnosis=patient.cancer_type or "Unknown",
+            stage=patient.cancer_stage or "Unknown",
             template_name=protocol.name,
             template_drugs=protocol.drugs or [],
             recent_labs=request.recent_labs,
@@ -216,7 +215,7 @@ async def generate_protocol(
 )
 async def calculate_dose(
     request: DoseCalculationRequest,
-    current_user = Depends(allow_medical_staff),
+    current_user: User = Depends(allow_medical_staff),
 ):
     """
     Calculate drug dose with AI-assisted adjustments.
@@ -257,7 +256,7 @@ async def calculate_dose(
 )
 async def check_drug_interactions(
     request: DrugInteractionRequest,
-    current_user = Depends(allow_medical_staff),
+    current_user: User = Depends(allow_medical_staff),
 ):
     """
     Check for drug-drug interactions between chemotherapy and other medications.
@@ -292,7 +291,7 @@ async def check_drug_interactions(
 async def analyze_labs(
     request: LabAnalysisRequest,
     db: AsyncSession = Depends(get_db),
-    current_user = Depends(allow_medical_staff),
+    current_user: User = Depends(allow_medical_staff),
 ):
     """
     Analyze lab values to determine if a patient is fit for treatment.
@@ -332,7 +331,7 @@ async def analyze_labs(
 )
 async def analyze_symptoms(
     request: SymptomAnalysisRequest,
-    current_user = Depends(allow_medical_staff),
+    current_user: User = Depends(allow_medical_staff),
 ):
     """
     Analyze patient-reported symptoms for concerning patterns.
@@ -368,7 +367,7 @@ async def analyze_symptoms(
 async def assess_risk(
     request: RiskAssessmentRequest,
     db: AsyncSession = Depends(get_db),
-    current_user = Depends(allow_doctors),
+    current_user: User = Depends(allow_doctors),
 ):
     """
     Assess treatment risks for a patient.
@@ -392,16 +391,16 @@ async def assess_risk(
     # Prepare patient info for AI recommendations
     patient_info = {
         "age": patient.age,
-        "gender": patient.gender,
+        "gender": patient.gender.value if patient.gender else "Unknown",
         "comorbidities": patient.comorbidities or [],
-        "ecog": getattr(patient, 'ecog_status', 'Unknown'),
+        "ecog": "Unknown",  # ECOG status not yet in Patient model
         "cycle_number": request.cycle_number,
     }
     
     try:
         recommendations = await get_treatment_recommendations(
             patient_info=patient_info,
-            diagnosis=patient.diagnosis,
+            diagnosis=patient.cancer_type or "Unknown",
             current_status=f"Cycle {request.cycle_number} of {request.protocol_name}",
         )
         
@@ -427,7 +426,7 @@ async def assess_risk(
 async def get_recommendations(
     patient_id: str,
     db: AsyncSession = Depends(get_db),
-    current_user = Depends(allow_medical_staff),
+    current_user: User = Depends(allow_medical_staff),
 ):
     """
     Get personalized AI recommendations for a patient.
@@ -451,22 +450,22 @@ async def get_recommendations(
     
     patient_info = {
         "age": patient.age,
-        "gender": patient.gender,
-        "weight": patient.weight,
-        "height": patient.height,
+        "gender": patient.gender.value if patient.gender else "Unknown",
+        "weight": float(patient.weight_kg) if patient.weight_kg else None,
+        "height": float(patient.height_cm) if patient.height_cm else None,
         "comorbidities": patient.comorbidities or [],
     }
     
     try:
         recommendations = await get_treatment_recommendations(
             patient_info=patient_info,
-            diagnosis=patient.diagnosis,
-            current_status=patient.treatment_status or "Active treatment",
+            diagnosis=patient.cancer_type or "Unknown",
+            current_status="Active treatment",  # TODO: Get from active treatment plan
         )
         
         return {
             "patient_id": str(patient.id),
-            "diagnosis": patient.diagnosis,
+            "diagnosis": patient.cancer_type or "Unknown",
             **recommendations,
         }
         
@@ -516,7 +515,7 @@ async def health_check():
 async def patient_chat(
     request: PatientChatRequest,
     db: AsyncSession = Depends(get_db),
-    current_user = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Chat with the AI assistant for patients undergoing chemotherapy.
@@ -548,11 +547,16 @@ async def patient_chat(
             message=request.message,
             conversation_history=request.conversation_history,
         )
-        
+
         return response
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"AI chat service error: {str(e)}",
+
+    except Exception:
+        # Return a graceful fallback instead of 500 so the UI degrades cleanly
+        from app.services.gemini_ai import PatientChatResponse as _PCR
+        return _PCR(
+            message="I'm sorry, the AI assistant is temporarily unavailable. Please contact your care team directly for any urgent concerns.",
+            is_urgent=False,
+            suggested_actions=["Contact your care team if you have urgent concerns"],
+            should_contact_care_team=False,
+            symptom_severity=None,
         )

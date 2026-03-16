@@ -6,9 +6,9 @@ export const APP_NAME = 'ChemoCare AI';
 export const APP_VERSION = '1.0.0';
 
 // API Configuration
-export const API_BASE_URL = __DEV__ 
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || (__DEV__ 
   ? 'http://localhost:8000/api/v1'
-  : 'https://api.chemocare.ai/api/v1';
+  : 'https://api.chemocare.ai/api/v1');
 
 // Storage Keys
 export const STORAGE_KEYS = {

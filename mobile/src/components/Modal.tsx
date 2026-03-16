@@ -115,6 +115,7 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.xl,
     ...shadows.lg,
     overflow: 'hidden',
+    minHeight: 200,
   },
   fullscreen: {
     flex: 1,
@@ -140,8 +141,10 @@ const styles = StyleSheet.create({
     marginLeft: spacing.sm,
   },
   content: {
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
     flex: 1,
+    width: '100%',
   },
 });
 

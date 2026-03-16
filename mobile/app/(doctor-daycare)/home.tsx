@@ -16,7 +16,7 @@ import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
-import { Card, Avatar, Badge, Button } from '../../src/components';
+import { Card, Avatar, Badge, Button, PendingApprovalsCard } from '../../src/components';
 import { useAuthStore } from '../../src/store/authStore';
 import { doctorService, type PatientSummaryAPI, type AppointmentAPI, type DashboardStats } from '../../src/services/doctorService';
 
@@ -45,8 +45,8 @@ export default function DoctorDayCareHomeScreen() {
       setStats(dashStats);
       setTodayAppointments(appts);
       setPatients(patientList);
-    } catch (error) {
-      console.error('Error loading dashboard:', error);
+    } catch {
+      // silent — dashboard shows zeros, user can pull-to-refresh
     } finally {
       setIsLoading(false);
     }
@@ -167,6 +167,9 @@ export default function DoctorDayCareHomeScreen() {
           </View>
         </View>
 
+        {/* Pending Protocol Approvals */}
+        <PendingApprovalsCard userRole="doctor" />
+
         {/* Today's Appointments */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Today's Appointments</Text>
@@ -182,7 +185,7 @@ export default function DoctorDayCareHomeScreen() {
           </Card>
         ) : (
           todayAppointments.slice(0, 5).map((apt) => (
-            <TouchableOpacity key={apt.id}>
+            <TouchableOpacity key={apt.id} onPress={() => router.push('/(doctor-daycare)/active')}>
               <Card variant="default" padding="medium" style={styles.appointmentCard}>
                 <View style={styles.appointmentHeader}>
                   <View style={styles.timeBox}>
@@ -217,13 +220,13 @@ export default function DoctorDayCareHomeScreen() {
         {/* Patients Section */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Recent Patients</Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(doctor-daycare)/active')}>
             <Text style={styles.seeAllText}>View All</Text>
           </TouchableOpacity>
         </View>
 
         {patients.slice(0, 4).map((patient) => (
-          <TouchableOpacity key={patient.id}>
+          <TouchableOpacity key={patient.id} onPress={() => router.push('/(doctor-daycare)/active')}>
             <Card variant="default" padding="medium" style={styles.patientCard}>
               <View style={styles.patientRow}>
                 <Avatar name={patient.firstName + ' ' + patient.lastName} size="medium" />
@@ -247,15 +250,15 @@ export default function DoctorDayCareHomeScreen() {
             <Text style={styles.aiTitle}>AI Assistant</Text>
           </View>
           <View style={styles.aiActions}>
-            <TouchableOpacity style={styles.aiActionButton}>
+            <TouchableOpacity style={styles.aiActionButton} onPress={() => router.push('/(doctor-daycare)/ai')}>
               <Ionicons name="calculator" size={20} color={Colors.primary} />
               <Text style={styles.aiActionText}>Dose Calculator</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.aiActionButton}>
+            <TouchableOpacity style={styles.aiActionButton} onPress={() => router.push('/(doctor-daycare)/ai')}>
               <Ionicons name="swap-horizontal" size={20} color={Colors.primary} />
               <Text style={styles.aiActionText}>Drug Interactions</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.aiActionButton}>
+            <TouchableOpacity style={styles.aiActionButton} onPress={() => router.push('/(doctor-daycare)/ai')}>
               <Ionicons name="shield-checkmark" size={20} color={Colors.primary} />
               <Text style={styles.aiActionText}>Risk Assessment</Text>
             </TouchableOpacity>

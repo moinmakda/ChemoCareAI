@@ -1,0 +1,50 @@
+# Symptom Reporting Flow
+# Run: maestro test .maestro/flows/patient/symptoms.yaml
+
+appId: com.chemocare.mobile
+
+---
+
+# Login as patient
+- runFlow: "../shared/login-patient.yaml"
+
+# Navigate to symptoms
+- tapOn:
+    text: "Symptoms"
+- waitForAnimationToEnd
+
+# Verify symptoms screen
+- assertVisible: "Report Symptoms"
+
+# Add new symptom
+- tapOn: "Report New Symptom"
+
+# Select symptom type
+- tapOn: "Nausea"
+
+# Select severity (1-10 scale)
+- tapOn:
+    id: "severity-slider"
+- swipe:
+    direction: RIGHT
+    duration: 500
+
+# Add description
+- tapOn:
+    id: "description-input"
+- inputText: "Feeling nauseous after meals, especially in the morning"
+
+# Submit symptom
+- tapOn: "Submit"
+
+# Wait for AI analysis
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Verify symptom was recorded
+- assertVisible: "Symptom reported"
+
+# Check for AI recommendations
+- assertVisible:
+    text: "Recommendations"
+    optional: true

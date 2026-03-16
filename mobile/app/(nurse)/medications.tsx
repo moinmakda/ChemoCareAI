@@ -17,7 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { Avatar, Badge, Button, Header, Card } from '../../src/components';
-import { doctorService, AppointmentAPI, PatientSummaryAPI } from '../../src/services/doctorService';
+import { nurseService, MedicationAPI } from '../../src/services/nurseService';
 
 interface MedicationItem {
   id: string;
@@ -29,65 +29,29 @@ interface MedicationItem {
   status: 'pending' | 'in_progress' | 'completed' | 'held';
   scheduledTime: string;
   notes?: string;
+  chairNumber?: string;
 }
 
-// Mock medication data - in production this would come from treatment cycles API
-const MOCK_MEDICATIONS: MedicationItem[] = [
-  {
-    id: '1',
-    patientId: 'p1',
-    patientName: 'Raj Kumar',
-    drugName: 'Ondansetron',
-    dose: '8mg IV',
-    route: 'IV Push',
-    status: 'pending',
-    scheduledTime: '09:00',
-    notes: 'Pre-medication - give 30 min before chemo',
-  },
-  {
-    id: '2',
-    patientId: 'p1',
-    patientName: 'Raj Kumar',
-    drugName: 'Dexamethasone',
-    dose: '12mg IV',
-    route: 'IV Push',
-    status: 'pending',
-    scheduledTime: '09:00',
-    notes: 'Pre-medication',
-  },
-  {
-    id: '3',
-    patientId: 'p1',
-    patientName: 'Raj Kumar',
-    drugName: 'Oxaliplatin',
-    dose: '130mg/m²',
-    route: 'IV Infusion',
-    status: 'pending',
-    scheduledTime: '09:30',
-    notes: '2-hour infusion - watch for cold sensitivity',
-  },
-  {
-    id: '4',
-    patientId: 'p2',
-    patientName: 'Priya Sharma',
-    drugName: 'Paclitaxel',
-    dose: '175mg/m²',
-    route: 'IV Infusion',
-    status: 'in_progress',
-    scheduledTime: '08:00',
-    notes: '3-hour infusion - monitor for hypersensitivity',
-  },
-  {
-    id: '5',
-    patientId: 'p3',
-    patientName: 'Amit Patel',
-    drugName: '5-Fluorouracil',
-    dose: '400mg/m²',
-    route: 'IV Bolus',
-    status: 'completed',
-    scheduledTime: '07:30',
-  },
-];
+// Convert API response to display format
+const mapMedicationToDisplay = (med: any): MedicationItem => ({
+  id: med.id,
+  patientId: med.patientId || med.cycleId,
+  patientName: med.patientName || 'Unknown Patient',
+  drugName: med.drugName,
+  dose: `${med.plannedDose}${med.unit}`,
+  route: med.route,
+  status: med.status === 'started' ? 'in_progress' :
+    med.status === 'paused' ? 'held' :
+      med.status === 'cancelled' ? 'held' :
+        med.status as MedicationItem['status'],
+  scheduledTime: med.createdAt ? new Date(med.createdAt).toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }) : '--:--',
+  notes: med.notes,
+  chairNumber: med.chairNumber,
+});
 
 export default function NurseMedicationsScreen() {
   const router = useRouter();
@@ -102,11 +66,11 @@ export default function NurseMedicationsScreen() {
   // Fetch data
   const fetchData = useCallback(async () => {
     try {
-      // In production, this would fetch from treatment cycles/drug administrations API
-      // For now, use mock data
-      setMedications(MOCK_MEDICATIONS);
-    } catch (error) {
-      console.error('Error fetching medications:', error);
+      const apiMedications = await nurseService.getTodayMedications();
+      const displayMedications = apiMedications.map(mapMedicationToDisplay);
+      setMedications(displayMedications);
+    } catch {
+      Alert.alert('Error', 'Failed to load medications. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -141,18 +105,30 @@ export default function NurseMedicationsScreen() {
   }, {} as Record<string, { patientName: string; medications: MedicationItem[] }>);
 
   // Update medication status
-  const updateStatus = (medId: string, newStatus: MedicationItem['status']) => {
-    setMedications(prev => 
-      prev.map(m => m.id === medId ? { ...m, status: newStatus } : m)
-    );
-    
-    const statusMessages = {
-      in_progress: 'Administration started',
-      completed: 'Administration completed',
-      held: 'Medication held',
-      pending: 'Status reset to pending',
-    };
-    Alert.alert('Updated', statusMessages[newStatus]);
+  const updateStatus = async (medId: string, newStatus: MedicationItem['status']) => {
+    try {
+      // Map display status to API status
+      const apiStatus = newStatus === 'in_progress' ? 'started' :
+        newStatus === 'held' ? 'paused' :
+          newStatus;
+
+      await nurseService.updateMedicationStatus(medId, apiStatus as any);
+
+      // Update local state
+      setMedications(prev =>
+        prev.map(m => m.id === medId ? { ...m, status: newStatus } : m)
+      );
+
+      const statusMessages = {
+        in_progress: 'Administration started',
+        completed: 'Administration completed',
+        held: 'Medication held',
+        pending: 'Status reset to pending',
+      };
+      Alert.alert('Updated', statusMessages[newStatus]);
+    } catch {
+      Alert.alert('Error', 'Failed to update medication status. Please try again.');
+    }
   };
 
   // Get status badge
@@ -179,7 +155,7 @@ export default function NurseMedicationsScreen() {
 
   const renderMedicationGroup = ({ item: patientId }: { item: string }) => {
     const group = groupedMedications[patientId];
-    
+
     return (
       <Card variant="default" padding="medium" style={styles.patientCard}>
         <View style={styles.patientHeader}>
@@ -206,7 +182,7 @@ export default function NurseMedicationsScreen() {
               </View>
               {getStatusBadge(med.status)}
             </View>
-            
+
             <View style={styles.medMeta}>
               <View style={styles.timeInfo}>
                 <Ionicons name="time-outline" size={14} color={Colors.textSecondary} />
@@ -219,14 +195,14 @@ export default function NurseMedicationsScreen() {
 
             {med.status === 'pending' && (
               <View style={styles.medActions}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.startButton}
                   onPress={() => updateStatus(med.id, 'in_progress')}
                 >
                   <Ionicons name="play-circle-outline" size={18} color={Colors.white} />
                   <Text style={styles.startButtonText}>Start</Text>
                 </TouchableOpacity>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.holdButton}
                   onPress={() => updateStatus(med.id, 'held')}
                 >
@@ -238,12 +214,28 @@ export default function NurseMedicationsScreen() {
 
             {med.status === 'in_progress' && (
               <View style={styles.medActions}>
-                <TouchableOpacity 
+                <TouchableOpacity
                   style={styles.completeButton}
                   onPress={() => updateStatus(med.id, 'completed')}
                 >
                   <Ionicons name="checkmark-circle-outline" size={18} color={Colors.white} />
                   <Text style={styles.completeButtonText}>Complete</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.stopButton}
+                  onPress={() =>
+                    Alert.alert(
+                      'Stop Infusion',
+                      `Stop ${med.drugName} for ${med.patientName}? This will record an adverse stop.`,
+                      [
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Stop', style: 'destructive', onPress: () => updateStatus(med.id, 'held') },
+                      ]
+                    )
+                  }
+                >
+                  <Ionicons name="stop-circle-outline" size={18} color={Colors.error} />
+                  <Text style={styles.stopButtonText}>Stop</Text>
                 </TouchableOpacity>
               </View>
             )}
@@ -287,9 +279,9 @@ export default function NurseMedicationsScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <Header 
-        title="Medications" 
-        showBackButton 
+      <Header
+        title="Medications"
+        showBackButton
         onBackPress={() => router.back()}
       />
 
@@ -314,10 +306,10 @@ export default function NurseMedicationsScreen() {
             <Ionicons name="medical-outline" size={48} color={Colors.textTertiary} />
             <Text style={styles.emptyTitle}>No Medications</Text>
             <Text style={styles.emptyText}>
-              {filter === 'pending' ? 'No pending medications' : 
-               filter === 'in_progress' ? 'No active infusions' :
-               filter === 'completed' ? 'No completed medications yet' :
-               'No medications scheduled today'}
+              {filter === 'pending' ? 'No pending medications' :
+                filter === 'in_progress' ? 'No active infusions' :
+                  filter === 'completed' ? 'No completed medications yet' :
+                    'No medications scheduled today'}
             </Text>
           </View>
         }
@@ -526,6 +518,23 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.medium,
     fontSize: Typography.fontSize.sm,
     color: Colors.white,
+  },
+  stopButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    backgroundColor: `${Colors.error}15`,
+    borderWidth: 1,
+    borderColor: Colors.error,
+  },
+  stopButtonText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.error,
   },
   emptyState: {
     alignItems: 'center',

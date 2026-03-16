@@ -72,6 +72,13 @@ export default function DoctorDayCareLayout() {
           ),
         }}
       />
+      {/* Hidden screens - accessible via navigation but not shown in tab bar */}
+      <Tabs.Screen
+        name="protocol-approval"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
     </Tabs>
   );
 }

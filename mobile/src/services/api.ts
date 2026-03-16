@@ -5,6 +5,7 @@ import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'ax
 import * as SecureStore from 'expo-secure-store';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+console.log('[API] Using Base URL:', API_BASE_URL);
 
 const STORAGE_KEYS = {
   ACCESS_TOKEN: 'access_token',
@@ -50,7 +51,7 @@ apiClient.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (error) {
-      console.error('Error reading token:', error);
+      // ignore token read error
     }
     return config;
   },
@@ -92,10 +93,12 @@ apiClient.interceptors.response.use(
           return apiClient(originalRequest);
         }
       } catch (refreshError) {
-        // Clear tokens and redirect to login
+        // Clear tokens and force logout via auth store
         await SecureStore.deleteItemAsync(STORAGE_KEYS.ACCESS_TOKEN);
         await SecureStore.deleteItemAsync(STORAGE_KEYS.REFRESH_TOKEN);
-        // The auth store will handle redirect
+        // Dynamically import to avoid circular dependency
+        const { useAuthStore } = await import('../store/authStore');
+        useAuthStore.getState().logout();
       }
     }
     
@@ -103,26 +106,7 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Day Care API endpoints
-const daycareApi = {
-  getActivePatients: () => apiClient.get('/daycare/sessions/active').then(res => res.data),
-  getChairStatus: () => apiClient.get('/daycare/chairs').then(res => res.data),
-  getPatientDetails: (id: string) => apiClient.get(`/daycare/sessions/${id}`).then(res => res.data),
-  startInfusion: (sessionId: string) => apiClient.post(`/daycare/sessions/${sessionId}/start`),
-  updateProgress: (sessionId: string, progress: number) => apiClient.patch(`/daycare/sessions/${sessionId}/progress`, { progress }),
-  reportReaction: (sessionId: string, data: any) => apiClient.post(`/daycare/sessions/${sessionId}/reaction`, data),
-  completeSession: (sessionId: string) => apiClient.post(`/daycare/sessions/${sessionId}/complete`),
-};
-
-// API object with organized endpoints
-const api = {
-  client: apiClient,
-  daycare: daycareApi,
-};
-
-export default api;
-
-// Export the raw client for backward compatibility
+export default apiClient;
 export { apiClient };
 
 // Helper functions

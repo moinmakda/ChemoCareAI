@@ -2,12 +2,18 @@
 ChemoCare AI - FastAPI Backend Application
 """
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from app.core.config import settings
 from app.core.database import init_db
 from app.api.v1 import api_router
+
+# Global rate limiter — key by client IP
+limiter = Limiter(key_func=get_remote_address)
 
 
 @asynccontextmanager
@@ -29,8 +35,12 @@ app = FastAPI(
     redoc_url="/redoc",
     openapi_url="/openapi.json",
     lifespan=lifespan,
-    redirect_slashes=False,  # Don't redirect - prevents auth header loss
+    redirect_slashes=True,  # Redirect slashes (e.g. /patients/ -> /patients)
 )
+
+# Rate limiter state + 429 handler
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS middleware
 app.add_middleware(
@@ -40,6 +50,18 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# Security headers middleware
+@app.middleware("http")
+async def add_security_headers(request: Request, call_next):
+    response: Response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Cache-Control"] = "no-store"
+    return response
 
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_PREFIX)
@@ -70,3 +92,4 @@ if __name__ == "__main__":
         port=settings.PORT,
         reload=settings.DEBUG,
     )
+    

@@ -1,0 +1,51 @@
+# Nurse Medication Administration Flow
+# Run: maestro test .maestro/flows/nurse/medications.yaml
+
+appId: com.chemocare.mobile
+
+---
+
+# Login as nurse
+- waitForAnimationToEnd
+
+- tapOn:
+    id: "email-input"
+- inputText: "nurse@chemocare.com"
+- tapOn:
+    id: "password-input"
+- inputText: "password123"
+- tapOn: "Sign In"
+- waitForAnimationToEnd:
+    timeout: 5000
+
+# Verify nurse dashboard
+- assertVisible: "Today's Medications"
+
+# View medication list
+- assertVisible: "Cyclophosphamide"
+- assertVisible: "pending"
+
+# Tap on first medication
+- tapOn: "Cyclophosphamide"
+
+# View medication details
+- assertVisible: "Patient:"
+- assertVisible: "Dose:"
+- assertVisible: "Route:"
+
+# Start medication administration
+- tapOn: "Start Administration"
+
+# Confirm action
+- tapOn: "Confirm"
+
+# Verify status change
+- waitForAnimationToEnd
+- assertVisible: "started"
+
+# Complete administration
+- tapOn: "Mark Complete"
+- tapOn: "Confirm"
+
+# Verify completion
+- assertVisible: "completed"

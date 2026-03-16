@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, typography, spacing, borderRadius, shadows } from '../../src/constants/theme';
 import { Card, Header, Button, Modal, Input } from '../../src/components';
-import { vitalsService, PatientVitalCreate } from '../../src/services/vitalsService';
+import { vitalsService, VitalCreate } from '../../src/services/vitalsService';
 import type { Vital } from '../../src/types';
 
 export default function PatientVitalsScreen() {
@@ -30,7 +30,7 @@ export default function PatientVitalsScreen() {
   const [isSaving, setIsSaving] = useState(false);
   
   // Form state for logging vitals
-  const [formData, setFormData] = useState<PatientVitalCreate>({
+  const [formData, setFormData] = useState<VitalCreate>({
     temperature_f: undefined,
     pulse_bpm: undefined,
     blood_pressure_systolic: undefined,
@@ -43,10 +43,9 @@ export default function PatientVitalsScreen() {
 
   const loadVitals = async () => {
     try {
-      const data = await vitalsService.getMyVitals(30);
+      const data = await vitalsService.getVitals(undefined, 30);
       setVitals(data);
     } catch (error: any) {
-      console.error('Error loading vitals:', error);
       if (error.response?.status !== 404) {
         Alert.alert('Error', 'Failed to load vitals history');
       }
@@ -92,7 +91,7 @@ export default function PatientVitalsScreen() {
 
     setIsSaving(true);
     try {
-      const result = await vitalsService.logMyVitals(formData);
+      const result = await vitalsService.logVitals(formData);
       
       // Check for alerts
       if (result.aiAlerts && result.aiAlerts.length > 0) {
@@ -117,7 +116,6 @@ export default function PatientVitalsScreen() {
       resetForm();
       await loadVitals();
     } catch (error: any) {
-      console.error('Error saving vitals:', error);
       Alert.alert('Error', error.response?.data?.detail || 'Failed to save vitals');
     } finally {
       setIsSaving(false);
@@ -403,6 +401,7 @@ export default function PatientVitalsScreen() {
           resetForm();
         }}
         title="Log Vitals"
+        size="large"
       >
         <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
           <Text style={styles.modalSubtitle}>
@@ -680,7 +679,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   modalScroll: {
-    flexGrow: 1,
+    flex: 1,
+    paddingTop: spacing.sm,
   },
   modalSubtitle: {
     fontSize: typography.body.fontSize,

@@ -72,6 +72,19 @@ export default function NurseLayout() {
           ),
         }}
       />
+      {/* Hidden screens - accessible via navigation but not shown in tab bar */}
+      <Tabs.Screen
+        name="protocol-request"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
+      <Tabs.Screen
+        name="protocol-review"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
     </Tabs>
   );
 }

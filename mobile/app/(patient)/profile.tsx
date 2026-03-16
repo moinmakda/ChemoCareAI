@@ -9,6 +9,8 @@ import {
   ScrollView,
   TouchableOpacity,
   ViewStyle,
+  Alert,
+  Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,11 +18,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, spacing, borderRadius } from '../../src/constants/theme';
 import { Card, Avatar, Header, Modal, Button } from '../../src/components';
 import { useAuthStore } from '../../src/store/authStore';
+import { usePatientStore } from '../../src/store/patientStore';
+
+const showComingSoon = (feature: string) => {
+  Alert.alert('Coming Soon', `${feature} will be available in a future update.`);
+};
 
 export default function PatientProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { user, logout } = useAuthStore();
+  const { currentPatient, treatmentPlans } = usePatientStore();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const handleLogout = async () => {
@@ -29,6 +37,13 @@ export default function PatientProfileScreen() {
     router.replace('/(auth)/login');
   };
 
+  // Calculate real stats
+  const completedCycles = treatmentPlans?.reduce((sum, plan) => sum + plan.completedCycles, 0) || 0;
+  const totalAppointments = treatmentPlans?.length || 0;
+  const monthsInTreatment = currentPatient?.diagnosisDate 
+    ? Math.max(1, Math.floor((Date.now() - new Date(currentPatient.diagnosisDate).getTime()) / (30 * 24 * 60 * 60 * 1000)))
+    : 0;
+
   const menuSections = [
     {
       title: 'Account',
@@ -36,22 +51,22 @@ export default function PatientProfileScreen() {
         {
           icon: 'person-outline',
           label: 'Personal Information',
-          onPress: () => {},
+          onPress: () => showComingSoon('Personal Information'),
         },
         {
           icon: 'document-text-outline',
           label: 'Medical History',
-          onPress: () => {},
+          onPress: () => showComingSoon('Medical History'),
         },
         {
           icon: 'people-outline',
           label: 'Emergency Contacts',
-          onPress: () => {},
+          onPress: () => showComingSoon('Emergency Contacts'),
         },
         {
           icon: 'shield-checkmark-outline',
           label: 'Insurance Information',
-          onPress: () => {},
+          onPress: () => showComingSoon('Insurance Information'),
         },
       ],
     },
@@ -61,19 +76,19 @@ export default function PatientProfileScreen() {
         {
           icon: 'notifications-outline',
           label: 'Notifications',
-          onPress: () => {},
+          onPress: () => showComingSoon('Notification Settings'),
         },
         {
           icon: 'language-outline',
           label: 'Language',
           value: 'English',
-          onPress: () => {},
+          onPress: () => showComingSoon('Language Settings'),
         },
         {
           icon: 'moon-outline',
           label: 'Dark Mode',
           value: 'Off',
-          onPress: () => {},
+          onPress: () => showComingSoon('Dark Mode'),
         },
       ],
     },
@@ -83,17 +98,17 @@ export default function PatientProfileScreen() {
         {
           icon: 'help-circle-outline',
           label: 'Help Center',
-          onPress: () => {},
+          onPress: () => showComingSoon('Help Center'),
         },
         {
           icon: 'chatbubble-ellipses-outline',
           label: 'Contact Support',
-          onPress: () => {},
+          onPress: () => Linking.openURL('tel:18002436226'),
         },
         {
           icon: 'star-outline',
           label: 'Rate the App',
-          onPress: () => {},
+          onPress: () => showComingSoon('App Store Rating'),
         },
       ],
     },
@@ -103,12 +118,12 @@ export default function PatientProfileScreen() {
         {
           icon: 'document-outline',
           label: 'Terms of Service',
-          onPress: () => {},
+          onPress: () => showComingSoon('Terms of Service'),
         },
         {
           icon: 'lock-closed-outline',
           label: 'Privacy Policy',
-          onPress: () => {},
+          onPress: () => showComingSoon('Privacy Policy'),
         },
       ],
     },
@@ -131,27 +146,27 @@ export default function PatientProfileScreen() {
               name={user?.fullName || 'Patient'}
               size="xlarge"
             />
-            <TouchableOpacity style={styles.editAvatarButton}>
+            <TouchableOpacity style={styles.editAvatarButton} onPress={() => showComingSoon('Photo Upload')}>
               <Ionicons name="camera" size={16} color={colors.neutral[0]} />
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.profileName}>{user?.fullName || 'Patient Name'}</Text>
-          <Text style={styles.profileEmail}>{user?.email || 'email@example.com'}</Text>
+          <Text style={styles.profileName}>{user?.fullName || 'Loading...'}</Text>
+          <Text style={styles.profileEmail}>{user?.email || ''}</Text>
 
           <View style={styles.profileStats}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>3</Text>
+              <Text style={styles.statValue}>{completedCycles}</Text>
               <Text style={styles.statLabel}>Cycles</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>12</Text>
-              <Text style={styles.statLabel}>Appointments</Text>
+              <Text style={styles.statValue}>{totalAppointments}</Text>
+              <Text style={styles.statLabel}>Plans</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>6</Text>
+              <Text style={styles.statValue}>{monthsInTreatment}</Text>
               <Text style={styles.statLabel}>Months</Text>
             </View>
           </View>

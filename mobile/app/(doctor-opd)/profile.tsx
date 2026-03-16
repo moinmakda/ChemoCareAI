@@ -9,12 +9,18 @@ import {
   ScrollView,
   TouchableOpacity,
   ViewStyle,
+  Alert,
+  Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, spacing, borderRadius } from '../../src/constants/theme';
 import { Card, Avatar, Header, Modal, Button } from '../../src/components';
 import { useAuthStore } from '../../src/store/authStore';
+
+const showComingSoon = (feature: string) => {
+  Alert.alert('Coming Soon', `${feature} will be available in a future update.`);
+};
 
 export default function DoctorOPDProfileScreen() {
   const router = useRouter();
@@ -31,31 +37,31 @@ export default function DoctorOPDProfileScreen() {
     {
       title: 'Account',
       items: [
-        { icon: 'person-outline', label: 'Personal Information', onPress: () => {} },
-        { icon: 'medical-outline', label: 'Medical License', onPress: () => {} },
-        { icon: 'calendar-outline', label: 'Consultation Hours', onPress: () => {} },
+        { icon: 'person-outline', label: 'Personal Information', onPress: () => showComingSoon('Personal Information') },
+        { icon: 'medical-outline', label: 'Medical License', onPress: () => showComingSoon('Medical License') },
+        { icon: 'calendar-outline', label: 'Consultation Hours', onPress: () => showComingSoon('Consultation Hours') },
       ],
     },
     {
       title: 'OPD Settings',
       items: [
-        { icon: 'document-text-outline', label: 'Prescription Templates', onPress: () => {} },
-        { icon: 'flask-outline', label: 'Protocol Templates', onPress: () => {} },
-        { icon: 'git-branch-outline', label: 'Referral Settings', onPress: () => {} },
+        { icon: 'document-text-outline', label: 'Prescription Templates', onPress: () => showComingSoon('Prescription Templates') },
+        { icon: 'flask-outline', label: 'Protocol Templates', onPress: () => router.push('/(doctor-opd)/protocols') },
+        { icon: 'git-branch-outline', label: 'Referral Settings', onPress: () => showComingSoon('Referral Settings') },
       ],
     },
     {
       title: 'Preferences',
       items: [
-        { icon: 'notifications-outline', label: 'Notifications', onPress: () => {} },
-        { icon: 'language-outline', label: 'Language', value: 'English', onPress: () => {} },
+        { icon: 'notifications-outline', label: 'Notifications', onPress: () => showComingSoon('Notification Settings') },
+        { icon: 'language-outline', label: 'Language', value: 'English', onPress: () => showComingSoon('Language Settings') },
       ],
     },
     {
       title: 'Support',
       items: [
-        { icon: 'help-circle-outline', label: 'Help Center', onPress: () => {} },
-        { icon: 'chatbubble-ellipses-outline', label: 'Contact Support', onPress: () => {} },
+        { icon: 'help-circle-outline', label: 'Help Center', onPress: () => showComingSoon('Help Center') },
+        { icon: 'chatbubble-ellipses-outline', label: 'Contact Support', onPress: () => Linking.openURL('tel:18002436226') },
       ],
     },
   ];
@@ -82,9 +88,9 @@ export default function DoctorOPDProfileScreen() {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.profileName}>{user?.fullName || 'Doctor Name'}</Text>
+          <Text style={styles.profileName}>{user?.fullName || 'Loading...'}</Text>
           <Text style={styles.profileRole}>OPD Oncologist</Text>
-          <Text style={styles.profileEmail}>{user?.email || 'email@example.com'}</Text>
+          <Text style={styles.profileEmail}>{user?.email || ''}</Text>
 
           <View style={styles.profileStats}>
             <View style={styles.statItem}>

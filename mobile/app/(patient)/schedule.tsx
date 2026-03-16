@@ -11,6 +11,8 @@ import {
   TouchableOpacity,
   RefreshControl,
   ActivityIndicator,
+  Alert,
+  Linking,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -51,7 +53,7 @@ export default function PatientScheduleScreen() {
       const data = await appointmentsService.listAppointments();
       setAppointments(data as any);
     } catch (error: any) {
-      console.error('Error loading appointments:', error);
+      // error silently — list stays empty
     } finally {
       setIsLoading(false);
     }
@@ -70,15 +72,27 @@ export default function PatientScheduleScreen() {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
   
-  const upcomingAppointments = appointments.filter((a) => {
-    const apptDate = new Date(a.scheduledDate);
-    return apptDate >= now && a.status !== 'cancelled' && a.status !== 'completed';
-  });
-  
-  const pastAppointments = appointments.filter((a) => {
-    const apptDate = new Date(a.scheduledDate);
-    return apptDate < now || a.status === 'completed';
-  });
+  const upcomingAppointments = appointments
+    .filter((a) => {
+      const apptDate = new Date(a.scheduledDate);
+      return apptDate >= now && a.status !== 'cancelled' && a.status !== 'completed';
+    })
+    .sort((a, b) => {
+      const dtA = `${a.scheduledDate}T${a.scheduledTime}`;
+      const dtB = `${b.scheduledDate}T${b.scheduledTime}`;
+      return dtA.localeCompare(dtB);
+    });
+
+  const pastAppointments = appointments
+    .filter((a) => {
+      const apptDate = new Date(a.scheduledDate);
+      return apptDate < now || a.status === 'completed' || a.status === 'cancelled';
+    })
+    .sort((a, b) => {
+      const dtA = `${a.scheduledDate}T${a.scheduledTime}`;
+      const dtB = `${b.scheduledDate}T${b.scheduledTime}`;
+      return dtB.localeCompare(dtA); // most recent first in past
+    });
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -192,11 +206,17 @@ export default function PatientScheduleScreen() {
 
       {(appointment.status === 'scheduled' || appointment.status === 'confirmed') && (
         <View style={styles.appointmentActions}>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => Alert.alert('Reschedule', 'Please call the clinic to reschedule your appointment.\n\nPhone: 1-800-CHEMO-CARE')}
+          >
             <Ionicons name="calendar-outline" size={18} color={colors.primary[500]} />
             <Text style={styles.actionText}>Reschedule</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton}>
+          <TouchableOpacity 
+            style={styles.actionButton}
+            onPress={() => Linking.openURL('tel:18002436226')}
+          >
             <Ionicons name="call-outline" size={18} color={colors.primary[500]} />
             <Text style={styles.actionText}>Contact</Text>
           </TouchableOpacity>

@@ -277,5 +277,14 @@ ChemoCare AI Development Team
 
 ---
 
+## 📚 Documentation
+
+- **[Full Technical Documentation](./DOCUMENTATION.md)** - Complete system architecture, data models, services, and workflows
+- **[API Reference](./API_REFERENCE.md)** - Detailed API endpoint documentation with request/response examples
+- **[Development Status](./DEVELOPMENT_STATUS.md)** - Current development progress and feature status
+
+---
+
 For support or inquiries, contact: support@chemocare.ai
+
 # ChemoCareAI

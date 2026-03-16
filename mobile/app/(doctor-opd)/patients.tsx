@@ -11,6 +11,7 @@ import {
   RefreshControl,
   ActivityIndicator,
   TextInput,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -37,8 +38,8 @@ export default function DoctorOPDPatientsScreen() {
         limit: 100 
       });
       setPatients(patientsData);
-    } catch (error) {
-      console.error('Error fetching patients:', error);
+    } catch {
+      // silent — list stays empty, user can pull-to-refresh
     } finally {
       setLoading(false);
     }
@@ -54,21 +55,23 @@ export default function DoctorOPDPatientsScreen() {
     setRefreshing(false);
   }, [fetchData, searchQuery]);
 
-  // Handle search
+  // Handle search with debounce via useEffect
   const handleSearch = useCallback((text: string) => {
     setSearchQuery(text);
-    // Debounce search
+  }, []);
+
+  useEffect(() => {
     const timeoutId = setTimeout(() => {
-      fetchData(text);
+      fetchData(searchQuery);
     }, 300);
     return () => clearTimeout(timeoutId);
-  }, [fetchData]);
+  }, [searchQuery, fetchData]);
 
-  // Filter patients based on search
+  // Client-side filter (covers instant feedback before debounced API call resolves)
   const filteredPatients = patients.filter(patient => {
     if (!searchQuery) return true;
     const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
-    return fullName.includes(searchQuery.toLowerCase()) || 
+    return fullName.includes(searchQuery.toLowerCase()) ||
            (patient.cancerType?.toLowerCase().includes(searchQuery.toLowerCase()));
   });
 
@@ -80,11 +83,16 @@ export default function DoctorOPDPatientsScreen() {
   };
 
   const renderPatient = ({ item }: { item: PatientSummaryAPI }) => (
-    <TouchableOpacity 
+    <TouchableOpacity
       style={styles.patientCard}
-      onPress={() => {
-        // TODO: Navigate to patient detail
-      }}
+      onPress={() => Alert.alert(
+        `${item.firstName} ${item.lastName}`,
+        [
+          item.cancerType && `Cancer Type: ${item.cancerType}`,
+          item.cancerStage && `Stage: ${item.cancerStage}`,
+        ].filter(Boolean).join('\n') || 'No additional details available.',
+        [{ text: 'Close' }]
+      )}
     >
       <Avatar 
         name={`${item.firstName} ${item.lastName}`}

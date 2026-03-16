@@ -2,7 +2,7 @@
 SQLAlchemy models for chemotherapy protocols and treatment plans.
 """
 import uuid
-from datetime import datetime, date
+from datetime import datetime
 from enum import Enum as PyEnum
 from sqlalchemy import Column, String, Boolean, DateTime, Date, Text, ForeignKey, Integer, Numeric, Enum
 from sqlalchemy.dialects.postgresql import UUID, JSONB, ARRAY
@@ -103,7 +103,7 @@ class TreatmentPlan(Base):
     completed_cycles = Column(Integer, default=0)
     
     # Status
-    status = Column(Enum(PlanStatus), default=PlanStatus.DRAFT)
+    status = Column(Enum(PlanStatus, native_enum=False, values_callable=lambda x: [e.value for e in x]), default=PlanStatus.DRAFT)
     
     # AI Analysis
     ai_recommendations = Column(Text, nullable=True)
@@ -145,7 +145,7 @@ class TreatmentCycle(Base):
     scheduled_date = Column(Date, nullable=False)
     actual_date = Column(Date, nullable=True)
     
-    status = Column(Enum(CycleStatus), default=CycleStatus.SCHEDULED)
+    status = Column(Enum(CycleStatus, native_enum=False, values_callable=lambda x: [e.value for e in x]), default=CycleStatus.SCHEDULED)
     
     # Pre-chemo assessment
     pre_chemo_labs = Column(JSONB, nullable=True)
@@ -198,10 +198,11 @@ class DrugAdministration(Base):
     route = Column(String(50), nullable=False)
     
     # Timing
+    # scheduled_time = Column(Time, nullable=True)  # REMOVED: Not in DB schema
     planned_duration_mins = Column(Integer, nullable=True)
     actual_duration_mins = Column(Integer, nullable=True)
     
-    status = Column(Enum(AdminStatus), default=AdminStatus.PENDING)
+    status = Column(Enum(AdminStatus, native_enum=False, values_callable=lambda x: [e.value for e in x]), default=AdminStatus.PENDING)
     
     # Preparation
     prepared_by = Column(UUID(as_uuid=True), ForeignKey("nurses.id"), nullable=True)

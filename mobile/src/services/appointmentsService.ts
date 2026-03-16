@@ -2,11 +2,11 @@
  * Appointments Service - API calls for appointment management
  */
 import { apiClient } from './api';
-import type { Appointment } from '../types';
+import type { Appointment, AppointmentType } from '../types';
 
 export interface AppointmentCreate {
   patient_id: string;
-  appointment_type: 'chemotherapy' | 'consultation' | 'follow_up' | 'lab_work' | 'imaging' | 'emergency';
+  appointment_type: AppointmentType; // Must match backend enum: opd_consultation, daycare_chemo, follow_up, lab_work, imaging, other
   scheduled_date: string; // YYYY-MM-DD
   scheduled_time: string; // HH:MM:SS
   duration_mins?: number;
@@ -21,7 +21,7 @@ export interface AppointmentUpdate {
   scheduled_date?: string;
   scheduled_time?: string;
   duration_mins?: number;
-  status?: 'scheduled' | 'confirmed' | 'checked_in' | 'in_progress' | 'completed' | 'cancelled' | 'no_show';
+  status?: 'scheduled' | 'confirmed' | 'checked_in' | 'in_progress' | 'completed' | 'cancelled' | 'no_show' | 'rescheduled';
   chair_number?: number;
   doctor_id?: string;
   nurse_id?: string;

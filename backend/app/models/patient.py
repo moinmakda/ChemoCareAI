@@ -4,7 +4,7 @@ SQLAlchemy models for patients.
 import uuid
 from datetime import datetime, date
 from enum import Enum as PyEnum
-from sqlalchemy import Column, String, Boolean, DateTime, Date, Text, ForeignKey, Numeric, Enum
+from sqlalchemy import Column, String, DateTime, Date, Text, ForeignKey, Numeric, Enum
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import relationship
 from app.core.database import Base

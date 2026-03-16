@@ -1,14 +1,14 @@
 """
 API dependencies for authentication and authorization.
 """
-from typing import List, Optional
+from typing import List
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.core.database import get_db
-from app.core.security import verify_token, TokenPayload
+from app.core.security import verify_token
 from app.models import User, UserRole
 
 security = HTTPBearer()
@@ -94,3 +94,40 @@ allow_medical_staff = RoleChecker([UserRole.DOCTOR_OPD, UserRole.DOCTOR_DAYCARE,
 allow_all_staff = RoleChecker([UserRole.DOCTOR_OPD, UserRole.DOCTOR_DAYCARE, UserRole.NURSE, UserRole.ADMIN])
 allow_admin = RoleChecker([UserRole.ADMIN])
 allow_all = RoleChecker([UserRole.PATIENT, UserRole.DOCTOR_OPD, UserRole.DOCTOR_DAYCARE, UserRole.NURSE, UserRole.ADMIN])
+
+
+# Convenience dependency functions for common role checks
+async def get_current_doctor(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """Get current user if they are a doctor."""
+    if current_user.role not in [UserRole.DOCTOR_OPD, UserRole.DOCTOR_DAYCARE]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only doctors can perform this action",
+        )
+    return current_user
+
+
+async def get_current_nurse(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """Get current user if they are a nurse."""
+    if current_user.role != UserRole.NURSE:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only nurses can perform this action",
+        )
+    return current_user
+
+
+async def get_current_medical_staff(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """Get current user if they are medical staff (doctor or nurse)."""
+    if current_user.role not in [UserRole.DOCTOR_OPD, UserRole.DOCTOR_DAYCARE, UserRole.NURSE]:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only medical staff can perform this action",
+        )
+    return current_user

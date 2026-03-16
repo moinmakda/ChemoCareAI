@@ -121,6 +121,28 @@
 ✅ POST /api/v1/symptoms          - Log symptoms
 ✅ GET  /api/v1/symptoms/me       - Patient's own symptoms
 ✅ POST /api/v1/symptoms/me       - Patient logs own symptoms
+
+# NEW: Protocol Workflow API (Nurse/Doctor Approval Flow)
+✅ POST /api/v1/protocol-workflow/requests              - Create protocol request
+✅ GET  /api/v1/protocol-workflow/requests              - List protocol requests
+✅ GET  /api/v1/protocol-workflow/requests/{id}         - Get protocol request
+✅ POST /api/v1/protocol-workflow/requests/{id}/upload-document - Upload with AI extraction
+✅ PUT  /api/v1/protocol-workflow/requests/{id}/clinical-data   - Update clinical data
+✅ POST /api/v1/protocol-workflow/requests/{id}/nurse-submit    - Nurse submits for review
+✅ POST /api/v1/protocol-workflow/requests/{id}/nurse-approve   - Nurse approval
+✅ POST /api/v1/protocol-workflow/requests/{id}/doctor-approve  - Doctor final approval
+✅ GET  /api/v1/protocol-workflow/pending-approvals             - Get pending approvals
+
+# NEW: Scheduling API (Intelligent Chair Allocation)
+✅ GET  /api/v1/scheduling/available-slots        - Get available time slots
+✅ GET  /api/v1/scheduling/chair-availability     - Chair availability by time
+✅ POST /api/v1/scheduling/appointments           - Schedule appointment with auto-chair
+✅ PUT  /api/v1/scheduling/appointments/{id}/reschedule - Reschedule
+✅ DELETE /api/v1/scheduling/appointments/{id}    - Cancel appointment
+✅ POST /api/v1/scheduling/treatment-cycles       - Schedule all treatment cycles
+✅ GET  /api/v1/scheduling/daily-schedule         - Day care daily overview
+✅ GET  /api/v1/scheduling/patient/{id}/schedule  - Patient's schedule
+✅ GET  /api/v1/scheduling/my-schedule            - Current user's schedule
 ```
 
 ## Mobile App Services
@@ -134,6 +156,9 @@
 ✅ doctorService      - Doctor dashboard APIs
 ✅ nurseService       - Nurse dashboard APIs
 ✅ aiService          - AI chat assistant integration
+✅ protocolService    - Protocol workflow (NEW: nurse/doctor approval)
+✅ schedulingService  - Appointment scheduling (NEW: intelligent chair allocation)
+✅ pushNotificationService - Push notifications (NEW: Expo notifications)
 ```
 
 ## Mobile App Screens
@@ -150,19 +175,20 @@
 ## Database Tables (PostgreSQL)
 
 ```
-✅ users              - Authentication & roles
+✅ users              - Authentication & roles (with push_token for notifications)
 ✅ patients           - Patient demographics & medical info
 ✅ doctors            - Doctor profiles & specializations
 ✅ nurses             - Nurse profiles & shifts
-✅ appointments       - Scheduling
+✅ appointments       - Scheduling (with chair allocation)
 ✅ treatment_plans    - Chemotherapy protocols
 ✅ treatment_cycles   - Individual treatment sessions
 ✅ drug_administrations - Medication tracking
 ✅ vitals             - Vital signs history
 ✅ symptom_entries    - Patient-reported symptoms
-✅ documents          - File attachments
-✅ notifications      - Push notification queue
+✅ documents          - File attachments (with AI-extracted data)
+✅ notifications      - Push notification queue (with scheduled_for)
 ✅ protocol_templates - Standard treatment protocols
+✅ protocol_requests  - NEW: Protocol workflow (nurse collection → nurse review → doctor approval)
 ```
 
 ---

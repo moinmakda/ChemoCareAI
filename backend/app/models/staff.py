@@ -2,7 +2,7 @@
 SQLAlchemy models for medical staff (doctors and nurses).
 """
 import uuid
-from datetime import datetime, date
+from datetime import datetime
 from sqlalchemy import Column, String, Boolean, DateTime, Date, Text, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship

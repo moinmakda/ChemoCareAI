@@ -241,3 +241,6 @@ site/
 *.mov
 *.avi
 *.mkv
+
+# nohup output
+nohup.out

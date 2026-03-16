@@ -15,6 +15,7 @@ import {
   TextStyle,
   ActivityIndicator,
   Alert,
+  Linking,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -109,13 +110,12 @@ export default function PatientChatScreen() {
           '⚠️ Important Notice',
           'Based on what you shared, I recommend contacting your care team promptly.',
           [
-            { text: 'Call Care Team', onPress: () => {} },
+            { text: 'Call Care Team', onPress: () => Linking.openURL('tel:18002436226') },
             { text: 'Continue Chat', style: 'cancel' },
           ]
         );
       }
     } catch (error) {
-      console.error('Chat error:', error);
       // Add fallback message
       const fallbackMessage: DisplayMessage = {
         id: (Date.now() + 1).toString(),
@@ -183,7 +183,13 @@ export default function PatientChatScreen() {
         {item.suggestedActions && item.suggestedActions.length > 0 && (
           <View style={styles.suggestedActions}>
             {item.suggestedActions.slice(0, 2).map((action, idx) => (
-              <TouchableOpacity key={idx} style={styles.suggestedAction}>
+              <TouchableOpacity
+                key={idx}
+                style={styles.suggestedAction}
+                onPress={() => {
+                  setMessage(action);
+                }}
+              >
                 <Ionicons name="arrow-forward-circle-outline" size={16} color={colors.primary[500]} />
                 <Text style={styles.suggestedActionText} numberOfLines={1}>{action}</Text>
               </TouchableOpacity>

@@ -21,6 +21,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { Avatar, Badge, Button, Header, Card } from '../../src/components';
+import { useLocalSearchParams } from 'expo-router';
+import { vitalsService } from '../../src/services/vitalsService';
 import { doctorService, PatientSummaryAPI, VitalAPI } from '../../src/services/doctorService';
 
 interface VitalEntry {
@@ -50,6 +52,7 @@ interface VitalFormData {
 
 export default function NurseVitalsScreen() {
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{ patientId?: string }>();
 
   // State
   const [loading, setLoading] = useState(true);
@@ -62,51 +65,58 @@ export default function NurseVitalsScreen() {
   const [formData, setFormData] = useState<VitalFormData>({});
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Fetch data
+  // Fetch data — single batch call instead of N+1 per patient
   const fetchData = useCallback(async () => {
     try {
-      const [patientsData] = await Promise.all([
+      const [patientsData, allVitalsRaw] = await Promise.all([
         doctorService.getPatients({ limit: 50 }),
+        vitalsService.getVitals(undefined, 50), // all recent vitals in one call
       ]);
       setPatients(patientsData);
-      
-      // Mock recent vitals - in production would come from vitals API
-      const mockRecentVitals: VitalEntry[] = [
-        {
-          id: '1',
-          patientId: 'p1',
-          patientName: 'Raj Kumar',
-          recordedAt: new Date().toISOString(),
-          temperature: 98.4,
-          pulse: 72,
-          bloodPressure: '120/80',
-          oxygenSat: 98,
-          weight: 70,
-          painScore: 2,
-          recordedBy: 'Nurse Singh',
-        },
-        {
-          id: '2',
-          patientId: 'p2',
-          patientName: 'Priya Sharma',
-          recordedAt: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
-          temperature: 99.1,
-          pulse: 88,
-          bloodPressure: '118/76',
-          oxygenSat: 97,
-          weight: 55,
-          painScore: 4,
-          recordedBy: 'Nurse Singh',
-        },
-      ];
-      setRecentVitals(mockRecentVitals);
-    } catch (error) {
-      console.error('Error fetching data:', error);
+
+      // Build patient lookup for name resolution
+      const patientMap: Record<string, string> = {};
+      patientsData.forEach(p => {
+        patientMap[p.id] = `${p.firstName} ${p.lastName}`;
+      });
+
+      const allVitals: VitalEntry[] = (allVitalsRaw as VitalAPI[]).map(v => ({
+        id: v.id,
+        patientId: v.patientId,
+        patientName: patientMap[v.patientId] || 'Unknown Patient',
+        recordedAt: v.recordedAt,
+        temperature: v.temperatureF,
+        pulse: v.pulseBpm,
+        bloodPressure: v.bloodPressureSystolic
+          ? `${v.bloodPressureSystolic}/${v.bloodPressureDiastolic || '?'}`
+          : undefined,
+        oxygenSat: v.oxygenSaturation,
+        weight: v.weightKg,
+        painScore: v.painScore,
+        recordedBy: 'Staff',
+      }));
+
+      allVitals.sort((a, b) =>
+        new Date(b.recordedAt).getTime() - new Date(a.recordedAt).getTime()
+      );
+
+      setRecentVitals(allVitals);
+
+      // If navigated from a patient card, pre-select that patient and open modal
+      if (params.patientId) {
+        const preSelected = patientsData.find(p => p.id === params.patientId);
+        if (preSelected) {
+          setSelectedPatient(preSelected);
+          setFormData({});
+          setShowRecordModal(true);
+        }
+      }
+    } catch {
       Alert.alert('Error', 'Failed to load data');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [params.patientId]);
 
   useEffect(() => {
     fetchData();
@@ -171,8 +181,7 @@ export default function NurseVitalsScreen() {
 
       setShowRecordModal(false);
       Alert.alert('Success', 'Vitals recorded successfully');
-    } catch (error) {
-      console.error('Error saving vitals:', error);
+    } catch {
       Alert.alert('Error', 'Failed to save vitals');
     } finally {
       setSaving(false);
