@@ -182,7 +182,7 @@ async def test_doctor_user(db_session: AsyncSession) -> User:
         email="doctor@example.com",
         password_hash=get_password_hash("password123"),
         full_name="Dr. Test Doctor",
-        role=UserRole.DOCTOR_DAYCARE,
+        role=UserRole.DOCTOR_OPD,
         is_active=True,
         is_verified=True,
     )

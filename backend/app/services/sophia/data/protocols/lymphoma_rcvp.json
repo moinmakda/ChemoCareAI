@@ -1,0 +1,927 @@
+{
+  "protocol_id": "lymphoma_rcvp",
+  "protocol_name": "RCVP",
+  "protocol_code": "RCVP",
+  "full_name": "Rituximab-Cyclophosphamide-Vincristine-Prednisolone (RCVP)",
+  "indication": "CD20-positive Non-Hodgkin Lymphoma — first-line treatment in patients unsuitable for anthracycline-containing regimens (e.g. follicular lymphoma, marginal zone lymphoma, mantle cell lymphoma in frail patients)",
+  "cycle_length_days": 21,
+  "total_cycles": 6,
+  "version": "1.2",
+  "treatment_intent": "curative",
+  "drugs": [
+    {
+      "drug_id": "rituximab",
+      "drug_name": "Rituximab",
+      "dose": 375.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 500,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Rate of administration varies — refer to local rituximab administration guidelines. Dose rounded to nearest 100mg (up if halfway). Check hepatitis B status before first dose.",
+      "prn": false
+    },
+    {
+      "drug_id": "cyclophosphamide",
+      "drug_name": "Cyclophosphamide",
+      "dose": 750.0,
+      "dose_unit": "mg/m²",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": 10,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 100,
+      "administration_order": 3,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Intravenous bolus over 10 minutes. Dose banded according to CSCCN agreed bands. Administer after rituximab.",
+      "prn": false
+    },
+    {
+      "drug_id": "vincristine",
+      "drug_name": "Vincristine",
+      "dose": 1.4,
+      "dose_unit": "mg/m²",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": 10,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 50,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": 2.0,
+      "max_dose_unit": "mg",
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "MAXIMUM DOSE 2mg regardless of BSA. Dose rounded to nearest 0.1mg. Vesicant — NPSA/2008/RRR04 must be followed for IV vinca alkaloid administration.",
+      "prn": false
+    },
+    {
+      "drug_id": "prednisolone",
+      "drug_name": "Prednisolone",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily in the morning",
+      "special_instructions": "Take in the morning with or after food. Consider initial dose reduction in patients over 70 years of age.",
+      "prn": false
+    }
+  ],
+  "pre_medications": [
+    {
+      "drug_id": "prednisolone_premed",
+      "drug_name": "Prednisolone",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Morning of treatment, before rituximab",
+      "frequency": null,
+      "special_instructions": "Patient self-administers on morning of chemotherapy day 1. Nurse must verify dose taken and document time before rituximab is started. If patient forgot, administer 100mg oral 30 minutes prior to rituximab. This dose also counts as the treatment-course day 1 prednisolone dose.",
+      "prn": false
+    },
+    {
+      "drug_id": "chlorphenamine",
+      "drug_name": "Chlorphenamine",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to rituximab",
+      "frequency": null,
+      "special_instructions": "Anti-histamine pre-medication for rituximab infusion reaction prophylaxis.",
+      "prn": false
+    },
+    {
+      "drug_id": "paracetamol",
+      "drug_name": "Paracetamol",
+      "dose": 1000.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to rituximab",
+      "frequency": null,
+      "special_instructions": "Pre-medication for rituximab. Maximum dose 4000mg/24 hours.",
+      "prn": false
+    },
+    {
+      "drug_id": "ondansetron",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "15-30 minutes prior to chemotherapy",
+      "frequency": null,
+      "special_instructions": "May be given orally.",
+      "prn": false
+    }
+  ],
+  "rescue_medications": [
+    {
+      "drug_id": "hydrocortisone_crs",
+      "drug_name": "Hydrocortisone",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Available as required for rituximab infusion reactions.",
+      "prn": true
+    },
+    {
+      "drug_id": "salbutamol_nebule",
+      "drug_name": "Salbutamol",
+      "dose": 2.5,
+      "dose_unit": "mg",
+      "route": "Nebulised",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Available as required for rituximab infusion bronchospasm.",
+      "prn": true
+    },
+    {
+      "drug_id": "pethidine",
+      "drug_name": "Pethidine",
+      "dose": 25.0,
+      "dose_unit": "mg",
+      "route": "IV",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": 50.0,
+      "max_dose_unit": "mg",
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Consider pethidine 25-50mg IV for rituximab-related rigors that fail to respond to steroids. Controlled drug — prescribe per local policy.",
+      "prn": true
+    }
+  ],
+  "take_home_medicines": [
+    {
+      "drug_id": "prednisolone_tho",
+      "drug_name": "Prednisolone",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Morning",
+      "frequency": "Once daily in the morning on days 2, 3, 4 and 5",
+      "special_instructions": "Prednisolone 100mg is given on the morning of treatment (Day 1) in clinic. Take-home prednisolone 100mg continues on days 2-5. Take in the morning with or after food.",
+      "prn": false
+    },
+    {
+      "drug_id": "metoclopramide_tho",
+      "drug_name": "Metoclopramide",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": null,
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Three times daily as required (PRN) for nausea",
+      "special_instructions": "Take-home antiemetic: metoclopramide 10mg up to three times daily as required for nausea or vomiting.",
+      "prn": true
+    },
+    {
+      "drug_id": "ondansetron_tho",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        2,
+        3
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Starting on the evening of Day 1",
+      "frequency": "Twice daily for 3 days starting evening of Day 1",
+      "special_instructions": "Take-home antiemetic: ondansetron 8mg twice daily for 3 days. First dose on the evening of treatment day.",
+      "prn": false
+    },
+    {
+      "drug_id": "allopurinol",
+      "drug_name": "Allopurinol",
+      "dose": 300.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 3,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily for 21 days",
+      "special_instructions": "First cycle only — tumour lysis prophylaxis. Allopurinol 300mg once daily for 21 days.",
+      "prn": false
+    },
+    {
+      "drug_id": "aciclovir",
+      "drug_name": "Aciclovir",
+      "dose": 400.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 4,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Twice daily",
+      "special_instructions": "Consider in high-risk patients.",
+      "prn": false
+    },
+    {
+      "drug_id": "co_trimoxazole",
+      "drug_name": "Co-trimoxazole",
+      "dose": 960.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 5,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Three times weekly (Mon/Wed/Fri)",
+      "special_instructions": "PCP prophylaxis — consider in high-risk patients.",
+      "prn": false
+    }
+  ],
+  "cycle_variations": [],
+  "dose_modifications": [
+    {
+      "rule_id": "cyclo_neutrophils_100_1st",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "0.5-0.9",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 0.5,
+      "threshold_high": 0.9,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "consider_modification",
+      "modification_type": "consider",
+      "modification_percent": 100,
+      "delay_days": null,
+      "description": "Neutrophils 0.5-0.9×10⁹/L, 1st occurrence, no prior G-CSF: administer 100% with prophylactic growth factors. Alternative: delay until ≥1×10⁹/L then 75% plus G-CSF.",
+      "action_text": "Neutrophils 0.5-0.9: give 100% + G-CSF OR reduce to 75%",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "cyclo_neutrophils_50_2nd",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "0.5-0.9",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 0.5,
+      "threshold_high": 0.9,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Neutrophils 0.5-0.9×10⁹/L, 2nd occurrence: delay until ≥1×10⁹/L then give 50%.",
+      "action_text": "Reduce cyclophosphamide to 50% (2nd occurrence)",
+      "priority": 2,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "cyclo_febrile_neut_1st",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 0.5",
+      "condition_type": "less_than",
+      "threshold_value": 0.5,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Neutrophils <0.5×10⁹/L or febrile neutropenia, 1st occurrence: delay until ≥1×10⁹/L then give 75% plus prophylactic G-CSF.",
+      "action_text": "Reduce cyclophosphamide to 75% (febrile neutropenia)",
+      "priority": 3,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "cyclo_febrile_neut_2nd",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 0.5",
+      "condition_type": "less_than",
+      "threshold_value": 0.5,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Neutrophils <0.5×10⁹/L or febrile neutropenia, 2nd occurrence: delay until ≥1×10⁹/L then give 50% plus growth factors.",
+      "action_text": "Reduce cyclophosphamide to 50% (2nd occurrence febrile neutropenia)",
+      "priority": 4,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "cyclo_platelets_50_74_1st",
+      "parameter": "platelets",
+      "parameter_unit": "x10⁹/L",
+      "condition": "50-74",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 50.0,
+      "threshold_high": 74.0,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Platelets 50-74×10⁹/L, 1st occurrence: give 75% of original dose.",
+      "action_text": "Reduce cyclophosphamide to 75% (platelets 50-74)",
+      "priority": 5,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "cyclo_platelets_50_74_2nd",
+      "parameter": "platelets",
+      "parameter_unit": "x10⁹/L",
+      "condition": "50-74 (2nd occurrence)",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 50.0,
+      "threshold_high": 74.0,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Platelets 50-74×10⁹/L on 2nd occurrence: reduce cyclophosphamide to 50%.",
+      "action_text": "Reduce cyclophosphamide to 50% (platelets 50-74, 2nd occurrence)",
+      "priority": 8,
+      "check_if_already_reduced": true
+    },
+    {
+      "rule_id": "cyclo_platelets_below50_1st",
+      "parameter": "platelets",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 50",
+      "condition_type": "less_than",
+      "threshold_value": 50.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Platelets <50×10⁹/L or active haemorrhage, 1st occurrence: delay until ≥75×10⁹/L then give 75%.",
+      "action_text": "Delay then reduce cyclophosphamide to 75% (platelets <50)",
+      "priority": 6,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "cyclo_platelets_below50_2nd",
+      "parameter": "platelets",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 50 (2nd occurrence)",
+      "condition_type": "less_than",
+      "threshold_value": 50.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Platelets <50×10⁹/L on 2nd occurrence: reduce cyclophosphamide to 50%.",
+      "action_text": "Reduce cyclophosphamide to 50% (platelets <50, 2nd occurrence)",
+      "priority": 9,
+      "check_if_already_reduced": true
+    },
+    {
+      "rule_id": "vincristine_hepatic_50",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "30-51",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 30.0,
+      "threshold_high": 51.0,
+      "affected_drugs": [
+        "vincristine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin 30-51 µmol/L or AST/ALT 60-180 units/L — reduce vincristine to 50%.",
+      "action_text": "Reduce vincristine to 50% (hepatic impairment)",
+      "priority": 7,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "vincristine_hepatic_50_ast_only",
+      "parameter": "ast",
+      "parameter_unit": "units/L",
+      "condition": "60-180",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 60.0,
+      "threshold_high": 180.0,
+      "affected_drugs": [
+        "vincristine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: AST/ALT 60-180 units/L — reduce vincristine to 50%. Per PDF: bilirubin 30-51 or AST 60-180.",
+      "action_text": "Reduce vincristine to 50% (AST 60-180 units/L)",
+      "priority": 10,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "vincristine_hepatic_50_bili_high",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 51",
+      "condition_type": "greater_than",
+      "threshold_value": 51.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "vincristine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin >51 µmol/L with normal AST/ALT — reduce vincristine to 50%.",
+      "action_text": "Reduce vincristine to 50% (bilirubin >51, normal AST/ALT)",
+      "priority": 7,
+      "check_if_already_reduced": false,
+      "secondary_parameter": "ast",
+      "secondary_condition_type": "less_equal",
+      "secondary_threshold_value": 180.0,
+      "secondary_connector": "AND"
+    },
+    {
+      "rule_id": "vincristine_hepatic_omit",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 51",
+      "condition_type": "greater_than",
+      "threshold_value": 51.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "vincristine"
+      ],
+      "modification": "omit",
+      "modification_type": "omit",
+      "modification_percent": 0,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin >51 µmol/L with AST/ALT >180 units/L — omit vincristine.",
+      "action_text": "Omit vincristine (severe hepatic impairment)",
+      "priority": 8,
+      "check_if_already_reduced": false,
+      "secondary_parameter": "ast",
+      "secondary_condition_type": "greater_than",
+      "secondary_threshold_value": 180.0,
+      "secondary_connector": "AND"
+    },
+    {
+      "rule_id": "cyclo_renal_10_20",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "10-20",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 10.0,
+      "threshold_high": 20.0,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Renal impairment CrCl 10-20 ml/min: reduce cyclophosphamide to 75%. Consider mesna in patients with pre-existing bladder disorders.",
+      "action_text": "Reduce cyclophosphamide to 75% (CrCl 10-20 ml/min)",
+      "priority": 8,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "cyclo_renal_below10",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "< 10",
+      "condition_type": "less_than",
+      "threshold_value": 10.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Renal impairment CrCl <10 ml/min: reduce cyclophosphamide to 50%.",
+      "action_text": "Reduce cyclophosphamide to 50% (CrCl <10 ml/min)",
+      "priority": 8,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "vincristine_neuropathy",
+      "parameter": "nci_ctc_motor_neuropathy",
+      "parameter_unit": "grade",
+      "condition": ">= 2",
+      "condition_type": "greater_equal",
+      "threshold_value": 2.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "vincristine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 71,
+      "delay_days": null,
+      "description": "NCI-CTC grade ≥2 motor or grade ≥3 sensory neurotoxicity: reduce vincristine to 1mg. Stop if toxicity increases despite reduction.",
+      "action_text": "Reduce vincristine to 1mg (neuropathy grade ≥2 motor/≥3 sensory)",
+      "priority": 9,
+      "check_if_already_reduced": false
+    }
+  ],
+  "hematological_toxicity_rules": [
+    {
+      "toxicity_type": "neutropenia",
+      "grade": null,
+      "threshold": "< 1.0",
+      "threshold_value": 1.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "action": "delay",
+      "delay_days": 7,
+      "reduction_percent": null,
+      "check_drugs": [
+        "cyclophosphamide",
+        "rituximab",
+        "vincristine"
+      ],
+      "additional_notes": "Rituximab and prednisolone do not require haematological dose modifications."
+    }
+  ],
+  "non_hematological_toxicity_rules": [
+    {
+      "toxicity_type": "peripheral_neuropathy",
+      "grade": 2,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "vincristine"
+      ],
+      "action": "reduce_or_omit",
+      "action_text": "Grade ≥2 motor or grade ≥3 sensory neuropathy: reduce vincristine to 1mg. Permanently stop vincristine if higher grade or if toxicity worsens.",
+      "monitoring_frequency": "each_cycle"
+    },
+    {
+      "toxicity_type": "rituximab_infusion_reaction",
+      "grade": null,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "rituximab"
+      ],
+      "action": "hold",
+      "action_text": "Grade 3-4 CRS or anaphylaxis: stop rituximab immediately, give hydrocortisone 100mg IV and manage as anaphylaxis. Do not rechallenge if grade 4.",
+      "monitoring_frequency": "each_dose"
+    }
+  ],
+  "age_based_modifications": [
+    {
+      "age_threshold": 70,
+      "operator": ">",
+      "affected_drugs": [
+        "prednisolone"
+      ],
+      "modification_type": "consider",
+      "cap_dose": null,
+      "cap_unit": null,
+      "reduction_percent": null,
+      "trigger_condition": null,
+      "recommendation": "Consider initial prednisolone dose reduction in patients >70 years.",
+      "description": "Age >70: consider prednisolone dose reduction"
+    }
+  ],
+  "treatment_delay_criteria": [
+    {
+      "parameter": "neutrophils",
+      "threshold": "< 1.0",
+      "threshold_value": 1.0,
+      "delay_until": "Neutrophils ≥ 1.0×10⁹/L",
+      "max_delay_weeks": 2,
+      "action_if_not_recovered": "Reduce dose per modification rules."
+    },
+    {
+      "parameter": "platelets",
+      "threshold": "< 75",
+      "threshold_value": 75.0,
+      "delay_until": "Platelets ≥ 75×10⁹/L",
+      "max_delay_weeks": 2,
+      "action_if_not_recovered": "Reduce dose per modification rules."
+    },
+    {
+      "condition": "active_infection",
+      "parameter": "",
+      "threshold": "",
+      "delay_until": "Resolution of active infection",
+      "max_delay_weeks": null,
+      "action_if_not_recovered": "Discuss with consultant."
+    }
+  ],
+  "baseline_requirements": [
+    {
+      "test": "Hepatitis B serology (HBsAg, anti-HBc, anti-HBs)",
+      "includes": [],
+      "timing": "Before first rituximab dose",
+      "required": "true"
+    },
+    {
+      "test": "FBC, renal function, LFTs",
+      "includes": [
+        "neutrophils",
+        "platelets",
+        "creatinine clearance",
+        "bilirubin",
+        "AST/ALT"
+      ],
+      "timing": "Before each cycle",
+      "required": "true"
+    }
+  ],
+  "pre_cycle_labs": [
+    {
+      "test": "FBC (neutrophils, platelets, haemoglobin)",
+      "timing": "Within 48 hours before each cycle",
+      "required": true
+    },
+    {
+      "test": "Renal function (creatinine clearance)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "LFTs (bilirubin, AST/ALT)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "Hepatitis B status",
+      "timing": "Before first cycle",
+      "required": true
+    }
+  ],
+  "toxicities": [
+    {
+      "drug_id": "rituximab",
+      "adverse_effects": [
+        "Infusion reactions (fever, chills, urticaria, angioedema, CRS)",
+        "Progressive multifocal leukoencephalopathy (PML — rare)",
+        "Hepatitis B reactivation",
+        "Immunosuppression",
+        "Hypogammaglobulinaemia"
+      ]
+    },
+    {
+      "drug_id": "cyclophosphamide",
+      "adverse_effects": [
+        "Myelosuppression",
+        "Nausea and vomiting",
+        "Haemorrhagic cystitis (rare)",
+        "Alopecia",
+        "Immunosuppression"
+      ]
+    },
+    {
+      "drug_id": "vincristine",
+      "adverse_effects": [
+        "Peripheral neuropathy (sensory and motor)",
+        "Constipation",
+        "Ileus (rare)",
+        "Alopecia",
+        "Extravasation injury (vesicant)",
+        "SIADH (rare)"
+      ]
+    },
+    {
+      "drug_id": "prednisolone",
+      "adverse_effects": [
+        "Hyperglycaemia",
+        "Osteoporosis",
+        "GI ulceration",
+        "Mood disturbance",
+        "Immunosuppression",
+        "Hypertension"
+      ]
+    }
+  ],
+  "monitoring": [
+    "FBC, renal function, and LFTs before each cycle",
+    "Neurological assessment before each cycle (vincristine neuropathy monitoring)",
+    "Rituximab infusion vital signs monitoring (temperature, BP, pulse, O2 sats) during every infusion",
+    "Hepatitis B monitoring if positive serology detected — expert review required"
+  ],
+  "warnings": [
+    "Check hepatitis B status before starting rituximab. Positive serology requires liver disease specialist consultation. Active HBV infection is a contraindication.",
+    "Rituximab is associated with cytokine release syndrome (CRS) — occurs most commonly within 1-2 hours of first infusion. Monitor for severe dyspnoea, bronchospasm, hypoxia, fever, chills, urticaria, angioedema.",
+    "Rituximab is associated with risk of progressive multifocal leukoencephalopathy (PML). Monitor for neurological, cognitive, or psychiatric symptoms.",
+    "Vincristine MAXIMUM DOSE 2mg regardless of BSA — vincristine overdose causes permanent paralysis and death.",
+    "Vincristine is a vesicant — NPSA/2008/RRR04 must be followed for IV vinca alkaloid administration.",
+    "Cyclophosphamide may cause haemorrhagic cystitis (rare). Consider mesna in patients with pre-existing bladder disorders.",
+    "Assess for cold or flu-like symptoms prior to rituximab — viral URTI increases risk of severe infusion reaction.",
+    "Consider gastric protection with PPI or H2 antagonist in high-risk patients receiving prednisolone.",
+    "Consider pethidine 25-50mg IV for rituximab-related rigors not responding to steroids."
+  ],
+  "required_patient_fields": {
+    "neutrophil_count": "Required for cycle safety check",
+    "platelet_count": "Required for cycle safety check",
+    "creatinine_clearance": "Required for cyclophosphamide dose modification",
+    "bilirubin": "Required for vincristine dose modification",
+    "ast_alt": "Required for vincristine dose modification",
+    "hepatitis_b_status": "Mandatory before rituximab"
+  },
+  "source_file": "lymphoma-10.json",
+  "reference_url": "https://www.wessexcanceralliance.nhs.uk/protocols/lymphoma/",
+  "source": "NHS Wessex Cancer Alliance"
+}

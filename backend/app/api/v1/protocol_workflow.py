@@ -42,7 +42,7 @@ from app.schemas.protocol_request import (
     PendingApprovalsResponse,
 )
 from app.services.document_extraction import extract_and_map_document
-from app.services.gemini_ai import generate_protocol
+from app.services.sophia import generate_protocol_from_clinical_data
 
 router = APIRouter(prefix="/protocol-workflow", tags=["protocol-workflow"])
 
@@ -145,10 +145,15 @@ async def create_treatment_plan_from_protocol(
     """Create a TreatmentPlan and initial cycles from an approved protocol request."""
     generated = protocol_request.generated_protocol or {}
 
-    # Extract protocol info from AI output, with sensible defaults
-    protocol_name = generated.get("recommended_protocol") or generated.get("protocol_name") or "Custom Protocol"
+    # Extract protocol info from SOPHIA output, with sensible defaults
+    protocol_name = (
+        generated.get("protocol_name")
+        or generated.get("protocol_code")
+        or generated.get("recommended_protocol")
+        or "Custom Protocol"
+    )
     total_cycles = generated.get("total_cycles") or 6
-    cycle_days = generated.get("cycle_days") or 21
+    cycle_days = generated.get("cycle_length_days") or generated.get("cycle_days") or 21
 
     plan = TreatmentPlan(
         patient_id=protocol_request.patient_id,
@@ -473,56 +478,49 @@ async def nurse_submit_for_review(
     if protocol_request.protocol_template_id:
         template = await db.get(ProtocolTemplate, protocol_request.protocol_template_id)
 
-    # Generate protocol using AI
+    # Generate protocol using SOPHIA deterministic engine
     try:
         clinical_data = protocol_request.clinical_data or {}
 
-        patient_context = {
-            "patient_id": str(patient.id),
-            "age": patient.age,
-            "weight_kg": float(clinical_data.get("weight_kg") or patient.weight_kg or 0),
-            "height_cm": float(clinical_data.get("height_cm") or patient.height_cm or 0),
-            "bsa": float(patient.bsa) if patient.bsa else None,
-            "cancer_type": clinical_data.get("cancer_type") or patient.cancer_type,
-            "cancer_stage": clinical_data.get("disease_stage") or patient.cancer_stage,
-            "allergies": patient.allergies or [],
-            "comorbidities": patient.comorbidities or [],
-            "clinical_data": clinical_data,
-        }
+        # Get protocol_code from clinical data or template
+        protocol_code = clinical_data.get("protocol_code")
+        if not protocol_code and template:
+            protocol_code = template.name  # Use template name as protocol code
 
-        template_context = None
-        if template:
-            template_context = {
-                "template_id": str(template.id),
-                "template_name": template.name,
-                "cancer_type": template.cancer_types,
-                "drugs": template.drugs,
-                "schedule": {"cycle_days": template.cycle_days, "total_cycles": template.total_cycles},
-            }
+        if not protocol_code:
+            raise ValueError(
+                "No protocol selected. Please select a protocol from the SOPHIA library."
+            )
 
-        ai_result = await generate_protocol(
-            patient_info={
-                "age": patient_context.get("age"),
-                "gender": getattr(patient, "gender", None),
-                "weight": patient_context.get("weight_kg"),
-                "height": patient_context.get("height_cm"),
-                "bsa": patient_context.get("bsa"),
-            },
-            diagnosis=patient_context.get("cancer_type") or "Unknown",
-            stage=patient_context.get("cancer_stage") or "Unknown",
-            template_name=template_context["template_name"] if template_context else "Standard Protocol",
-            template_drugs=template_context["drugs"] if template_context else [],
-            recent_labs=clinical_data,
-            comorbidities=patient_context.get("comorbidities") or [],
+        # Merge patient profile data into clinical data for SOPHIA
+        merged_data = dict(clinical_data)
+        if not merged_data.get("weight_kg") and patient.weight_kg:
+            merged_data["weight_kg"] = float(patient.weight_kg)
+        if not merged_data.get("height_cm") and patient.height_cm:
+            merged_data["height_cm"] = float(patient.height_cm)
+        if not merged_data.get("disease_stage") and patient.cancer_stage:
+            merged_data["disease_stage"] = patient.cancer_stage
+        if not merged_data.get("known_allergies") and patient.allergies:
+            merged_data["known_allergies"] = patient.allergies
+
+        cycle_number = int(clinical_data.get("cycle_number", 1))
+        excluded_drugs = clinical_data.get("excluded_drugs", [])
+
+        sophia_result = generate_protocol_from_clinical_data(
+            protocol_code=protocol_code,
+            clinical_data=merged_data,
+            patient_age=patient.age,
+            cycle_number=cycle_number,
+            excluded_drugs=excluded_drugs,
         )
 
-        protocol_request.generated_protocol = ai_result.model_dump()
+        protocol_request.generated_protocol = sophia_result
 
     except Exception as e:
         protocol_request.generated_protocol = {
             "error": str(e),
             "status": "generation_failed",
-            "message": "AI protocol generation failed. Manual entry required.",
+            "message": f"Protocol generation failed: {str(e)}",
         }
 
     from app.models import Nurse
@@ -632,16 +630,51 @@ async def doctor_approve_protocol(
 
         protocol_request.status = ProtocolRequestStatus.APPROVED
 
-        # Create TreatmentPlan from the approved protocol
+        # Check if patient already has an active treatment plan for this protocol
+        # (e.g., OPD doctor assigned it during registration). If so, skip creation
+        # and just mark the next pending cycle as approved/ready.
         try:
-            await create_treatment_plan_from_protocol(
-                db=db,
-                protocol_request=protocol_request,
-                doctor_id=doctor.id if doctor else None,
+            existing_plan_result = await db.execute(
+                select(TreatmentPlan).where(
+                    TreatmentPlan.patient_id == protocol_request.patient_id,
+                    TreatmentPlan.status.in_([PlanStatus.APPROVED, PlanStatus.ACTIVE]),
+                )
             )
+            existing_plan = existing_plan_result.scalars().first()
+
+            if existing_plan:
+                # Link the protocol request to the existing plan
+                protocol_request.treatment_plan_id = existing_plan.id
+
+                # Find the next scheduled cycle and mark it as approved
+                cycle_result = await db.execute(
+                    select(TreatmentCycle)
+                    .where(
+                        TreatmentCycle.treatment_plan_id == existing_plan.id,
+                        TreatmentCycle.status == CycleStatus.SCHEDULED,
+                    )
+                    .order_by(TreatmentCycle.cycle_number)
+                    .limit(1)
+                )
+                next_cycle = cycle_result.scalars().first()
+                if next_cycle:
+                    next_cycle.status = CycleStatus.APPROVED
+                    next_cycle.daycare_doctor_id = doctor.id if doctor else None
+                    next_cycle.approved_at = datetime.utcnow()
+                    next_cycle.approval_notes = "Protocol approved by doctor. Doses verified via SOPHIA."
+                    # Store the approved dose calculations on the cycle
+                    generated = protocol_request.generated_protocol or {}
+                    next_cycle.dose_modifications = generated
+            else:
+                # No existing plan — create one from the approved protocol
+                await create_treatment_plan_from_protocol(
+                    db=db,
+                    protocol_request=protocol_request,
+                    doctor_id=doctor.id if doctor else None,
+                )
         except Exception as e:
             import logging
-            logging.error(f"Failed to create treatment plan: {e}")
+            logging.error(f"Failed to handle post-approval treatment plan: {e}")
 
         await db.commit()
         await notify_patient_of_approval(db, patient, approved=True)
@@ -704,7 +737,7 @@ async def get_pending_approvals(
     doctor_pending = []
 
     is_nurse = current_user.role.value == "nurse"
-    is_doctor = current_user.role.value in ["doctor", "doctor_daycare", "doctor_opd"]
+    is_doctor = current_user.role.value in ["doctor", "doctor_opd"]
     is_admin = current_user.role.value == "admin"
 
     if is_nurse or is_doctor or is_admin:

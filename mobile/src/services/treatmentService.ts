@@ -22,6 +22,17 @@ export const treatmentService = {
   },
 
   // Treatment Plans
+  async listTreatmentPlans(patientId?: string): Promise<any[]> {
+    const params = patientId ? { patient_id: patientId } : {};
+    const response = await apiClient.get('/treatment-plans', { params });
+    return response.data;
+  },
+
+  async getCalendar(planId: string): Promise<any> {
+    const response = await apiClient.get(`/treatment-plans/${planId}/calendar`);
+    return response.data;
+  },
+
   async createTreatmentPlan(data: Partial<TreatmentPlan>): Promise<TreatmentPlan> {
     const response = await apiClient.post('/treatment-plans', data);
     return response.data;
@@ -85,13 +96,18 @@ export const treatmentService = {
   },
 
   async completeCycle(
-    cycleId: string, 
-    dischargeNotes?: string, 
+    cycleId: string,
+    dischargeNotes?: string,
     followUpInstructions?: string
-  ): Promise<TreatmentCycle> {
+  ): Promise<any> {
     const response = await apiClient.post(`/cycles/${cycleId}/complete`, null, {
       params: { discharge_notes: dischargeNotes, follow_up_instructions: followUpInstructions },
     });
+    return response.data;
+  },
+
+  async getDischargeSummary(cycleId: string): Promise<any> {
+    const response = await apiClient.get(`/cycles/${cycleId}/discharge-summary`);
     return response.data;
   },
 
@@ -103,6 +119,42 @@ export const treatmentService = {
 
   async updateDrugAdministration(adminId: string, data: Partial<DrugAdministration>): Promise<DrugAdministration> {
     const response = await apiClient.put(`/drug-admin/${adminId}`, data);
+    return response.data;
+  },
+
+  // Feature 1: Pre-chemo labs
+  async submitPreChemoLabs(cycleId: string, labs: Record<string, number | null>): Promise<any> {
+    const response = await apiClient.put(`/cycles/${cycleId}/pre-chemo-labs`, labs);
+    return response.data;
+  },
+
+  // Feature 3: Dose recalculation
+  async recalculateDoses(cycleId: string, weightKg: number, heightCm?: number): Promise<any> {
+    const response = await apiClient.post(`/cycles/${cycleId}/recalculate-doses`, {
+      weight_kg: weightKg,
+      height_cm: heightCm,
+    });
+    return response.data;
+  },
+
+  // Feature 5: Timeline
+  async getTimeline(planId: string): Promise<any> {
+    const response = await apiClient.get(`/treatment-plans/${planId}/timeline`);
+    return response.data;
+  },
+
+  // Feature 10: Costs
+  async getCosts(planId: string): Promise<any> {
+    const response = await apiClient.get(`/treatment-plans/${planId}/costs`);
+    return response.data;
+  },
+
+  async updateCycleCosts(cycleId: string, costs: { sessionCost?: number; labCost?: number; otherCharges?: number }): Promise<any> {
+    const response = await apiClient.put(`/cycles/${cycleId}/costs`, {
+      session_cost: costs.sessionCost,
+      lab_cost: costs.labCost,
+      other_charges: costs.otherCharges,
+    });
     return response.data;
   },
 };

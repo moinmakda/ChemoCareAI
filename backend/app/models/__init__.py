@@ -24,6 +24,8 @@ from app.models.clinical import (
     AppointmentStatus,
     NotificationType,
 )
+from app.models.medication import TakeHomeMedication, MedicationLog
+from app.models.clinical import ClinicalNote, ShiftHandover
 from app.models.protocol_request import (
     ProtocolRequest,
     ProtocolRequestStatus,
@@ -58,6 +60,12 @@ __all__ = [
     "AppointmentType",
     "AppointmentStatus",
     "NotificationType",
+    # Medication
+    "TakeHomeMedication",
+    "MedicationLog",
+    # Clinical Notes & Handover
+    "ClinicalNote",
+    "ShiftHandover",
     # Protocol Request
     "ProtocolRequest",
     "ProtocolRequestStatus",

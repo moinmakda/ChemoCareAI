@@ -47,6 +47,7 @@ export interface MedicalHistory {
 }
 
 export interface ClinicalDataCollection {
+  protocol_code?: string;
   height_cm?: number;
   weight_kg?: number;
   bsa?: number;
@@ -60,63 +61,137 @@ export interface ClinicalDataCollection {
   medical_history?: MedicalHistory;
   current_symptoms: string[];
   performance_status?: string;
+  neutrophils?: number;
+  platelets?: number;
+  hemoglobin?: number;
+  bilirubin?: number;
+  gfr?: number;
 }
 
+// All interfaces use camelCase — api.ts interceptor converts all response keys
 export interface ProtocolRequest {
   id: string;
-  patient_id: string;
-  protocol_template_id?: number;
-  status: 'draft' | 'pending_nurse_approval' | 'nurse_approved' | 'pending_doctor_approval' | 'approved' | 'rejected';
-  clinical_data?: ClinicalDataCollection;
-  nurse_collected_data?: Record<string, any>;
-  nurse_review_notes?: string;
-  nurse_reviewed_by_id?: string;
-  nurse_reviewed_at?: string;
-  doctor_review_notes?: string;
-  doctor_reviewed_by_id?: string;
-  doctor_reviewed_at?: string;
-  generated_protocol?: Record<string, any>;
-  created_at: string;
-  updated_at?: string;
+  patientId: string;
+  protocolTemplateId?: number;
+  status: string;
+  clinicalData?: Record<string, any>;
+  nurseCollectedData?: Record<string, any>;
+  nurseReviewNotes?: string;
+  nurseReviewedById?: string;
+  nurseReviewedAt?: string;
+  doctorReviewNotes?: string;
+  doctorReviewedById?: string;
+  doctorReviewedAt?: string;
+  generatedProtocol?: Record<string, any>;
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface DocumentUploadResponse {
-  document_id: number;
-  document_type: string;
-  extraction_success: boolean;
-  extracted_data?: Record<string, any>;
-  clinical_data_updates?: Record<string, any>;
-  needs_verification: boolean;
-  overall_confidence: number;
+  documentId: number;
+  documentType: string;
+  extractionSuccess: boolean;
+  extractedData?: Record<string, any>;
+  clinicalDataUpdates?: Record<string, any>;
+  needsVerification: boolean;
+  overallConfidence: number;
   message: string;
 }
 
 export interface ProtocolGenerationResponse {
   success: boolean;
   protocol?: Record<string, any>;
-  ai_recommendations?: string[];
+  aiRecommendations?: string[];
   warnings?: string[];
   message: string;
 }
 
 export interface WorkflowStatus {
-  request_id: number;
-  current_status: string;
-  data_collection_complete: boolean;
-  nurse_review_complete: boolean;
-  doctor_review_complete: boolean;
-  pending_action_by?: 'nurse' | 'doctor';
-  created_at: string;
-  last_updated?: string;
+  requestId: number;
+  currentStatus: string;
+  dataCollectionComplete: boolean;
+  nurseReviewComplete: boolean;
+  doctorReviewComplete: boolean;
+  pendingActionBy?: 'nurse' | 'doctor';
+  createdAt: string;
+  lastUpdated?: string;
 }
 
 export interface PendingApprovals {
-  nurse_pending: ProtocolRequest[];
-  doctor_pending: ProtocolRequest[];
-  total_pending: number;
+  nursePending: ProtocolRequest[];
+  doctorPending: ProtocolRequest[];
+  totalPending: number;
 }
 
-// API Functions
+// =============================================================================
+// SOPHIA Protocol Library Types & Functions
+// =============================================================================
+
+export interface SophiaProtocol {
+  id: string;
+  code: string;
+  name: string;
+  indication: string;
+  drugs: string[];
+  cycleLengthDays: number;
+  totalCycles: number;
+  category: string;
+  source?: string;
+  referenceUrl?: string;
+}
+
+export interface SophiaProtocolCategory {
+  name: string;
+  count: number;
+}
+
+/**
+ * List all SOPHIA protocols with optional search and category filter.
+ * Used by the protocol selector dropdown.
+ */
+export const getSophiaProtocols = async (params?: {
+  search?: string;
+  category?: string;
+}): Promise<SophiaProtocol[]> => {
+  const response = await apiClient.get('/sophia-protocols', { params });
+  return response.data;
+};
+
+/**
+ * Get SOPHIA protocol categories with counts.
+ */
+export const getSophiaCategories = async (): Promise<SophiaProtocolCategory[]> => {
+  const response = await apiClient.get('/sophia-protocols/categories');
+  return response.data;
+};
+
+/**
+ * Get full SOPHIA protocol detail by code.
+ */
+export const getSophiaProtocolDetail = async (protocolCode: string): Promise<Record<string, any>> => {
+  const response = await apiClient.get(`/sophia-protocols/${protocolCode}`);
+  return response.data;
+};
+
+/**
+ * Get all drugs in a SOPHIA protocol.
+ */
+export const getSophiaProtocolDrugs = async (protocolCode: string): Promise<{
+  protocolCode: string;
+  protocolName: string;
+  coreDrugs: Record<string, any>[];
+  preMedications: Record<string, any>[];
+  takeHomeMedicines: Record<string, any>[];
+  rescueMedications: Record<string, any>[];
+}> => {
+  const response = await apiClient.get(`/sophia-protocols/${protocolCode}/drugs`);
+  return response.data;
+};
+
+
+// =============================================================================
+// Protocol Workflow API Functions
+// =============================================================================
 
 /**
  * Create a new protocol request

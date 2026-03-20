@@ -19,9 +19,6 @@ import { Card, Avatar, Header, Modal, Button } from '../../src/components';
 import { useAuthStore } from '../../src/store/authStore';
 import { nurseService } from '../../src/services/nurseService';
 
-const showComingSoon = (feature: string) => {
-  Alert.alert('Coming Soon', `${feature} will be available in a future update.`);
-};
 
 export default function NurseProfileScreen() {
   const router = useRouter();
@@ -59,32 +56,16 @@ export default function NurseProfileScreen() {
 
   const menuSections = [
     {
-      title: 'Account',
+      title: 'Quick Access',
       items: [
-        { icon: 'person-outline', label: 'Personal Information', onPress: () => showComingSoon('Personal Information') },
-        { icon: 'medical-outline', label: 'Nursing License', onPress: () => showComingSoon('Nursing License') },
-        { icon: 'calendar-outline', label: 'Shift Schedule', onPress: () => showComingSoon('Shift Schedule') },
-      ],
-    },
-    {
-      title: 'Work Settings',
-      items: [
-        { icon: 'bed-outline', label: 'Assigned Chairs', onPress: () => showComingSoon('Assigned Chairs') },
-        { icon: 'clipboard-outline', label: 'Task Preferences', onPress: () => showComingSoon('Task Preferences') },
-        { icon: 'alert-circle-outline', label: 'Alert Settings', onPress: () => showComingSoon('Alert Settings') },
-      ],
-    },
-    {
-      title: 'Preferences',
-      items: [
-        { icon: 'notifications-outline', label: 'Notifications', onPress: () => showComingSoon('Notification Settings') },
-        { icon: 'language-outline', label: 'Language', value: 'English', onPress: () => showComingSoon('Language Settings') },
+        { icon: 'swap-horizontal-outline', label: 'Shift Handover', onPress: () => router.push('/(nurse)/shift-handover') },
+        { icon: 'medical-outline', label: 'Medications', onPress: () => router.push('/(nurse)/medications') },
+        { icon: 'pulse-outline', label: 'Record Vitals', onPress: () => router.push('/(nurse)/vitals') },
       ],
     },
     {
       title: 'Support',
       items: [
-        { icon: 'help-circle-outline', label: 'Help Center', onPress: () => showComingSoon('Help Center') },
         { icon: 'chatbubble-ellipses-outline', label: 'Contact Support', onPress: () => Linking.openURL('tel:18002436226') },
       ],
     },
@@ -107,7 +88,7 @@ export default function NurseProfileScreen() {
               name={user?.fullName || 'Nurse'}
               size="xlarge"
             />
-            <TouchableOpacity style={styles.editAvatarButton} onPress={() => showComingSoon('Photo Upload')}>
+            <TouchableOpacity style={styles.editAvatarButton}>
               <Ionicons name="camera" size={16} color={colors.neutral[0]} />
             </TouchableOpacity>
           </View>
@@ -150,7 +131,7 @@ export default function NurseProfileScreen() {
                     <Text style={styles.menuLabel}>{item.label}</Text>
                   </View>
                   <View style={styles.menuItemRight}>
-                    {'value' in item && <Text style={styles.menuValue}>{item.value}</Text>}
+                    {'value' in item && (item as any).value && <Text style={styles.menuValue}>{(item as any).value}</Text>}
                     <Ionicons name="chevron-forward" size={18} color={colors.text.tertiary} />
                   </View>
                 </TouchableOpacity>

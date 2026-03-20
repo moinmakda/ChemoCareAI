@@ -30,12 +30,10 @@ export default function IndexScreen() {
       return <Redirect href="/(patient)/home" />;
     case 'doctor_opd':
       return <Redirect href="/(doctor-opd)/home" />;
-    case 'doctor_daycare':
-      return <Redirect href="/(doctor-daycare)/home" />;
     case 'nurse':
       return <Redirect href="/(nurse)/home" />;
     case 'admin':
-      return <Redirect href="/(doctor-daycare)/home" />;
+      return <Redirect href="/(doctor-opd)/home" />;
     default:
       return <Redirect href="/(auth)/login" />;
   }

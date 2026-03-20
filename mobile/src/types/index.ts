@@ -8,7 +8,7 @@ export interface User {
   phone?: string;
   fullName?: string;
   avatar?: string;
-  role: 'patient' | 'doctor_opd' | 'doctor_daycare' | 'nurse' | 'admin';
+  role: 'patient' | 'doctor_opd' | 'nurse' | 'admin';
   isActive: boolean;
   isVerified: boolean;
   createdAt: string;

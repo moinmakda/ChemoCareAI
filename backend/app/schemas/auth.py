@@ -83,3 +83,13 @@ class PasswordChange(BaseModel):
     """Schema for password change."""
     current_password: str
     new_password: str = Field(..., min_length=8)
+
+
+class MessageResponse(BaseModel):
+    """Generic message response."""
+    message: str
+
+
+class PushTokenRequest(BaseModel):
+    """Request to register a push notification token."""
+    push_token: str

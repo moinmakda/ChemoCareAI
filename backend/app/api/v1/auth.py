@@ -33,6 +33,7 @@ from app.schemas import (
     PasswordChange,
 )
 from app.api.deps import get_current_user
+from app.schemas.auth import MessageResponse, PushTokenRequest
 from datetime import date
 from app.core.config import settings
 
@@ -167,7 +168,7 @@ async def refresh_token(
     )
 
 
-@router.post("/logout")
+@router.post("/logout", response_model=MessageResponse)
 async def logout():
     """Logout user (client should discard tokens)."""
     return {"message": "Successfully logged out"}
@@ -181,7 +182,7 @@ async def get_me(
     return current_user
 
 
-@router.post("/forgot-password")
+@router.post("/forgot-password", response_model=MessageResponse)
 @limiter.limit("3/minute")
 async def forgot_password(
     request: Request,
@@ -201,7 +202,7 @@ async def forgot_password(
     return {"message": "If the email exists, a reset link will be sent"}
 
 
-@router.post("/reset-password")
+@router.post("/reset-password", response_model=MessageResponse)
 async def reset_password(
     data: PasswordResetConfirm,
     db: AsyncSession = Depends(get_db),
@@ -230,22 +231,19 @@ async def reset_password(
     return {"message": "Password reset successfully"}
 
 
-@router.put("/push-token")
+@router.put("/push-token", response_model=MessageResponse)
 async def update_push_token(
-    data: dict,
+    data: PushTokenRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
     """Register or update Expo push notification token."""
-    push_token = data.get("push_token")
-    if not push_token:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="push_token required")
-    current_user.push_token = push_token
+    current_user.push_token = data.push_token
     await db.commit()
     return {"message": "Push token registered"}
 
 
-@router.delete("/push-token")
+@router.delete("/push-token", response_model=MessageResponse)
 async def delete_push_token(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
@@ -256,7 +254,7 @@ async def delete_push_token(
     return {"message": "Push token removed"}
 
 
-@router.post("/change-password")
+@router.post("/change-password", response_model=MessageResponse)
 async def change_password(
     data: PasswordChange,
     current_user: User = Depends(get_current_user),

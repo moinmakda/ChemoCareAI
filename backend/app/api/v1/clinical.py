@@ -37,6 +37,8 @@ from app.schemas import (
     SymptomEntryResponse,
 )
 from app.api.deps import get_current_user, allow_medical_staff, allow_nurses
+from app.schemas.clinical import MedicationResponse, MedicationStatusUpdate, DashboardStatsResponse, PatientDashboardStatsResponse
+from app.schemas.auth import MessageResponse
 
 router = APIRouter(tags=["Clinical"])
 
@@ -133,6 +135,63 @@ async def create_vital(
     db.add(vital)
     await db.commit()
     await db.refresh(vital)
+
+    # Auto-notify care team on concerning vitals
+    ai_alerts = vital.ai_alerts or []
+    has_concerning = any(a.get("severity") in ("critical", "warning") for a in ai_alerts)
+    if has_concerning:
+        try:
+            from app.models.clinical import NotificationType
+
+            patient_name = "Patient"
+            p_result = await db.execute(select(Patient).where(Patient.id == patient_id))
+            p = p_result.scalar_one_or_none()
+            if p:
+                patient_name = f"{p.first_name} {p.last_name}"
+
+            critical_alerts = [a for a in ai_alerts if a.get("severity") == "critical"]
+            alert_level = "urgent" if critical_alerts else "monitor"
+            severity_label = "URGENT" if critical_alerts else "Needs Monitoring"
+            alert_messages = "; ".join(a.get("message", "") for a in ai_alerts[:3])
+            title = f"⚠️ {severity_label}: {patient_name} vitals alert"
+            body = alert_messages[:200] if alert_messages else f"{patient_name} reported concerning vitals"
+
+            # Notify all medical staff (doctors + nurses)
+            staff_result = await db.execute(
+                select(User).where(User.role.in_([UserRole.DOCTOR_OPD, UserRole.NURSE]), User.is_active == True)
+            )
+            staff = staff_result.scalars().all()
+
+            for staff_member in staff:
+                notif = Notification(
+                    user_id=staff_member.id,
+                    type=NotificationType.VITALS_ALERT,
+                    title=title,
+                    body=body,
+                    data={"patient_id": str(patient_id), "vital_id": str(vital.id), "alert_level": alert_level},
+                )
+                db.add(notif)
+
+            await db.commit()
+
+            # Send push notifications
+            try:
+                from app.services.push_notifications import notify_user_by_id
+                for staff_member in staff:
+                    if staff_member.push_token:
+                        await notify_user_by_id(
+                            db=db,
+                            user_id=staff_member.id,
+                            notification_type="vitals_alert",
+                            title=title,
+                            body=body,
+                            data={"type": "vitals_alert", "patient_id": str(patient_id)},
+                        )
+            except Exception:
+                pass  # Push failures shouldn't block the response
+        except Exception:
+            pass  # Notification failures shouldn't block the response
+
     return vital
 
 
@@ -308,26 +367,93 @@ async def checkout_appointment(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(allow_medical_staff),
 ):
-    """Check out from an appointment."""
-    from app.models import AppointmentStatus
-    
+    """Check out from an appointment. Also completes the linked treatment cycle if any."""
+    from app.models import AppointmentStatus, TreatmentCycle, TreatmentPlan, DrugAdministration
+    from app.models.treatment import CycleStatus, PlanStatus, AdminStatus
+    from app.services.discharge_summary import generate_discharge_summary
+    import json
+
     result = await db.execute(
         select(Appointment).where(Appointment.id == appointment_id)
     )
     appointment = result.scalar_one_or_none()
-    
+
     if not appointment:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Appointment not found",
         )
-    
+
     appointment.checked_out_at = datetime.utcnow()
     appointment.status = AppointmentStatus.COMPLETED
-    
+
+    # If this appointment is linked to a treatment cycle, complete the cycle too
+    if appointment.cycle_id:
+        cycle_result = await db.execute(
+            select(TreatmentCycle).where(TreatmentCycle.id == appointment.cycle_id)
+        )
+        cycle = cycle_result.scalar_one_or_none()
+
+        if cycle and cycle.status != CycleStatus.COMPLETED:
+            cycle.completed_at = datetime.utcnow()
+            cycle.status = CycleStatus.COMPLETED
+
+            # Auto-complete any remaining drug administrations
+            drugs_result = await db.execute(
+                select(DrugAdministration).where(DrugAdministration.cycle_id == cycle.id)
+            )
+            for drug in drugs_result.scalars().all():
+                if drug.status != AdminStatus.COMPLETED:
+                    drug.status = AdminStatus.COMPLETED
+                    drug.completed_at = datetime.utcnow()
+
+            # Update completed cycles count on the plan
+            plan_result = await db.execute(
+                select(TreatmentPlan).where(TreatmentPlan.id == cycle.treatment_plan_id)
+            )
+            plan = plan_result.scalar_one_or_none()
+            if plan:
+                plan.completed_cycles += 1
+                if plan.completed_cycles >= plan.planned_cycles:
+                    plan.status = PlanStatus.COMPLETED
+
+            await db.flush()
+
+            # Auto-generate discharge summary
+            try:
+                summary = await generate_discharge_summary(db, cycle.id)
+                cycle.discharge_notes = json.dumps(summary)
+            except Exception:
+                pass  # Non-critical
+
+            # Auto-create take-home medications
+            try:
+                from app.models.medication import TakeHomeMedication
+                from datetime import timedelta, date
+                protocol = plan.custom_protocol if plan else {}
+                take_home_meds = protocol.get("take_home_medicines") or protocol.get("take_home_medications") or []
+                if take_home_meds and plan:
+                    for med in take_home_meds:
+                        thm = TakeHomeMedication(
+                            cycle_id=cycle.id,
+                            patient_id=plan.patient_id,
+                            drug_name=med.get("drug_name") or med.get("drugName", ""),
+                            dose=str(med.get("dose", "")),
+                            unit=med.get("unit", ""),
+                            route=med.get("route", "Oral"),
+                            frequency=med.get("frequency", "As directed"),
+                            start_date=date.today(),
+                            end_date=date.today() + timedelta(days=7),
+                            instructions=med.get("special_instructions") or med.get("instructions", ""),
+                            is_active=True,
+                        )
+                        db.add(thm)
+            except Exception:
+                pass  # Non-critical
+
     await db.commit()
     await db.refresh(appointment)
-    
+
     return appointment
 
 
@@ -412,7 +538,7 @@ async def mark_notification_read(
     return notification
 
 
-@router.put("/notifications/read-all")
+@router.put("/notifications/read-all", response_model=MessageResponse)
 async def mark_all_notifications_read(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -435,6 +561,31 @@ async def mark_all_notifications_read(
     await db.commit()
     
     return {"message": f"Marked {len(notifications)} notifications as read"}
+
+
+# ============ Patient Alerts (for medical staff) ============
+
+@router.get("/patient-alerts")
+async def get_patient_alerts(
+    limit: int = Query(20, description="Max alerts to return"),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(allow_medical_staff),
+):
+    """Get recent patient symptom/vital alerts for medical staff."""
+    from app.models.clinical import NotificationType
+
+    result = await db.execute(
+        select(Notification)
+        .where(
+            Notification.user_id == current_user.id,
+            Notification.type == NotificationType.VITALS_ALERT,
+            Notification.is_read == False,  # noqa: E712
+        )
+        .order_by(Notification.created_at.desc())
+        .limit(limit)
+    )
+    alerts = result.scalars().all()
+    return alerts
 
 
 # ============ Symptoms ============
@@ -540,6 +691,59 @@ async def create_symptom(
     db.add(entry)
     await db.commit()
     await db.refresh(entry)
+
+    # Auto-notify care team on concerning symptoms
+    if ai_level in ("urgent", "monitor"):
+        try:
+            from app.models.clinical import NotificationType
+
+            patient_name = "Patient"
+            if hasattr(entry, 'patient_id'):
+                p_result = await db.execute(select(Patient).where(Patient.id == entry.patient_id))
+                p = p_result.scalar_one_or_none()
+                if p:
+                    patient_name = f"{p.first_name} {p.last_name}"
+
+            severity_label = "URGENT" if ai_level == "urgent" else "Needs Monitoring"
+            title = f"⚠️ {severity_label}: {patient_name} reported symptoms"
+            body = ai_rec[:200] if ai_rec else f"{patient_name} reported concerning symptoms"
+
+            # Notify all medical staff (doctors + nurses)
+            staff_result = await db.execute(
+                select(User).where(User.role.in_([UserRole.DOCTOR_OPD, UserRole.NURSE]), User.is_active == True)
+            )
+            staff = staff_result.scalars().all()
+
+            for staff_member in staff:
+                notif = Notification(
+                    user_id=staff_member.id,
+                    type=NotificationType.VITALS_ALERT,
+                    title=title,
+                    body=body,
+                    data={"patient_id": str(entry.patient_id), "symptom_entry_id": str(entry.id), "alert_level": ai_level},
+                )
+                db.add(notif)
+
+            await db.commit()
+
+            # Send push notifications
+            try:
+                from app.services.push_notifications import notify_user_by_id
+                for staff_member in staff:
+                    if staff_member.push_token:
+                        await notify_user_by_id(
+                            db=db,
+                            user_id=staff_member.id,
+                            notification_type="symptom_alert",
+                            title=title,
+                            body=body,
+                            data={"type": "symptom_alert", "patient_id": str(entry.patient_id)},
+                        )
+            except Exception:
+                pass  # Push failures shouldn't block the response
+        except Exception:
+            pass  # Notification failures shouldn't block the response
+
     return entry
 
 
@@ -573,24 +777,6 @@ async def list_symptoms(
 
 
 # ============ Drug Administrations / Medications ============
-
-class MedicationResponse(BaseModel):
-    id: str
-    patient_id: str
-    patient_name: str
-    drug_name: str
-    dose: str
-    planned_dose: str
-    unit: str
-    route: str
-    status: str
-    scheduled_time: str
-    notes: Optional[str] = None
-
-
-class MedicationStatusUpdate(BaseModel):
-    status: str = Field(..., description="Status: pending, in_progress, completed, held")
-
 
 @router.get("/medications/today", response_model=List[MedicationResponse])
 async def get_today_medications(
@@ -651,6 +837,7 @@ async def get_today_medications(
                 medications.append(MedicationResponse(
                     id=str(drug.id),
                     patient_id=str(patient.id) if patient else "",
+                    cycle_id=str(cycle.id),
                     patient_name=f"{patient.first_name} {patient.last_name}" if patient else "Unknown",
                     drug_name=drug.drug_name,
                     dose=f"{drug.planned_dose}{drug.unit}",
@@ -740,6 +927,7 @@ async def update_medication_status(
     return MedicationResponse(
         id=str(drug.id),
         patient_id="",
+        cycle_id=str(drug.cycle_id) if drug.cycle_id else "",
         patient_name="",
         drug_name=drug.drug_name,
         dose=f"{drug.planned_dose}{drug.unit}",
@@ -753,13 +941,6 @@ async def update_medication_status(
 
 
 # ============ Dashboard Stats Endpoint ============
-
-class DashboardStatsResponse(BaseModel):
-    total_patients: int
-    today_appointments: int
-    active_treatments: int
-    pending_alerts: int
-
 
 @router.get("/dashboard/stats", response_model=DashboardStatsResponse)
 async def get_dashboard_stats(
@@ -811,14 +992,6 @@ async def get_dashboard_stats(
 
 
 # ============ Patient Dashboard Stats ============
-
-class PatientDashboardStatsResponse(BaseModel):
-    next_appointment: Optional[str] = None
-    days_until_next: int = 0
-    completed_sessions: int = 0
-    upcoming_sessions: int = 0
-    last_vitals_date: Optional[str] = None
-
 
 @router.get("/dashboard/patient-stats", response_model=PatientDashboardStatsResponse)
 async def get_patient_dashboard_stats(

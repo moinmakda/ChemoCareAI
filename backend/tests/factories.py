@@ -51,7 +51,7 @@ class PatientUserFactory(UserFactory):
 
 class DoctorUserFactory(UserFactory):
     """Factory for doctor users."""
-    role = UserRole.DOCTOR_DAYCARE
+    role = UserRole.DOCTOR_OPD
     full_name = Use(lambda: f"Dr. Test {uuid4().hex[:4]}")
 
 

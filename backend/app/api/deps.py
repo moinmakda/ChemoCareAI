@@ -86,14 +86,13 @@ class RoleChecker:
 
 # Pre-defined role checkers
 allow_patients = RoleChecker([UserRole.PATIENT])
-allow_doctors = RoleChecker([UserRole.DOCTOR_OPD, UserRole.DOCTOR_DAYCARE])
+allow_doctors = RoleChecker([UserRole.DOCTOR_OPD])
 allow_opd_doctors = RoleChecker([UserRole.DOCTOR_OPD])
-allow_daycare_doctors = RoleChecker([UserRole.DOCTOR_DAYCARE])
 allow_nurses = RoleChecker([UserRole.NURSE])
-allow_medical_staff = RoleChecker([UserRole.DOCTOR_OPD, UserRole.DOCTOR_DAYCARE, UserRole.NURSE])
-allow_all_staff = RoleChecker([UserRole.DOCTOR_OPD, UserRole.DOCTOR_DAYCARE, UserRole.NURSE, UserRole.ADMIN])
+allow_medical_staff = RoleChecker([UserRole.DOCTOR_OPD, UserRole.NURSE])
+allow_all_staff = RoleChecker([UserRole.DOCTOR_OPD, UserRole.NURSE, UserRole.ADMIN])
 allow_admin = RoleChecker([UserRole.ADMIN])
-allow_all = RoleChecker([UserRole.PATIENT, UserRole.DOCTOR_OPD, UserRole.DOCTOR_DAYCARE, UserRole.NURSE, UserRole.ADMIN])
+allow_all = RoleChecker([UserRole.PATIENT, UserRole.DOCTOR_OPD, UserRole.NURSE, UserRole.ADMIN])
 
 
 # Convenience dependency functions for common role checks
@@ -101,7 +100,7 @@ async def get_current_doctor(
     current_user: User = Depends(get_current_user),
 ) -> User:
     """Get current user if they are a doctor."""
-    if current_user.role not in [UserRole.DOCTOR_OPD, UserRole.DOCTOR_DAYCARE]:
+    if current_user.role not in [UserRole.DOCTOR_OPD]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only doctors can perform this action",
@@ -125,7 +124,7 @@ async def get_current_medical_staff(
     current_user: User = Depends(get_current_user),
 ) -> User:
     """Get current user if they are medical staff (doctor or nurse)."""
-    if current_user.role not in [UserRole.DOCTOR_OPD, UserRole.DOCTOR_DAYCARE, UserRole.NURSE]:
+    if current_user.role not in [UserRole.DOCTOR_OPD, UserRole.NURSE]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only medical staff can perform this action",

@@ -1,0 +1,784 @@
+{
+  "protocol_id": "lymphoma_r_gemox",
+  "protocol_name": "R-GemOx",
+  "protocol_code": "R-GEMOX",
+  "full_name": "Rituximab-Gemcitabine-Oxaliplatin (R-GemOx)",
+  "indication": "Relapsed or refractory CD20-positive Diffuse Large B-Cell Lymphoma (DLBCL) or other Non-Hodgkin Lymphoma — salvage therapy",
+  "cycle_length_days": 14,
+  "total_cycles": 6,
+  "version": "1.0",
+  "treatment_intent": "curative",
+  "drugs": [
+    {
+      "drug_id": "rituximab",
+      "drug_name": "Rituximab",
+      "dose": 375.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 500,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Rate of administration varies — refer to local rituximab administration guidelines. Dose rounded to nearest 100mg (up if halfway). Administer first, before gemcitabine and oxaliplatin.",
+      "prn": false
+    },
+    {
+      "drug_id": "gemcitabine",
+      "drug_name": "Gemcitabine",
+      "dose": 1000.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1
+      ],
+      "duration_minutes": 30,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 250,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Dose banded per national dose bands (38mg/ml). Gemcitabine is radiosensitising — caution if prior radiotherapy. Administer after rituximab.",
+      "prn": false
+    },
+    {
+      "drug_id": "oxaliplatin",
+      "drug_name": "Oxaliplatin",
+      "dose": 100.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1
+      ],
+      "duration_minutes": 120,
+      "diluent": "Glucose 5%",
+      "diluent_volume_ml": 500,
+      "administration_order": 3,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "In 500ml glucose 5% over 120 minutes. Do NOT use sodium chloride — precipitates with oxaliplatin. Increase infusion duration to 360 minutes if acute laryngopharyngeal dysaesthesia occurs. Dose banded per national dose bands (5mg/ml). Exfoliant — extravasation risk. Administer after gemcitabine.",
+      "prn": false
+    },
+    {
+      "drug_id": "gcsf_filgrastim",
+      "drug_name": "G-CSF (filgrastim)",
+      "dose": 300.0,
+      "dose_unit": "mcg",
+      "route": "Subcutaneous injection",
+      "days": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 10,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Starting day 5 of cycle",
+      "frequency": "Once daily for 7 days from day 5",
+      "special_instructions": "Filgrastim 300 microgram or bioequivalent once daily subcutaneous for 7 days starting on day 5. Alternative: lenograstim 263 microgram once daily for 7 days from day 5. Or pegfilgrastim 6mg once subcutaneous on day 2 of cycle.",
+      "prn": false
+    }
+  ],
+  "pre_medications": [
+    {
+      "drug_id": "dexamethasone",
+      "drug_name": "Dexamethasone",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to rituximab",
+      "frequency": null,
+      "special_instructions": "May be given orally.",
+      "prn": false
+    },
+    {
+      "drug_id": "chlorphenamine",
+      "drug_name": "Chlorphenamine",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to rituximab",
+      "frequency": null,
+      "special_instructions": null,
+      "prn": false
+    },
+    {
+      "drug_id": "paracetamol",
+      "drug_name": "Paracetamol",
+      "dose": 1000.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to rituximab",
+      "frequency": null,
+      "special_instructions": "Maximum dose 4000mg/24 hours.",
+      "prn": false
+    },
+    {
+      "drug_id": "ondansetron",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 3,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "15-30 minutes prior to chemotherapy",
+      "frequency": null,
+      "special_instructions": "May be given orally.",
+      "prn": false
+    }
+  ],
+  "rescue_medications": [
+    {
+      "drug_id": "hydrocortisone_crs",
+      "drug_name": "Hydrocortisone",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Available as required for rituximab infusion reactions.",
+      "prn": true
+    },
+    {
+      "drug_id": "salbutamol_nebule",
+      "drug_name": "Salbutamol",
+      "dose": 2.5,
+      "dose_unit": "mg",
+      "route": "Nebulised",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Available as required for rituximab-related bronchospasm.",
+      "prn": true
+    },
+    {
+      "drug_id": "pethidine",
+      "drug_name": "Pethidine",
+      "dose": 25.0,
+      "dose_unit": "mg",
+      "route": "IV",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": 50.0,
+      "max_dose_unit": "mg",
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Consider pethidine 25-50mg IV for rituximab-related rigors that fail to respond to steroids. Controlled drug — prescribe per local policy.",
+      "prn": true
+    }
+  ],
+  "take_home_medicines": [
+    {
+      "drug_id": "ondansetron_tho",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        2,
+        3
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Starting on the evening of Day 1",
+      "frequency": "Twice daily for 3 days starting evening of Day 1",
+      "special_instructions": "Take-home antiemetic: ondansetron 8mg twice daily for 3 days. First dose on the evening of treatment day.",
+      "prn": false
+    },
+    {
+      "drug_id": "dexamethasone_tho",
+      "drug_name": "Dexamethasone",
+      "dose": 4.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        2,
+        3,
+        4
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Starting the day after chemotherapy (Day 2)",
+      "frequency": "Twice daily for 3 days starting the day after chemotherapy",
+      "special_instructions": "Dexamethasone 4mg twice daily for 3 days — starts the day AFTER chemotherapy (Day 2, 3, 4). Take with or after food.",
+      "prn": false
+    },
+    {
+      "drug_id": "metoclopramide_tho",
+      "drug_name": "Metoclopramide",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": null,
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Three times daily as required (PRN) for nausea",
+      "special_instructions": "Take-home antiemetic: metoclopramide 10mg up to three times daily as required for nausea or vomiting.",
+      "prn": true
+    },
+    {
+      "drug_id": "co_trimoxazole",
+      "drug_name": "Co-trimoxazole",
+      "dose": 960.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 3,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Monday, Wednesday and Friday",
+      "frequency": "Once daily on Monday, Wednesday and Friday (three times weekly)",
+      "special_instructions": "PCP prophylaxis: co-trimoxazole 960mg once daily on Monday, Wednesday and Friday for 28 days. Mandatory for all cycles.",
+      "prn": false
+    },
+    {
+      "drug_id": "aciclovir",
+      "drug_name": "Aciclovir",
+      "dose": 400.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 4,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Twice daily",
+      "special_instructions": "Antiviral prophylaxis for high-risk patients.",
+      "prn": false
+    },
+    {
+      "drug_id": "allopurinol",
+      "drug_name": "Allopurinol",
+      "dose": 300.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 5,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily for 7 days",
+      "special_instructions": "First cycle only — tumour lysis prophylaxis.",
+      "prn": false
+    }
+  ],
+  "cycle_variations": [],
+  "dose_modifications": [
+    {
+      "rule_id": "all_neutrophils_delay",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 1.0",
+      "condition_type": "less_than",
+      "threshold_value": 1.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "rituximab",
+        "gemcitabine",
+        "oxaliplatin"
+      ],
+      "modification": "delay",
+      "modification_type": "delay",
+      "modification_percent": null,
+      "delay_days": 7,
+      "description": "Neutrophils <1.0×10⁹/L: delay all drugs until count recovery.",
+      "action_text": "Delay all drugs until neutrophils ≥1.0×10⁹/L",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "all_platelets_delay",
+      "parameter": "platelets",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 100",
+      "condition_type": "less_than",
+      "threshold_value": 100.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "rituximab",
+        "gemcitabine",
+        "oxaliplatin"
+      ],
+      "modification": "delay",
+      "modification_type": "delay",
+      "modification_percent": null,
+      "delay_days": 7,
+      "description": "Platelets <100×10⁹/L: delay all drugs until count recovery.",
+      "action_text": "Delay all drugs until platelets ≥100×10⁹/L",
+      "priority": 2,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "gemcitabine_hepatic",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 27",
+      "condition_type": "greater_than",
+      "threshold_value": 27.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "gemcitabine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 80,
+      "delay_days": null,
+      "description": "Hepatic impairment bilirubin >27 µmol/L: initiate gemcitabine at 800mg/m² (80% of 1000mg/m²).",
+      "action_text": "Reduce gemcitabine to 800mg/m² (bilirubin >27 µmol/L)",
+      "priority": 3,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "gemcitabine_renal",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "< 30",
+      "condition_type": "less_than",
+      "threshold_value": 30.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "gemcitabine"
+      ],
+      "modification": "consider",
+      "modification_type": "consider",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Renal impairment CrCl <30 ml/min: consider gemcitabine dose reduction — discuss with consultant.",
+      "action_text": "Consider reducing gemcitabine (CrCl <30 ml/min)",
+      "priority": 4,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "oxaliplatin_renal",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "< 30",
+      "condition_type": "less_than",
+      "threshold_value": 30.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "oxaliplatin"
+      ],
+      "modification": "consider",
+      "modification_type": "consider",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Renal impairment CrCl <30 ml/min: treat at normal dose and monitor carefully, or dose-reduce according to toxicity.",
+      "action_text": "Monitor or dose-reduce oxaliplatin (CrCl <30 ml/min)",
+      "priority": 4,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "oxaliplatin_neuropathy_grade2",
+      "parameter": "nci_ctc_sensory_neuropathy",
+      "parameter_unit": "grade",
+      "condition": "= 2",
+      "condition_type": "equals",
+      "threshold_value": 2.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "oxaliplatin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Oxaliplatin neurosensory toxicity NCI-CTC grade 2 persisting >7 days: reduce oxaliplatin to 75mg/m².",
+      "action_text": "Reduce oxaliplatin to 75mg/m² (grade 2 neurosensory toxicity >7 days)",
+      "priority": 5,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "oxaliplatin_neuropathy_grade3",
+      "parameter": "nci_ctc_sensory_neuropathy",
+      "parameter_unit": "grade",
+      "condition": ">= 3",
+      "condition_type": "greater_equal",
+      "threshold_value": 3.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "oxaliplatin"
+      ],
+      "modification": "omit",
+      "modification_type": "omit",
+      "modification_percent": 0,
+      "delay_days": null,
+      "description": "Oxaliplatin neurosensory toxicity NCI-CTC grade 3 or above: permanently discontinue oxaliplatin.",
+      "action_text": "Discontinue oxaliplatin permanently (grade ≥3 neurotoxicity)",
+      "priority": 5,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "all_grade3_nonhaem",
+      "parameter": "non_haematological_toxicity",
+      "parameter_unit": "grade",
+      "condition": ">= 3",
+      "condition_type": "greater_equal",
+      "threshold_value": 3.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "gemcitabine",
+        "oxaliplatin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Non-haematological NCI-CTC grade ≥3 toxicity: delay until resolved to grade ≤1 then reduce all drugs to 75%. Gemcitabine may be reduced to 750mg/m².",
+      "action_text": "Reduce gemcitabine and oxaliplatin to 75% (grade ≥3 toxicity)",
+      "priority": 6,
+      "check_if_already_reduced": false
+    }
+  ],
+  "hematological_toxicity_rules": [
+    {
+      "toxicity_type": "neutropenia",
+      "grade": null,
+      "threshold": "< 1.0",
+      "threshold_value": 1.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "action": "delay",
+      "delay_days": 7,
+      "reduction_percent": null,
+      "check_drugs": [
+        "gemcitabine",
+        "oxaliplatin",
+        "rituximab"
+      ],
+      "additional_notes": "Delay until neutrophils ≥1.0×10⁹/L. Growth factor support recommended from day 5 of each cycle."
+    },
+    {
+      "toxicity_type": "thrombocytopenia",
+      "grade": null,
+      "threshold": "< 100",
+      "threshold_value": 100.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "action": "delay",
+      "delay_days": 7,
+      "reduction_percent": null,
+      "check_drugs": [
+        "gemcitabine",
+        "oxaliplatin",
+        "rituximab"
+      ],
+      "additional_notes": "Delay until platelets ≥100×10⁹/L."
+    }
+  ],
+  "non_hematological_toxicity_rules": [
+    {
+      "toxicity_type": "sensory_neuropathy",
+      "grade": 2,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "oxaliplatin"
+      ],
+      "action": "reduce_or_omit",
+      "action_text": "Grade 2 persisting >7 days: reduce oxaliplatin to 75mg/m². Grade ≥3: permanently discontinue oxaliplatin.",
+      "monitoring_frequency": "each_cycle"
+    },
+    {
+      "toxicity_type": "acute_laryngopharyngeal_dysaesthesia",
+      "grade": null,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "oxaliplatin"
+      ],
+      "action": "consider_modification",
+      "action_text": "Acute laryngopharyngeal dysaesthesia with oxaliplatin: increase infusion duration to 360 minutes. Avoid cold drinks and food during and for several days after oxaliplatin.",
+      "monitoring_frequency": "each_dose"
+    },
+    {
+      "toxicity_type": "rituximab_infusion_reaction",
+      "grade": null,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "rituximab"
+      ],
+      "action": "hold",
+      "action_text": "Grade 3-4 infusion reaction or CRS: stop rituximab immediately. Give hydrocortisone 100mg IV and manage as anaphylaxis. Do not rechallenge if grade 4.",
+      "monitoring_frequency": "each_dose"
+    }
+  ],
+  "treatment_delay_criteria": [
+    {
+      "parameter": "neutrophils",
+      "threshold": "< 1.0",
+      "threshold_value": 1.0,
+      "delay_until": "Neutrophils ≥ 1.0×10⁹/L",
+      "max_delay_weeks": 2,
+      "action_if_not_recovered": "Discuss with consultant."
+    },
+    {
+      "parameter": "platelets",
+      "threshold": "< 100",
+      "threshold_value": 100.0,
+      "delay_until": "Platelets ≥ 100×10⁹/L",
+      "max_delay_weeks": 2,
+      "action_if_not_recovered": "Discuss with consultant."
+    }
+  ],
+  "baseline_requirements": [
+    {
+      "test": "Hepatitis B serology (HBsAg, anti-HBc, anti-HBs)",
+      "includes": [],
+      "timing": "Before first rituximab dose",
+      "required": "true"
+    },
+    {
+      "test": "FBC, U&Es (including magnesium and calcium), LFTs",
+      "includes": [
+        "neutrophils",
+        "platelets",
+        "creatinine clearance",
+        "bilirubin",
+        "magnesium",
+        "calcium"
+      ],
+      "timing": "Before each cycle",
+      "required": "true"
+    }
+  ],
+  "pre_cycle_labs": [
+    {
+      "test": "FBC (neutrophils, platelets, haemoglobin)",
+      "timing": "Within 48 hours before each cycle",
+      "required": true
+    },
+    {
+      "test": "Renal function (creatinine clearance)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "LFTs (bilirubin, AST/ALT)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "Electrolytes (magnesium, calcium, potassium)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "Hepatitis B status",
+      "timing": "Before first cycle",
+      "required": true
+    }
+  ],
+  "toxicities": [
+    {
+      "drug_id": "rituximab",
+      "adverse_effects": [
+        "Infusion reactions (CRS, fever, chills, urticaria)",
+        "Progressive multifocal leukoencephalopathy (PML — rare)",
+        "Hepatitis B reactivation",
+        "Immunosuppression",
+        "Hypogammaglobulinaemia"
+      ]
+    },
+    {
+      "drug_id": "gemcitabine",
+      "adverse_effects": [
+        "Myelosuppression",
+        "Flu-like syndrome",
+        "Nausea",
+        "Hepatotoxicity (transaminase rise)",
+        "Rash",
+        "Peripheral oedema",
+        "Radiosensitisation"
+      ]
+    },
+    {
+      "drug_id": "oxaliplatin",
+      "adverse_effects": [
+        "Cumulative peripheral neuropathy",
+        "Acute cold-induced laryngopharyngeal dysaesthesia",
+        "Nausea and vomiting",
+        "Myelosuppression",
+        "Extravasation injury (exfoliant)",
+        "Allergic reactions"
+      ]
+    }
+  ],
+  "monitoring": [
+    "FBC, U&Es (magnesium, calcium), LFTs, and renal function before each cycle",
+    "Neurological assessment before each cycle (cumulative oxaliplatin neuropathy)",
+    "Rituximab infusion vital signs monitoring during every infusion",
+    "Hepatitis B monitoring if positive serology"
+  ],
+  "warnings": [
+    "Check hepatitis B status before starting rituximab. Active HBV is a contraindication.",
+    "Rituximab associated with severe CRS — typically within 1-2 hours of first infusion. Emergency medications must be available.",
+    "Rituximab: risk of PML — suspend if neurological symptoms develop.",
+    "Oxaliplatin: cumulative peripheral neuropathy — reassess before each cycle. Reduce or discontinue if grade ≥2 neuropathy.",
+    "Oxaliplatin causes acute laryngopharyngeal dysaesthesia — increase infusion to 360 minutes if occurs. Patients should avoid cold food and drinks during and for several days after treatment.",
+    "Oxaliplatin must ONLY be diluted in glucose 5% — precipitates with sodium chloride.",
+    "Oxaliplatin extravasation risk: classified as exfoliant.",
+    "Gemcitabine is radiosensitising — caution if concurrent or recent radiotherapy.",
+    "Growth factor support (G-CSF) recommended from day 5 of each cycle to maintain dose intensity.",
+    "Monitor magnesium and calcium levels — oxaliplatin can cause hypomagnesaemia.",
+    "Oxaliplatin: rare case reports of acute interstitial lung disease or lung fibrosis. Stop treatment if unexplained respiratory symptoms occur until pulmonary investigations completed.",
+    "Viral upper respiratory tract infection at time of treatment may increase risk of rituximab-associated hepatotoxicity. Assess patients for cold or flu-like symptoms prior to treatment."
+  ],
+  "required_patient_fields": {
+    "creatinine_clearance": "Required for gemcitabine and oxaliplatin dose modification",
+    "neutrophil_count": "Required for cycle safety check",
+    "platelet_count": "Required for cycle safety check",
+    "bilirubin": "Required for gemcitabine dose modification",
+    "hepatitis_b_status": "Mandatory before rituximab",
+    "magnesium": "Required — oxaliplatin can cause hypomagnesaemia",
+    "calcium": "Required — electrolyte monitoring"
+  },
+  "source_file": "lymphoma-11.json",
+  "reference_url": "https://www.wessexcanceralliance.nhs.uk/protocols/lymphoma/",
+  "source": "NHS Wessex Cancer Alliance"
+}

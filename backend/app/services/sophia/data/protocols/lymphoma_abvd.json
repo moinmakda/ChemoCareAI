@@ -1,0 +1,818 @@
+{
+  "protocol_id": "lymphoma_abvd",
+  "protocol_name": "ABVD",
+  "protocol_code": "ABVD",
+  "full_name": "Bleomycin-Dacarbazine-Doxorubicin-Vinblastine (ABVD)",
+  "indication": "Hodgkin Lymphoma — standard first-line treatment",
+  "cycle_length_days": 28,
+  "total_cycles": 6,
+  "version": "1.2",
+  "treatment_intent": "curative",
+  "drugs": [
+    {
+      "drug_id": "bleomycin",
+      "drug_name": "Bleomycin",
+      "dose": 10000.0,
+      "dose_unit": "units/m²",
+      "route": "IV bolus",
+      "days": [
+        1,
+        15
+      ],
+      "duration_minutes": 10,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 100,
+      "administration_order": 4,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Administer for first six cycles only. Maximum cumulative dose 500,000 units (patients <60 years). Dose rounded to nearest 1,000 units. Risk of pulmonary toxicity — stop if respiratory symptoms develop until investigated.",
+      "prn": false
+    },
+    {
+      "drug_id": "dacarbazine",
+      "drug_name": "Dacarbazine",
+      "dose": 375.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1,
+        15
+      ],
+      "duration_minutes": 60,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 500,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Protect from light during administration. Dose banded per CSCCN bands. Vesicant — extravasation risk.",
+      "prn": false
+    },
+    {
+      "drug_id": "doxorubicin",
+      "drug_name": "Doxorubicin",
+      "dose": 25.0,
+      "dose_unit": "mg/m²",
+      "route": "IV bolus",
+      "days": [
+        1,
+        15
+      ],
+      "duration_minutes": 10,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 100,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Maximum lifetime cumulative dose 450 mg/m². If prior mediastinal or pericardial radiotherapy, maximum 400 mg/m². Discontinue if cardiac failure develops. Dose banded per CSCCN bands.",
+      "prn": false
+    },
+    {
+      "drug_id": "vinblastine",
+      "drug_name": "Vinblastine",
+      "dose": 6.0,
+      "dose_unit": "mg/m²",
+      "route": "IV bolus",
+      "days": [
+        1,
+        15
+      ],
+      "duration_minutes": 10,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 50,
+      "administration_order": 3,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Dose rounded to nearest 1mg. Vesicant — NPSA/2008/RRR04 must be followed for IV vinca alkaloid administration. Reduce to 3 mg/m² for NCI-CTC grade 2 motor or grade 3 sensory neurotoxicity.",
+      "prn": false
+    }
+  ],
+  "pre_medications": [
+    {
+      "drug_id": "dexamethasone",
+      "drug_name": "Dexamethasone",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        15
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "15-30 minutes prior to chemotherapy",
+      "frequency": null,
+      "special_instructions": "Or equivalent IV dose.",
+      "prn": false
+    },
+    {
+      "drug_id": "ondansetron",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1,
+        15
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "15-30 minutes prior to chemotherapy",
+      "frequency": null,
+      "special_instructions": "May be given orally.",
+      "prn": false
+    }
+  ],
+  "take_home_medicines": [
+    {
+      "drug_id": "ondansetron_oral",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        2,
+        3
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Starting on the evening of the day of chemotherapy administration",
+      "frequency": "Twice daily for 3 days",
+      "special_instructions": "Take-home antiemetic. First dose on the evening of treatment day.",
+      "prn": false
+    },
+    {
+      "drug_id": "domperidone",
+      "drug_name": "Domperidone",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Three times daily when required",
+      "special_instructions": "Take-home antiemetic PRN.",
+      "prn": true
+    },
+    {
+      "drug_id": "co_trimoxazole",
+      "drug_name": "Co-trimoxazole",
+      "dose": 960.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily on Monday, Wednesday and Friday",
+      "special_instructions": "Pneumocystis pneumonia prophylaxis throughout treatment.",
+      "prn": false
+    },
+    {
+      "drug_id": "allopurinol",
+      "drug_name": "Allopurinol",
+      "dose": 300.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 3,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily for 28 days",
+      "special_instructions": "First cycle only — tumour lysis prophylaxis. Allopurinol 300mg once daily for 28 days.",
+      "prn": false
+    }
+  ],
+  "rescue_medications": [],
+  "cycle_variations": [],
+  "dose_modifications": [
+    {
+      "rule_id": "bleomycin_renal_mod",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "10-50",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 10.0,
+      "threshold_high": 50.0,
+      "affected_drugs": [
+        "bleomycin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Renal impairment CrCl 10-50 ml/min: reduce bleomycin to 75% of original dose.",
+      "action_text": "Reduce bleomycin to 75%",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "bleomycin_renal_severe",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "< 10",
+      "condition_type": "less_than",
+      "threshold_value": 10.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "bleomycin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Renal impairment CrCl <10 ml/min: reduce bleomycin to 50% of original dose.",
+      "action_text": "Reduce bleomycin to 50%",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "dacarbazine_renal_45_60",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "45-60",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 45.0,
+      "threshold_high": 60.0,
+      "affected_drugs": [
+        "dacarbazine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 80,
+      "delay_days": null,
+      "description": "Renal impairment CrCl 45-60 ml/min: reduce dacarbazine to 80%.",
+      "action_text": "Reduce dacarbazine to 80%",
+      "priority": 2,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "dacarbazine_renal_30_44",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "30-44",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 30.0,
+      "threshold_high": 44.0,
+      "affected_drugs": [
+        "dacarbazine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Renal impairment CrCl 30-44 ml/min: reduce dacarbazine to 75%.",
+      "action_text": "Reduce dacarbazine to 75%",
+      "priority": 2,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "dacarbazine_renal_severe",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "< 30",
+      "condition_type": "less_than",
+      "threshold_value": 30.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "dacarbazine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 70,
+      "delay_days": null,
+      "description": "Renal impairment CrCl <30 ml/min: reduce dacarbazine to 70%.",
+      "action_text": "Reduce dacarbazine to 70%",
+      "priority": 2,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "doxorubicin_hepatic_mild",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "< 30",
+      "condition_type": "less_than",
+      "threshold_value": 30.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin <30 µmol/L with AST/ALT 2-3×ULN — reduce doxorubicin to 75%.",
+      "action_text": "Reduce doxorubicin to 75% (hepatic impairment)",
+      "priority": 3,
+      "check_if_already_reduced": false,
+      "secondary_parameter": "ast",
+      "secondary_condition_type": "range",
+      "secondary_threshold_low": 2.0,
+      "secondary_threshold_high": 3.0,
+      "secondary_connector": "AND"
+    },
+    {
+      "rule_id": "doxorubicin_hepatic_moderate",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "30-50",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 30.0,
+      "threshold_high": 50.0,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin 30-50 µmol/L and/or AST/ALT >3×ULN — reduce doxorubicin to 50%.",
+      "action_text": "Reduce doxorubicin to 50% (hepatic impairment)",
+      "priority": 3,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "doxorubicin_hepatic_severe",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "51-85",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 51.0,
+      "threshold_high": 85.0,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 25,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin 51-85 µmol/L — reduce doxorubicin to 25%.",
+      "action_text": "Reduce doxorubicin to 25% (severe hepatic impairment)",
+      "priority": 3,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "doxorubicin_hepatic_omit",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 85",
+      "condition_type": "greater_than",
+      "threshold_value": 85.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "omit",
+      "modification_type": "omit",
+      "modification_percent": 0,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin >85 µmol/L — omit doxorubicin.",
+      "action_text": "Omit doxorubicin (bilirubin >85 µmol/L)",
+      "priority": 3,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "vinblastine_hepatic_moderate",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "30-51",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 30.0,
+      "threshold_high": 51.0,
+      "affected_drugs": [
+        "vinblastine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin 30-51 µmol/L or AST/ALT 60-180 units/L — reduce vinblastine to 50%.",
+      "action_text": "Reduce vinblastine to 50% (hepatic impairment)",
+      "priority": 4,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "vinblastine_hepatic_omit",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 51",
+      "condition_type": "greater_than",
+      "threshold_value": 51.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "vinblastine"
+      ],
+      "modification": "omit",
+      "modification_type": "omit",
+      "modification_percent": 0,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin >51 µmol/L with AST/ALT >180 units/L — omit vinblastine.",
+      "action_text": "Omit vinblastine (severe hepatic impairment)",
+      "priority": 4,
+      "check_if_already_reduced": false,
+      "secondary_parameter": "ast",
+      "secondary_condition_type": "greater_than",
+      "secondary_threshold_value": 180.0,
+      "secondary_connector": "AND"
+    },
+    {
+      "rule_id": "vinblastine_hepatic_50_bili_high_ast_normal",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 51",
+      "condition_type": "greater_than",
+      "threshold_value": 51.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "vinblastine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin >51 µmol/L with normal AST/ALT — reduce vinblastine to 50%.",
+      "action_text": "Reduce vinblastine to 50% (bilirubin >51, normal AST)",
+      "priority": 5,
+      "check_if_already_reduced": false,
+      "secondary_parameter": "ast",
+      "secondary_condition_type": "less_equal",
+      "secondary_threshold_value": 40.0,
+      "secondary_connector": "AND"
+    },
+    {
+      "rule_id": "vinblastine_hepatic_50_ast_only",
+      "parameter": "ast",
+      "parameter_unit": "units/L",
+      "condition": "60-180",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 60.0,
+      "threshold_high": 180.0,
+      "affected_drugs": [
+        "vinblastine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: AST/ALT 60-180 units/L (regardless of bilirubin) — reduce vinblastine to 50%. Per PDF: bilirubin 30-51 or AST 60-180.",
+      "action_text": "Reduce vinblastine to 50% (AST 60-180 units/L)",
+      "priority": 4,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "doxorubicin_hepatic_50_ast_only",
+      "parameter": "ast",
+      "parameter_unit": "units/L",
+      "condition": "> 120",
+      "condition_type": "greater_than",
+      "threshold_value": 120.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: AST/ALT more than 3×ULN (regardless of bilirubin) — reduce doxorubicin to 50%. Per PDF: bilirubin 30-50 and/or more than 3×ULN.",
+      "action_text": "Reduce doxorubicin to 50% (AST >3×ULN)",
+      "priority": 3,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "doxorubicin_renal_below10",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "< 10",
+      "condition_type": "less_than",
+      "threshold_value": 10.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "clinical_decision",
+      "modification_type": "clinical_decision",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Renal impairment CrCl <10 ml/min: consider dose reduction of doxorubicin in severe renal failure.",
+      "action_text": "Consider doxorubicin dose reduction (CrCl <10 ml/min)",
+      "priority": 5,
+      "check_if_already_reduced": false
+    }
+  ],
+  "hematological_toxicity_rules": [
+    {
+      "toxicity_type": "neutropenia",
+      "grade": null,
+      "threshold": "any",
+      "threshold_value": null,
+      "threshold_low": null,
+      "threshold_high": null,
+      "action": "deliver_on_time",
+      "delay_days": 0,
+      "reduction_percent": null,
+      "check_drugs": [
+        "bleomycin",
+        "dacarbazine",
+        "doxorubicin",
+        "vinblastine"
+      ],
+      "additional_notes": "UHS ABVD protocol (Ver 1.2): 'Deliver on time and at full dose regardless of haematological counts.' Do NOT delay or reduce for haematological toxicity alone. Do NOT use G-CSF routinely — increased risk of bleomycin pulmonary toxicity. G-CSF only if specifically directed by consultant."
+    },
+    {
+      "toxicity_type": "thrombocytopenia",
+      "grade": null,
+      "threshold": "any",
+      "threshold_value": null,
+      "threshold_low": null,
+      "threshold_high": null,
+      "action": "deliver_on_time",
+      "delay_days": 0,
+      "reduction_percent": null,
+      "check_drugs": [
+        "bleomycin",
+        "dacarbazine",
+        "doxorubicin",
+        "vinblastine"
+      ],
+      "additional_notes": "UHS ABVD protocol (Ver 1.2): 'Deliver on time and at full dose regardless of haematological counts.' Do NOT delay or reduce for haematological toxicity alone. Discuss with consultant if platelet count is very low and bleeding risk is high."
+    }
+  ],
+  "non_hematological_toxicity_rules": [
+    {
+      "toxicity_type": "peripheral_neuropathy",
+      "grade": 2,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "vinblastine"
+      ],
+      "action": "reduce_or_omit",
+      "action_text": "Grade 2 motor neurotoxicity: reduce vinblastine to 3 mg/m². Grade 3 sensory or higher: consider omitting vinblastine.",
+      "monitoring_frequency": "each_cycle"
+    },
+    {
+      "toxicity_type": "pulmonary_toxicity",
+      "grade": 1,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "bleomycin"
+      ],
+      "action": "hold",
+      "action_text": "Stop bleomycin at first sign of pulmonary symptoms until fully investigated. If bleomycin lung toxicity confirmed, permanently discontinue bleomycin.",
+      "monitoring_frequency": "each_cycle"
+    }
+  ],
+  "cumulative_toxicity_tracking": [
+    {
+      "drug_class": null,
+      "drug": "bleomycin",
+      "drugs": [
+        "bleomycin"
+      ],
+      "standard_limit_mg_m2": null,
+      "lifetime_limit": 500000.0,
+      "limit_unit": "units",
+      "monitoring": "Monitor pulmonary function tests before therapy and if respiratory symptoms develop. Stop bleomycin if symptoms occur until investigated.",
+      "reduced_limits": [
+        {
+          "condition": "Age ≥60 years",
+          "limit": 300000.0,
+          "unit": "units"
+        }
+      ],
+      "warning_at_percent": 80.0,
+      "alert_text": "Approaching bleomycin lifetime cumulative limit of 500,000 units"
+    },
+    {
+      "drug_class": "anthracycline",
+      "drug": null,
+      "drugs": [
+        "doxorubicin"
+      ],
+      "standard_limit_mg_m2": 450.0,
+      "lifetime_limit": 450.0,
+      "limit_unit": "mg/m²",
+      "monitoring": "Baseline LVEF required for patients with cardiac history, risk factors, or elderly patients. Discontinue doxorubicin if cardiac failure develops.",
+      "reduced_limits": [
+        {
+          "condition": "Prior mediastinal or pericardial radiotherapy",
+          "limit": 400.0,
+          "unit": "mg/m²"
+        }
+      ],
+      "warning_at_percent": 80.0,
+      "alert_text": "Approaching doxorubicin lifetime cumulative limit"
+    }
+  ],
+  "age_based_modifications": [
+    {
+      "age_threshold": 60,
+      "operator": ">=",
+      "affected_drugs": [
+        "bleomycin"
+      ],
+      "modification_type": "cap",
+      "cap_dose": 300000.0,
+      "cap_unit": "units",
+      "reduction_percent": null,
+      "trigger_condition": null,
+      "recommendation": "Reduce bleomycin lifetime cumulative limit to 300,000 units in patients aged ≥60 years due to increased pulmonary toxicity risk.",
+      "description": "Age ≥60: reduced bleomycin cumulative limit"
+    }
+  ],
+  "treatment_delay_criteria": [
+    {
+      "parameter": "haematological_counts",
+      "threshold": "any",
+      "threshold_value": null,
+      "delay_until": "NOT APPLICABLE — deliver on time regardless of counts",
+      "max_delay_weeks": 0,
+      "action_if_not_recovered": "UHS ABVD protocol (Ver 1.2) states: 'Deliver on time and at full dose regardless of haematological counts.' Do not delay for haematological toxicity. Discuss with consultant only if there are non-haematological reasons to delay."
+    }
+  ],
+  "baseline_requirements": [
+    {
+      "test": "LVEF (echocardiogram or MUGA)",
+      "includes": [],
+      "timing": "Before starting treatment",
+      "required": "conditional",
+      "condition": "Required for patients with history of cardiac problems, cardiac risk factors, or elderly patients."
+    },
+    {
+      "test": "Pulmonary function tests (FEV1, DLCO)",
+      "includes": [],
+      "timing": "Before starting treatment",
+      "required": "conditional",
+      "condition": "Consider performing pulmonary function tests before starting therapy."
+    },
+    {
+      "test": "Hepatitis B serology",
+      "includes": [],
+      "timing": "Before starting treatment",
+      "required": "true"
+    }
+  ],
+  "pre_cycle_labs": [
+    {
+      "test": "FBC (neutrophils, platelets, haemoglobin)",
+      "timing": "Within 48 hours before each cycle",
+      "required": true
+    },
+    {
+      "test": "Renal function (creatinine clearance)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "LFTs (bilirubin, AST/ALT)",
+      "timing": "Before each cycle",
+      "required": true
+    }
+  ],
+  "toxicities": [
+    {
+      "drug_id": "bleomycin",
+      "adverse_effects": [
+        "Pulmonary toxicity (pneumonitis, fibrosis)",
+        "Fever and rigors",
+        "Skin hyperpigmentation",
+        "Anaphylaxis (rare)",
+        "Nausea",
+        "Alopecia"
+      ]
+    },
+    {
+      "drug_id": "dacarbazine",
+      "adverse_effects": [
+        "Nausea and vomiting",
+        "Myelosuppression",
+        "Photosensitivity",
+        "Hepatotoxicity",
+        "Flu-like syndrome"
+      ]
+    },
+    {
+      "drug_id": "doxorubicin",
+      "adverse_effects": [
+        "Cardiotoxicity (cumulative)",
+        "Myelosuppression",
+        "Nausea and vomiting",
+        "Alopecia",
+        "Mucositis",
+        "Extravasation injury"
+      ]
+    },
+    {
+      "drug_id": "vinblastine",
+      "adverse_effects": [
+        "Peripheral neuropathy (motor)",
+        "Myelosuppression",
+        "Constipation",
+        "Alopecia",
+        "Extravasation injury (vesicant)"
+      ]
+    }
+  ],
+  "monitoring": [
+    "FBC, renal function, and LFTs before each cycle",
+    "Pulmonary function tests if respiratory symptoms develop",
+    "LVEF monitoring if cumulative doxorubicin approaching limit",
+    "Audiological assessment if clinically indicated"
+  ],
+  "warnings": [
+    "Hodgkin Lymphoma patients carry a LIFELONG risk of transfusion-associated graft versus host disease (TA-GVHD). IRRADIATED blood products must be used for life. Notify transfusion department immediately and issue patient alert card.",
+    "Bleomycin pulmonary toxicity: stop bleomycin at first sign of respiratory symptoms. Risk increased in age >40 years, smokers, underlying lung disease, prior mediastinal radiotherapy, poor renal function.",
+    "Do NOT use G-CSF routinely with ABVD — increased risk of bleomycin-related pulmonary complications. G-CSF only if consultant-directed.",
+    "Doxorubicin maximum lifetime cumulative dose: 450 mg/m² (400 mg/m² if prior mediastinal/pericardial radiotherapy). Discontinue if cardiac failure develops.",
+    "Bleomycin cumulative dose limit: 500,000 units in patients <60 years.",
+    "Vinblastine and dacarbazine are vesicants — extravasation risk. Follow NPSA/2008/RRR04 for vinca alkaloid administration.",
+    "Dacarbazine: protect from light during infusion.",
+    "Regular monitoring of renal function required (bleomycin predominantly renally cleared)."
+  ],
+  "required_patient_fields": {
+    "creatinine_clearance": "Required for bleomycin and dacarbazine dose modifications",
+    "bilirubin": "Required for doxorubicin and vinblastine dose modifications",
+    "ast_alt": "Required for doxorubicin and vinblastine hepatic dose modifications",
+    "lvef": "Required at baseline if cardiac history, risk factors, or elderly",
+    "pulmonary_function": "Required at baseline and if respiratory symptoms develop"
+  },
+  "source_file": "lymphoma-1.json",
+  "reference_url": "https://www.wessexcanceralliance.nhs.uk/protocols/lymphoma/",
+  "source": "NHS Wessex Cancer Alliance"
+}

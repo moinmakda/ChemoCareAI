@@ -238,3 +238,37 @@ class SymptomEntry(Base):
     
     def __repr__(self):
         return f"<SymptomEntry for Patient {self.patient_id} at {self.recorded_at}>"
+
+
+class ClinicalNote(Base):
+    """Doctor clinical notes for patients."""
+    __tablename__ = "clinical_notes"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    patient_id = Column(UUID(as_uuid=True), ForeignKey("patients.id"), nullable=False)
+    doctor_id = Column(UUID(as_uuid=True), ForeignKey("doctors.id"), nullable=False)
+    cycle_id = Column(UUID(as_uuid=True), ForeignKey("treatment_cycles.id"), nullable=True)
+    appointment_id = Column(UUID(as_uuid=True), ForeignKey("appointments.id"), nullable=True)
+    note_type = Column(String(50), default="clinical")
+    content = Column(Text, nullable=False)
+    is_private = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    patient = relationship("Patient", backref="clinical_notes")
+    doctor = relationship("Doctor", backref="clinical_notes")
+
+
+class ShiftHandover(Base):
+    """Nurse shift handover records."""
+    __tablename__ = "shift_handovers"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    shift_date = Column(Date, nullable=False)
+    shift_type = Column(String(20), nullable=False)
+    outgoing_nurse_id = Column(UUID(as_uuid=True), ForeignKey("nurses.id"), nullable=True)
+    incoming_nurse_id = Column(UUID(as_uuid=True), ForeignKey("nurses.id"), nullable=True)
+    patients_summary = Column(JSONB, default=list)
+    general_notes = Column(Text, nullable=True)
+    acknowledged_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)

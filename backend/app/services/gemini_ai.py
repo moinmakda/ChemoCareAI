@@ -12,8 +12,13 @@ from google.genai import types
 from app.core.config import settings
 
 
-# Initialize Gemini client
-client = genai.Client(api_key=settings.GEMINI_API_KEY)
+# Initialize Gemini client (only if API key is configured)
+client = None
+if settings.GEMINI_API_KEY:
+    try:
+        client = genai.Client(api_key=settings.GEMINI_API_KEY)
+    except Exception:
+        pass
 
 
 # =============================================================================

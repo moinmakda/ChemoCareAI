@@ -1,0 +1,907 @@
+{
+  "id": "inotuzumab_ozogamicin_all_v1_0",
+  "name": "Inotuzumab Ozogamicin",
+  "code": "IO-ALL",
+  "full_name": "Inotuzumab Ozogamicin for Relapsed or Refractory CD22-positive B-Cell Acute Lymphoblastic Leukaemia",
+  "indication": "Adults with relapsed or refractory CD22-positive B cell precursor acute lymphoblastic leukaemia (ALL) meeting criteria: Philadelphia chromosome negative ALL, or Philadelphia chromosome positive ALL where at least one second or third generation TKI has failed; previously treated with intensive combination chemotherapy as initial treatment or with subsequent salvage chemotherapy or blinatumomab; administered in bone marrow transplant centres or major haematological centres; ECOG performance status 0-2. Used as monotherapy.",
+  "cycle_length_days": 21,
+  "cycle_2_onwards_length_days": 28,
+  "total_cycles": 6,
+  "version": "1.0",
+  "drugs": [
+    {
+      "drug_id": "inotuzumab_ozogamicin",
+      "drug_name": "Inotuzumab Ozogamicin",
+      "dose": 0.5,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1,
+        8,
+        15
+      ],
+      "duration_minutes": 60,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 50,
+      "administration_order": 7,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "DOSE VARIES BY CYCLE AND RESPONSE — see cycle_variations for full detail. CYCLE 1 ONLY: 0.8 mg/m² on Day 1. For cycles 2-6 (if CR/CRi achieved): reduce to 0.5 mg/m² on Day 1, and extend cycle length to 28 days. Cycle 1 (21-day cycle, extendable to 28 days): Day 1 = 0.8mg/m²; Days 8 and 15 = 0.5mg/m². Cycles 2-6 (28-day cycles): if CR/CRi achieved = 0.5mg/m² on Days 1, 8 and 15; if no CR/CRi = dose as Cycle 1 (0.8mg/m² Day 1, 0.5mg/m² Days 8 and 15). Base dose shown (0.5mg/m²) is the most frequently administered dose. Inotuzumab ozogamicin will be dose banded in accordance with national dose bands. Light sensitive — protect intravenous bag from ultraviolet light during reconstitution, dilution, and administration using an ultraviolet light-blocking cover (amber, dark brown or green bags or aluminium foil) during infusion. The infusion line does not need to be protected from light. If diluted solution is stored in a refrigerator (2-8°C), it must be allowed to equilibrate at room temperature (20-25°C) for approximately 1 hour prior to administration. Filtration is not required; if filtered use PES-, PVDF-, or HPS-based filters only — do NOT use nylon or MCE filters. Infuse at a rate of 50mL/h at room temperature (20-25°C). Infusion lines made of PVC (DEHP or non-DEHP), polyolefin (polypropylene and/or polyethylene), or polybutadiene are recommended. Non-vesicant.",
+      "prn": false
+    }
+  ],
+  "pre_medications": [
+    {
+      "drug_id": "sodium_chloride_0_9",
+      "drug_name": "Sodium Chloride 0.9%",
+      "dose": 500.0,
+      "dose_unit": "ml",
+      "route": "IV infusion",
+      "days": [
+        1
+      ],
+      "duration_minutes": 60,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to Inotuzumab Ozogamicin",
+      "frequency": null,
+      "cycle_restriction": "Cycle 1 Day 1 only",
+      "cycle_restriction_cycles": [
+        1
+      ],
+      "special_instructions": "Administered on Cycle 1, Day 1 only. Pre-hydration is not required on Days 8 and 15 of Cycle 1, or in Cycles 2-6.",
+      "prn": false
+    },
+    {
+      "drug_id": "hydrocortisone_sodium_succinate",
+      "drug_name": "Hydrocortisone sodium succinate",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "IV injection",
+      "days": [
+        1,
+        8,
+        15
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to Inotuzumab Ozogamicin",
+      "frequency": null,
+      "special_instructions": "Pre-medication on every treatment day (Days 1, 8, and 15 of each cycle).",
+      "prn": false
+    },
+    {
+      "drug_id": "paracetamol",
+      "drug_name": "Paracetamol",
+      "dose": 1000.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        8,
+        15
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 3,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to Inotuzumab Ozogamicin",
+      "frequency": null,
+      "special_instructions": "Maximum dose is 4000mg / 24 hours. Check if patient has taken paracetamol before administering.",
+      "prn": false
+    },
+    {
+      "drug_id": "chlorphenamine",
+      "drug_name": "Chlorphenamine",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "IV injection",
+      "days": [
+        1,
+        8,
+        15
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 4,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to Inotuzumab Ozogamicin",
+      "frequency": null,
+      "special_instructions": null,
+      "prn": false
+    },
+    {
+      "drug_id": "ondansetron",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "Oral or IV injection",
+      "days": [
+        1,
+        8,
+        15
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 5,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Before Inotuzumab Ozogamicin",
+      "frequency": null,
+      "special_instructions": "Oral or intravenous on Day 1. Intravenous injection on Days 8 and 15.",
+      "prn": false
+    },
+    {
+      "drug_id": "rasburicase",
+      "drug_name": "Rasburicase",
+      "dose": 200.0,
+      "dose_unit": "mcg/kg",
+      "route": "IV infusion",
+      "days": [
+        1
+      ],
+      "duration_minutes": 30,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 50,
+      "administration_order": 6,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Prior to chemotherapy",
+      "frequency": "Once daily for a maximum of 5 days",
+      "cycle_restriction": "Cycle 1 only (high-risk tumour lysis)",
+      "cycle_restriction_cycles": [
+        1
+      ],
+      "special_instructions": "For tumour lysis prevention in HIGH-RISK disease only. Dose: 200mcg/kg intravenous once daily for a maximum of 5 days. Administer prior to chemotherapy. In the regimen summary, 7.5mg is listed as the fixed dose used in clinical practice (dose-banded equivalent). Consider rasburicase OR allopurinol 300mg once daily oral for 7 days — not both. Contraindicated in G6PD deficiency.",
+      "prn": false
+    }
+  ],
+  "take_home_medicines": [
+    {
+      "drug_id": "aciclovir",
+      "drug_name": "Aciclovir",
+      "dose": 400.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Twice daily",
+      "special_instructions": "Anti-viral prophylaxis. Duration of therapy varies by cycle: 21 days for Cycle 1; 28 days for Cycles 2-6 (matching the cycle length). See cycle_variations for cycle-specific durations.",
+      "prn": false
+    },
+    {
+      "drug_id": "co_trimoxazole",
+      "drug_name": "Co-trimoxazole",
+      "dose": 960.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily on Monday, Wednesday and Friday only",
+      "special_instructions": "PCP prophylaxis. Duration of therapy varies by cycle: 21 days for Cycle 1; 28 days for Cycles 2-6 (matching the cycle length). If neutropenic, consider pentamidine 300mg nebulised once a month as an alternative. See cycle_variations for cycle-specific durations.",
+      "prn": false
+    },
+    {
+      "drug_id": "allopurinol",
+      "drug_name": "Allopurinol",
+      "dose": 300.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily",
+      "cycle_restriction": "Cycle 1 only",
+      "cycle_restriction_cycles": [
+        1
+      ],
+      "special_instructions": "For tumour lysis prevention — 300mg once daily oral for 7 days. Prescribed in Cycle 1 only. Not included in Cycles 2-6 take-home medicines. Consider allopurinol OR rasburicase 200mcg/kg for high-risk disease — not both.",
+      "prn": false
+    },
+    {
+      "drug_id": "metoclopramide",
+      "drug_name": "Metoclopramide",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 3,
+      "is_core_drug": true,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Three times a day",
+      "special_instructions": "When required.",
+      "prn": true
+    },
+    {
+      "drug_id": "posaconazole_or_liposomal_amphotericin",
+      "drug_name": "Posaconazole or Liposomal Amphotericin",
+      "dose": 0.0,
+      "dose_unit": "mg",
+      "route": "Oral or IV infusion (drug-dependent: posaconazole is oral; liposomal amphotericin is IV)",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 4,
+      "is_core_drug": true,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Antifungal prophylaxis to be considered if neutropenic.",
+      "prn": false
+    }
+  ],
+  "rescue_medications": [
+    {
+      "drug_id": "hydrocortisone",
+      "drug_name": "Hydrocortisone",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "IV injection",
+      "days": [
+        1,
+        8,
+        15
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Once only when required for the relief of Inotuzumab Ozogamicin infusion related reactions.",
+      "prn": true
+    },
+    {
+      "drug_id": "salbutamol",
+      "drug_name": "Salbutamol",
+      "dose": 2.5,
+      "dose_unit": "mg",
+      "route": "Nebulised",
+      "days": [
+        1,
+        8,
+        15
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Once only when required for the relief of Inotuzumab Ozogamicin related bronchospasm.",
+      "prn": true
+    },
+    {
+      "drug_id": "chlorphenamine",
+      "drug_name": "Chlorphenamine",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "IV injection",
+      "days": [
+        1,
+        8,
+        15
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Once only when required for the relief of Inotuzumab Ozogamicin infusion related reactions.",
+      "prn": true
+    }
+  ],
+  "cycle_variations": [
+    {
+      "cycles": [
+        1
+      ],
+      "cycle_range": null,
+      "cycle_length_days": 21,
+      "cycle_length_note": "21-day cycle. Can be extended to 28 days if patient achieves CR/CRi and/or to allow recovery from toxicity.",
+      "drugs": [
+        {
+          "drug_id": "inotuzumab_ozogamicin_day1",
+          "drug_name": "Inotuzumab Ozogamicin",
+          "dose": 0.8,
+          "dose_unit": "mg/m²",
+          "route": "IV infusion",
+          "days": [
+            1
+          ],
+          "duration_minutes": 60,
+          "diluent": "Sodium chloride 0.9%",
+          "diluent_volume_ml": 50,
+          "administration_order": 7,
+          "is_core_drug": true,
+          "is_optional": false,
+          "max_dose": null,
+          "max_dose_unit": null,
+          "timing": null,
+          "frequency": null,
+          "special_instructions": "Cycle 1 Day 1: 0.8mg/m² IV infusion over 60 minutes in 50mL sodium chloride 0.9%. Light sensitive — protect IV bag from UV light. Infuse at room temperature (20-25°C).",
+          "prn": false
+        },
+        {
+          "drug_id": "inotuzumab_ozogamicin_day8_15",
+          "drug_name": "Inotuzumab Ozogamicin",
+          "dose": 0.5,
+          "dose_unit": "mg/m²",
+          "route": "IV infusion",
+          "days": [
+            8,
+            15
+          ],
+          "duration_minutes": 60,
+          "diluent": "Sodium chloride 0.9%",
+          "diluent_volume_ml": 50,
+          "administration_order": 7,
+          "is_core_drug": true,
+          "is_optional": false,
+          "max_dose": null,
+          "max_dose_unit": null,
+          "timing": null,
+          "frequency": null,
+          "special_instructions": "Cycle 1 Days 8 and 15: 0.5mg/m² IV infusion over 60 minutes in 50mL sodium chloride 0.9%. No NaCl 500mL pre-hydration required on these days. Light sensitive — protect IV bag from UV light.",
+          "prn": false
+        }
+      ],
+      "take_home_medicines": [
+        {
+          "drug_id": "aciclovir_cycle1",
+          "drug_name": "Aciclovir",
+          "dose": 400.0,
+          "dose_unit": "mg",
+          "route": "Oral",
+          "days": [
+            1
+          ],
+          "administration_order": 0,
+          "is_core_drug": true,
+          "is_optional": false,
+          "timing": null,
+          "frequency": "Twice daily",
+          "special_instructions": "400mg twice daily oral for 21 days."
+        },
+        {
+          "drug_id": "co_trimoxazole_cycle1",
+          "drug_name": "Co-trimoxazole",
+          "dose": 960.0,
+          "dose_unit": "mg",
+          "route": "Oral",
+          "days": [
+            1
+          ],
+          "administration_order": 1,
+          "is_core_drug": true,
+          "is_optional": false,
+          "timing": null,
+          "frequency": "Once daily on Monday, Wednesday and Friday",
+          "special_instructions": "960mg once daily on Monday, Wednesday and Friday for 21 days."
+        },
+        {
+          "drug_id": "allopurinol_cycle1",
+          "drug_name": "Allopurinol",
+          "dose": 300.0,
+          "dose_unit": "mg",
+          "route": "Oral",
+          "days": [
+            1
+          ],
+          "administration_order": 2,
+          "is_core_drug": false,
+          "is_optional": true,
+          "timing": null,
+          "frequency": "Once daily",
+          "special_instructions": "300mg once daily oral for 7 days. For tumour lysis prevention. Cycle 1 only."
+        },
+        {
+          "drug_id": "metoclopramide_cycle1",
+          "drug_name": "Metoclopramide",
+          "dose": 10.0,
+          "dose_unit": "mg",
+          "route": "Oral",
+          "days": [
+            1
+          ],
+          "administration_order": 3,
+          "is_core_drug": false,
+          "is_optional": true,
+          "timing": null,
+          "frequency": "Three times a day when required",
+          "special_instructions": "10mg three times a day when required (PRN antiemetic).",
+          "prn": true
+        }
+      ],
+      "special_instructions": [
+        "Cycle 1 is a 21-day cycle (can be extended to 28 days if CR/CRi achieved or to allow toxicity recovery).",
+        "Day 1: Inotuzumab Ozogamicin 0.8mg/m²; Days 8 and 15: 0.5mg/m².",
+        "Sodium Chloride 0.9% 500mL pre-hydration is given on Day 1 only.",
+        "Rasburicase 200mcg/kg (or 7.5mg fixed dose) is given on Day 1 only if high-risk tumour lysis — maximum 5 days.",
+        "Patients may be admitted as inpatients for the first two weeks of Cycle 1 due to risk of tumour lysis or cytokine release with first dose. Discharge may be considered if patient is well and stable for 3 days post Day 1 or 2 days post Day 8."
+      ]
+    },
+    {
+      "cycles": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "cycle_range": "2-6",
+      "cycle_length_days": 28,
+      "cycle_length_note": "28-day cycles from Cycle 2 onwards.",
+      "drugs": [
+        {
+          "drug_id": "inotuzumab_ozogamicin",
+          "drug_name": "Inotuzumab Ozogamicin",
+          "dose": 0.5,
+          "dose_unit": "mg/m²",
+          "route": "IV infusion",
+          "days": [
+            1,
+            8,
+            15
+          ],
+          "duration_minutes": 60,
+          "diluent": "Sodium chloride 0.9%",
+          "diluent_volume_ml": 50,
+          "administration_order": 7,
+          "is_core_drug": true,
+          "is_optional": false,
+          "max_dose": null,
+          "max_dose_unit": null,
+          "timing": null,
+          "frequency": null,
+          "special_instructions": "Cycles 2-6 (28-day cycles). CONFIRM DOSE before prescribing — dose depends on response to Cycle 1. If CR/CRi achieved: prescribe 0.5mg/m² on Days 1, 8, and 15. If no CR/CRi: dose as Cycle 1 (0.8mg/m² Day 1, 0.5mg/m² Days 8 and 15). IV infusion over 60 minutes in 50mL sodium chloride 0.9%. Light sensitive — protect IV bag from UV light. No NaCl pre-hydration or Rasburicase in Cycles 2-6.",
+          "prn": false
+        }
+      ],
+      "take_home_medicines": [
+        {
+          "drug_id": "aciclovir_cycles2_6",
+          "drug_name": "Aciclovir",
+          "dose": 400.0,
+          "dose_unit": "mg",
+          "route": "Oral",
+          "days": [
+            1
+          ],
+          "administration_order": 0,
+          "is_core_drug": true,
+          "is_optional": false,
+          "timing": null,
+          "frequency": "Twice daily",
+          "special_instructions": "400mg twice daily oral for 28 days."
+        },
+        {
+          "drug_id": "co_trimoxazole_cycles2_6",
+          "drug_name": "Co-trimoxazole",
+          "dose": 960.0,
+          "dose_unit": "mg",
+          "route": "Oral",
+          "days": [
+            1
+          ],
+          "administration_order": 1,
+          "is_core_drug": true,
+          "is_optional": false,
+          "timing": null,
+          "frequency": "Once daily on Monday, Wednesday and Friday",
+          "special_instructions": "960mg once daily on Monday, Wednesday and Friday for 28 days. If neutropenic, consider pentamidine 300mg nebulised once a month as alternative."
+        },
+        {
+          "drug_id": "metoclopramide_cycles2_6",
+          "drug_name": "Metoclopramide",
+          "dose": 10.0,
+          "dose_unit": "mg",
+          "route": "Oral",
+          "days": [
+            1
+          ],
+          "administration_order": 2,
+          "is_core_drug": false,
+          "is_optional": true,
+          "timing": null,
+          "frequency": "Three times a day when required",
+          "special_instructions": "10mg three times a day when required (PRN antiemetic). Note: Allopurinol is NOT prescribed in Cycles 2-6.",
+          "prn": true
+        }
+      ],
+      "special_instructions": [
+        "Cycles 2-6 are 28-day cycles.",
+        "CONFIRM DOSE: If CR/CRi achieved after Cycle 1 — prescribe 0.5mg/m² on Days 1, 8, and 15. If no CR/CRi — dose as Cycle 1 (0.8mg/m² Day 1, 0.5mg/m² Days 8 and 15).",
+        "No NaCl 500mL pre-hydration in Cycles 2-6.",
+        "No Rasburicase or Allopurinol in Cycles 2-6 (tumour lysis prophylaxis is Cycle 1 only).",
+        "For patients proceeding to HSCT, recommended duration is 2 cycles. A 3rd cycle may be considered if no CR/CRi and MRD negativity after 2 cycles.",
+        "For patients not proceeding to HSCT, maximum of 6 cycles.",
+        "Any patients who do not achieve a CR/CRi within 3 cycles should discontinue treatment."
+      ]
+    }
+  ],
+  "dose_modifications": [
+    {
+      "rule_id": "io_neut_delay",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 1.0 x10⁹/L",
+      "condition_type": "less_than",
+      "threshold_value": 1.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "inotuzumab_ozogamicin"
+      ],
+      "modification": "delay",
+      "modification_type": "delay",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Interrupt the next cycle of treatment until recovery of ANC to ≥ 1 x 10⁹/L.",
+      "action_text": "Delay Inotuzumab Ozogamicin (neutrophils < 1.0 x10⁹/L)",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "io_plt_delay",
+      "parameter": "platelets",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 50 x10⁹/L",
+      "condition_type": "less_than",
+      "threshold_value": 50.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "inotuzumab_ozogamicin"
+      ],
+      "modification": "delay",
+      "modification_type": "delay",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Interrupt the next cycle of treatment until platelet count recovers to ≥ 50 x 10⁹/L.",
+      "action_text": "Delay Inotuzumab Ozogamicin (platelets < 50 x10⁹/L)",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "io_neut_or_plt_delay",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 1.0 x10⁹/L AND/OR platelets < 50 x10⁹/L",
+      "condition_type": "less_than",
+      "threshold_value": 1.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "inotuzumab_ozogamicin"
+      ],
+      "modification": "delay",
+      "modification_type": "delay",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Interrupt the next cycle until at least one of the following occurs: ANC and platelet count recover to at least baseline levels for the prior cycle, or ANC recovers to ≥ 1 x 10⁹/L and platelet count recovers to ≥ 50 x 10⁹/L, or stable or improved disease (based on most recent bone marrow assessment) and the ANC and platelet count decrease is considered to be due to the underlying disease (not Inotuzumab Ozogamicin-related toxicity).",
+      "action_text": "Delay Inotuzumab Ozogamicin (neutrophils < 1.0 AND/OR platelets < 50)",
+      "priority": 1,
+      "check_if_already_reduced": false,
+      "secondary_parameter": "platelets",
+      "secondary_condition_type": "less_than",
+      "secondary_threshold_value": 50.0,
+      "secondary_threshold_low": null,
+      "secondary_threshold_high": null,
+      "secondary_connector": "OR"
+    },
+    {
+      "rule_id": "io_vod_sos_discontinue",
+      "parameter": "clinical_assessment",
+      "parameter_unit": null,
+      "condition": "VOD/SOS or other severe liver toxicity confirmed",
+      "condition_type": "clinical",
+      "threshold_value": null,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "inotuzumab_ozogamicin"
+      ],
+      "modification": "discontinue",
+      "modification_type": "discontinue",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "If VOD/SOS or other severe liver toxicity is confirmed, permanently discontinue treatment. Monitor for signs: hyperbilirubinemia (>34 µmol/L or >2 mg/dL), ascites or sudden weight gain (>2.5% of baseline body weight), and painful hepatomegaly.",
+      "action_text": "PERMANENTLY DISCONTINUE Inotuzumab Ozogamicin — VOD/SOS or severe liver toxicity confirmed",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "io_hepatic_bili_ast_delay",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "Total bilirubin > 35 µmol/L (≈1.5 × ULN) AND AST/ALT > 100 U/L (≈2.5 × ULN) — not due to Gilbert's disease or haemolysis",
+      "condition_type": "greater_than",
+      "threshold_value": 35.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "inotuzumab_ozogamicin"
+      ],
+      "modification": "delay",
+      "modification_type": "delay",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Interrupt dosing until recovery of total bilirubin to ≤ 1.5 × ULN (≈35 µmol/L) AND AST/ALT to ≤ 2.5 × ULN (≈100 U/L) prior to each dose, unless due to Gilbert's disease or haemolysis. Both conditions must be present to trigger hold. Permanently discontinue treatment if total bilirubin does not recover to ≤ 1.5 × ULN or AST/ALT does not recover to ≤ 2.5 × ULN.",
+      "action_text": "HOLD Inotuzumab Ozogamicin — total bilirubin > 1.5×ULN AND AST/ALT > 2.5×ULN (both must be elevated). Resume when bilirubin ≤1.5×ULN AND AST/ALT ≤2.5×ULN. Permanently discontinue if not recovered.",
+      "priority": 2,
+      "check_if_already_reduced": false,
+      "secondary_parameter": "alt",
+      "secondary_condition_type": "greater_than",
+      "secondary_threshold_value": 100.0,
+      "secondary_threshold_low": null,
+      "secondary_threshold_high": null,
+      "secondary_connector": "AND"
+    },
+    {
+      "rule_id": "io_infusion_reaction",
+      "parameter": "infusion_reaction",
+      "parameter_unit": null,
+      "condition": "Infusion-related reaction (any grade)",
+      "condition_type": "clinical",
+      "threshold_value": null,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "inotuzumab_ozogamicin"
+      ],
+      "modification": "interrupt",
+      "modification_type": "interrupt",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Interrupt the infusion and institute appropriate medical management. Depending on the severity, consider discontinuation of the infusion or administration of steroids and antihistamines. For severe or life-threatening infusion reactions, permanently discontinue treatment.",
+      "action_text": "INTERRUPT infusion immediately. Manage with steroids and antihistamines. For severe/life-threatening reaction: PERMANENTLY DISCONTINUE.",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "io_non_haem_grade2_interrupt",
+      "parameter": "non_haematological_toxicity",
+      "parameter_unit": "CTCAE grade",
+      "condition": "Grade ≥ 2 non-haematological toxicity (Inotuzumab Ozogamicin-related)",
+      "condition_type": "greater_than_or_equal",
+      "threshold_value": 2,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "inotuzumab_ozogamicin"
+      ],
+      "modification": "delay",
+      "modification_type": "delay",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Interrupt treatment until recovery to Grade 1 or pre-treatment grade levels prior to each dose.",
+      "action_text": "HOLD Inotuzumab Ozogamicin — Grade ≥ 2 non-haematological toxicity. Resume when recovered to Grade ≤ 1 or pre-treatment grade.",
+      "priority": 2,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "io_interruption_less7days",
+      "parameter": "dosing_interruption_duration",
+      "parameter_unit": "days",
+      "condition": "Dosing interruption duration < 7 days (within a cycle)",
+      "condition_type": "less_than",
+      "threshold_value": 7,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "inotuzumab_ozogamicin"
+      ],
+      "modification": "delay",
+      "modification_type": "delay",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "If interruption is < 7 days within a cycle, interrupt the next dose but maintain a minimum of 6 days between doses.",
+      "action_text": "Interruption < 7 days: interrupt next dose. Maintain minimum 6 days between doses.",
+      "priority": 3,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "io_interruption_7days_or_more",
+      "parameter": "dosing_interruption_duration",
+      "parameter_unit": "days",
+      "condition": "Dosing interruption duration ≥ 7 days",
+      "condition_type": "greater_than_or_equal",
+      "threshold_value": 7,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "inotuzumab_ozogamicin"
+      ],
+      "modification": "omit",
+      "modification_type": "omit",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "If interruption is ≥ 7 days, omit the next dose within the cycle.",
+      "action_text": "Interruption ≥ 7 days: OMIT next dose within the cycle.",
+      "priority": 3,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "io_interruption_14days_or_more",
+      "parameter": "dosing_interruption_duration",
+      "parameter_unit": "days",
+      "condition": "Dosing interruption duration ≥ 14 days",
+      "condition_type": "greater_than_or_equal",
+      "threshold_value": 14,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "inotuzumab_ozogamicin"
+      ],
+      "modification": "dose_reduction",
+      "modification_type": "dose_reduction",
+      "modification_percent": 25,
+      "delay_days": null,
+      "description": "Once adequate recovery is achieved, decrease the total dose by 25% for the subsequent cycle. If further dose modification is required, reduce the number of doses to 2 per cycle for subsequent cycles. If a 25% decrease in total dose followed by a decrease to 2 doses per cycle is not tolerated, permanently discontinue treatment.",
+      "action_text": "Interruption ≥ 14 days: reduce total dose by 25% for next cycle. If further reduction needed: reduce to 2 doses per cycle. If still not tolerated: PERMANENTLY DISCONTINUE.",
+      "priority": 3,
+      "check_if_already_reduced": true
+    },
+    {
+      "rule_id": "io_interruption_more28days",
+      "parameter": "dosing_interruption_duration",
+      "parameter_unit": "days",
+      "condition": "Dosing interruption duration > 28 days",
+      "condition_type": "greater_than",
+      "threshold_value": 28,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "inotuzumab_ozogamicin"
+      ],
+      "modification": "discontinue",
+      "modification_type": "discontinue",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Consider permanent discontinuation of Inotuzumab Ozogamicin.",
+      "action_text": "Interruption > 28 days: CONSIDER permanent discontinuation of Inotuzumab Ozogamicin.",
+      "priority": 3,
+      "check_if_already_reduced": false
+    }
+  ],
+  "toxicities": [
+    {
+      "drug_id": "inotuzumab_ozogamicin",
+      "adverse_effects": [
+        "Hepatotoxicity (including veno-occlusive disease and sinusoidal obstruction syndrome – risk increases with increasing number of cycles)",
+        "myelosuppression",
+        "severe infection",
+        "bleeding",
+        "infusion related reactions",
+        "tumour lysis syndrome",
+        "QT prolongation",
+        "raised amylase",
+        "raised lipase"
+      ]
+    }
+  ],
+  "monitoring": [
+    "Observe patients during, and for at least 1 hour after, the infusion for signs of infusion related reactions.",
+    "Carefully monitor patient clinically for evidence of veno-occlusive disease (VOD/SOS): hyperbilirubinemia (>34 µmol/L or >2 mg/dL), ascites or sudden weight gain (>2.5% of baseline body weight), and painful hepatomegaly.",
+    "Weigh patient daily.",
+    "Keep strict fluid balance chart daily.",
+    "Four-hourly temperature, pulse, BP, oxygen saturations, respiratory rate.",
+    "Daily urine test for glucose.",
+    "Daily FBC, U&Es and LFTs.",
+    "PRE-TREATMENT AND BEFORE EACH DOSE — confirm adequate liver function: total serum bilirubin ≤1.5 × ULN (except documented Gilbert syndrome); alanine aminotransferase (ALT) and aspartate aminotransferase (AST) ≤2.5 × ULN; ≤2 × ULN for hepatic abnormalities considered tumour-related.",
+    "PRE-TREATMENT — confirm adequate renal function. No dose adjustment required for mild (CLcr 60-89 mL/min), moderate (CLcr 30-59 mL/min), or severe (CLcr 15-29 mL/min) renal impairment.",
+    "ANC ≥ 1 × 10⁹/L and platelet count ≥ 50 × 10⁹/L prior to each cycle of treatment.",
+    "ECG monitoring — Inotuzumab Ozogamicin is associated with QT prolongation. Monitor ECG and electrolytes as clinically indicated.",
+    "Monitor for tumour lysis syndrome — signs include hyperuricaemia, hyperkalaemia, hyperphosphataemia, hypocalcaemia, and acute kidney injury, particularly after first dose."
+  ],
+  "warnings": [
+    "⚠️ AI-EXTRACTED: This protocol was parsed by AI from PDF and requires pharmacist verification before clinical use. Doses, routes, and schedules must be independently verified against the original source document.",
+    "Inotuzumab Ozogamicin is contra-indicated in patients who have experienced prior confirmed severe or ongoing veno-occlusive liver disease/sinusoidal obstruction syndrome (VOD/SOS).",
+    "Inotuzumab Ozogamicin is contra-indicated in patients with serious ongoing hepatic disease (e.g., cirrhosis, nodular regenerative hyperplasia, active hepatitis).",
+    "No adjustment to the starting dose is required in patients with mild (CLcr 60-89 mL/min), moderate (CLcr 30-59 mL/min), or severe (CLcr 15-29 mL/min) renal impairment.",
+    "In principle all dose reductions due to adverse drug reactions should not be re-escalated in subsequent cycles without consultant approval. If a third dose reduction is necessary, treatment should be stopped.",
+    "Consider blood transfusion if patient is symptomatic of anaemia or has a haemoglobin of less than 80g/L.",
+    "For severe or life-threatening infusion reactions, permanently discontinue treatment. For other infusion reactions, interrupt infusion and institute appropriate medical management, consider discontinuation or administration of steroids and antihistamines.",
+    "For Grade ≥ 2 non-haematological toxicity (Inotuzumab Ozogamicin-related), interrupt treatment until recovery to Grade 1 or pre-treatment grade levels prior to each dose.",
+    "For dosing interruptions due to toxicity: < 7 days (within a cycle), interrupt the next dose (maintain a minimum of 6 days between doses).",
+    "For dosing interruptions due to toxicity: ≥ 7 days (within a cycle), omit the next dose within the cycle.",
+    "For dosing interruptions due to toxicity: ≥ 14 days, once adequate recovery is achieved, decrease the total dose by 25% for the subsequent cycle. If further dose modification is required, then reduce the number of doses to 2 per cycle for subsequent cycles. If a 25% decrease in the total dose followed by a decrease to 2 doses per cycle is not tolerated, then permanently discontinue treatment.",
+    "For dosing interruptions due to toxicity: > 28 days, consider permanent discontinuation of Inotuzumab Ozogamicin.",
+    "For patients proceeding to HSCT, the recommended duration of treatment is 2 cycles. A 3rd cycle may be considered for those patients who do not achieve a complete remission (CR) or a CR with incomplete haematological recovery (CRi) and minimal residual disease negativity after 2 cycles. Any patients who do not achieve a CR or CRi within 3 cycles should discontinue treatment.",
+    "Patients can be admitted as an inpatient for most of the first two weeks of cycle 1, primarily due to the risk of tumour lysis or cytokine release type symptoms with the first dose. Discharge home may be considered if patient is well and stable for the first 3 days post day 1 or for 2 days post day 8.",
+    "CYCLE-VARIANT DOSING: Cycle 1 = 0.8/0.5/0.5 mg/m² (21-day cycle). Cycles 2-6 (if CR/CRi) = 0.5/0.5/0.5 mg/m² (28-day cycle). Verify correct cycle dosing before each administration."
+  ],
+  "source_file": "20260123_101720_Inotuzumab-Ozogamicin.pdf",
+  "reference_url": "https://www.nice.org.uk/guidance/ta541",
+  "source": "NICE TA541"
+}

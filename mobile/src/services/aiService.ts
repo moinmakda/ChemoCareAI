@@ -16,10 +16,10 @@ export interface ChatRequest {
 
 export interface ChatResponse {
   message: string;
-  is_urgent: boolean;
-  suggested_actions: string[];
-  should_contact_care_team: boolean;
-  symptom_severity: 'low' | 'moderate' | 'high' | 'critical' | null;
+  isUrgent: boolean;
+  suggestedActions: string[];
+  shouldContactCareTeam: boolean;
+  symptomSeverity: 'low' | 'moderate' | 'high' | 'critical' | null;
 }
 
 export const aiService = {

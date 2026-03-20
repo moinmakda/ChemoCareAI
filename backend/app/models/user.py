@@ -13,7 +13,6 @@ class UserRole(str, PyEnum):
     """User roles in the system."""
     PATIENT = "patient"
     DOCTOR_OPD = "doctor_opd"
-    DOCTOR_DAYCARE = "doctor_daycare"
     NURSE = "nurse"
     ADMIN = "admin"
 

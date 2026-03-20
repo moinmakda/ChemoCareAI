@@ -93,16 +93,18 @@ export default function DoctorAIScreen() {
         role: 'assistant',
         content: response.message,
         timestamp: new Date(),
-        warning: response.is_urgent ? 'This may require immediate attention' : undefined,
+        warning: response.isUrgent ? 'This may require immediate attention' : undefined,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-    } catch {
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.detail || 'AI service is temporarily unavailable. For immediate clinical support, consult your protocol reference library or contact the oncology team.';
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'I apologize, but I encountered an error processing your request. Please try again or consult the relevant clinical guidelines directly.',
+        content: errorMsg,
         timestamp: new Date(),
+        warning: errorMsg.includes('temporarily unavailable') ? 'AI service offline' : undefined,
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -118,7 +120,7 @@ export default function DoctorAIScreen() {
   // Render message
   const renderMessage = ({ item }: { item: Message }) => {
     const isUser = item.role === 'user';
-    
+
     return (
       <View style={[styles.messageRow, isUser && styles.messageRowUser]}>
         {!isUser && (
@@ -153,7 +155,7 @@ export default function DoctorAIScreen() {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <Header title="AI Clinical Support" />
 
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={0}
@@ -220,10 +222,10 @@ export default function DoctorAIScreen() {
               onPress={() => sendMessage()}
               disabled={!inputText.trim() || isLoading}
             >
-              <Ionicons 
-                name="send" 
-                size={20} 
-                color={inputText.trim() && !isLoading ? Colors.white : Colors.textTertiary} 
+              <Ionicons
+                name="send"
+                size={20}
+                color={inputText.trim() && !isLoading ? Colors.white : Colors.textTertiary}
               />
             </TouchableOpacity>
           </View>

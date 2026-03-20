@@ -12,6 +12,8 @@ import {
   Alert,
   ActivityIndicator,
   TextStyle,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,28 +25,52 @@ import {
   ProtocolRequest,
 } from '../../src/services/protocolService';
 
-interface DrugDose {
-  drug: string;
-  dose: string;
+// SOPHIA Protocol Response types (camelCase — api.ts interceptor converts all keys)
+interface SophiaCalculatedDose {
+  drugName: string;
+  calculatedDose: number;
+  calculatedDoseUnit: string;
+  originalDose: number;
+  originalDoseUnit: string;
   route: string;
-  timing: string;
-  day?: number;
-  infusion_duration?: string;
+  days: number[];
+  durationMinutes?: number;
+  doseModified: boolean;
+  modificationReason?: string;
+  modificationPercent?: number;
+  specialInstructions?: string;
+  diluent?: string;
+  diluentVolumeMl?: number;
+}
+
+interface SophiaWarning {
+  level: 'info' | 'warning' | 'critical';
+  message: string;
+  drugId?: string;
 }
 
 interface GeneratedProtocol {
-  protocol_name: string;
-  regimen_code: string;
-  cycle_length_days: number;
-  total_cycles: number;
-  drugs: DrugDose[];
-  premedications: DrugDose[];
-  supportive_care: string[];
-  monitoring_requirements: string[];
-  dose_modifications: string[];
-  warnings: string[];
-  ai_confidence: number;
-  ai_reasoning: string;
+  protocolName: string;
+  protocolCode: string;
+  cycleLengthDays: number;
+  totalCycles: number;
+  cycleNumber: number;
+  patientBsa: number;
+  patientBsaCapped: boolean;
+  patientWeight: number;
+  patientAge?: number;
+  chemotherapyDrugs: SophiaCalculatedDose[];
+  preMedications: SophiaCalculatedDose[];
+  takeHomeMedicines: SophiaCalculatedDose[];
+  rescueMedications: SophiaCalculatedDose[];
+  warnings: SophiaWarning[];
+  doseModificationsApplied: string[];
+  monitoringRequirements: string[];
+  specialInstructions: string[];
+  treatmentDelayRecommended: boolean;
+  treatmentAbsolutelyContraindicated: boolean;
+  delayReasons: string[];
+  disclaimer: string;
 }
 
 export default function NurseProtocolReviewScreen() {
@@ -74,8 +100,9 @@ export default function NurseProtocolReviewScreen() {
       const request = await getProtocolRequest(params.requestId);
       setProtocolRequest(request);
       
-      if (request.generated_protocol) {
-        setProtocol(request.generated_protocol as GeneratedProtocol);
+      const gp = (request as any).generatedProtocol || (request as any).generated_protocol;
+      if (gp) {
+        setProtocol(gp as GeneratedProtocol);
       }
     } catch {
       Alert.alert('Error', 'Failed to load protocol request');
@@ -186,56 +213,99 @@ export default function NurseProtocolReviewScreen() {
         onBackPress={() => router.back()}
       />
       
-      <ScrollView 
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
-        {/* AI Confidence Banner */}
-        <View style={[styles.confidenceBanner, { backgroundColor: getConfidenceColor(protocol.ai_confidence) + '15' }]}>
-          <Ionicons name="sparkles" size={24} color={getConfidenceColor(protocol.ai_confidence)} />
-          <View style={styles.confidenceInfo}>
-            <Text style={[styles.confidenceTitle, { color: getConfidenceColor(protocol.ai_confidence) }]}>
-              AI Confidence: {Math.round(protocol.ai_confidence * 100)}%
-            </Text>
-            <Text style={styles.confidenceReason}>{protocol.ai_reasoning}</Text>
+        {/* Treatment Delay / Contraindication Alert */}
+        {protocol.treatmentAbsolutelyContraindicated && (
+          <View style={[styles.confidenceBanner, { backgroundColor: colors.error + '20' }]}>
+            <Ionicons name="close-circle" size={24} color={colors.error} />
+            <View style={styles.confidenceInfo}>
+              <Text style={[styles.confidenceTitle, { color: colors.error }]}>
+                TREATMENT CONTRAINDICATED
+              </Text>
+              <Text style={styles.confidenceReason}>
+                {protocol.delayReasons?.join('. ') || 'Critical safety thresholds exceeded. All chemotherapy withheld.'}
+              </Text>
+            </View>
           </View>
-        </View>
+        )}
+
+        {protocol.treatmentDelayRecommended && !protocol.treatmentAbsolutelyContraindicated && (
+          <View style={[styles.confidenceBanner, { backgroundColor: colors.warning + '20' }]}>
+            <Ionicons name="time" size={24} color={colors.warning} />
+            <View style={styles.confidenceInfo}>
+              <Text style={[styles.confidenceTitle, { color: colors.warning }]}>
+                Treatment Delay Recommended
+              </Text>
+              <Text style={styles.confidenceReason}>
+                {protocol.delayReasons?.join('. ') || 'Lab values suggest delaying treatment.'}
+              </Text>
+            </View>
+          </View>
+        )}
 
         {/* Protocol Header */}
         <Card variant="elevated" padding="large" style={styles.protocolCard}>
           <View style={styles.protocolHeader}>
-            <View>
-              <Text style={styles.protocolName}>{protocol.protocol_name}</Text>
-              <Text style={styles.regimenCode}>{protocol.regimen_code}</Text>
+            <View style={{ flex: 1, marginRight: spacing.sm }}>
+              <Text style={styles.protocolName} numberOfLines={2}>{protocol.protocolName}</Text>
+              <Text style={styles.regimenCode}>{protocol.protocolCode}</Text>
             </View>
             <Badge label={protocolRequest?.status?.replace('_', ' ') || ''} variant="info" />
           </View>
-          
+
           <View style={styles.protocolMeta}>
             <View style={styles.metaItem}>
               <Ionicons name="calendar-outline" size={18} color={colors.text.secondary} />
-              <Text style={styles.metaText}>{protocol.cycle_length_days}-day cycles</Text>
+              <Text style={styles.metaText}>{protocol.cycleLengthDays}-day cycles</Text>
             </View>
             <View style={styles.metaItem}>
               <Ionicons name="repeat-outline" size={18} color={colors.text.secondary} />
-              <Text style={styles.metaText}>{protocol.total_cycles} total cycles</Text>
+              <Text style={styles.metaText}>{protocol.totalCycles} total cycles</Text>
+            </View>
+            <View style={styles.metaItem}>
+              <Ionicons name="body-outline" size={18} color={colors.text.secondary} />
+              <Text style={styles.metaText}>
+                BSA: {protocol.patientBsa != null ? Number(protocol.patientBsa).toFixed(2) : '--'} m²{protocol.patientBsaCapped ? ' (capped)' : ''}
+              </Text>
             </View>
           </View>
         </Card>
 
-        {/* Warnings */}
+        {/* Warnings — tiered by severity */}
         {protocol.warnings && protocol.warnings.length > 0 && (
           <Card variant="outlined" padding="medium" style={[styles.section, styles.warningsCard]}>
             <View style={styles.sectionHeader}>
               <Ionicons name="warning" size={24} color={colors.error} />
-              <Text style={[styles.sectionTitle, { color: colors.error }]}>Warnings</Text>
+              <Text style={[styles.sectionTitle, { color: colors.error }]}>
+                Safety Alerts ({protocol.warnings.length})
+              </Text>
             </View>
-            {protocol.warnings.map((warning, index) => (
-              <View key={index} style={styles.warningItem}>
-                <Text style={styles.warningText}>⚠️ {warning}</Text>
-              </View>
-            ))}
+            {protocol.warnings.map((warning, index) => {
+              const warnObj = typeof warning === 'string'
+                ? { level: 'warning' as const, message: warning }
+                : warning;
+              const iconColor = warnObj.level === 'critical' ? colors.error : warnObj.level === 'warning' ? colors.warning : colors.info;
+              return (
+                <View key={index} style={[styles.warningItem, {
+                  borderLeftColor: iconColor,
+                  backgroundColor: iconColor + '10',
+                }]}>
+                  <Text style={[styles.warningBadge, { color: iconColor }]}>
+                    {warnObj.level?.toUpperCase()}
+                  </Text>
+                  <Text style={styles.warningText}>{warnObj.message}</Text>
+                </View>
+              );
+            })}
           </Card>
         )}
 
@@ -243,20 +313,37 @@ export default function NurseProtocolReviewScreen() {
         <Card variant="outlined" padding="medium" style={styles.section}>
           <View style={styles.sectionHeader}>
             <Ionicons name="flask" size={24} color={colors.primary[500]} />
-            <Text style={styles.sectionTitle}>Chemotherapy Drugs</Text>
+            <Text style={styles.sectionTitle}>
+              Chemotherapy Drugs ({protocol.chemotherapyDrugs?.length || 0})
+            </Text>
           </View>
-          
-          {protocol.drugs.map((drug, index) => (
-            <View key={index} style={styles.drugItem}>
+
+          {(protocol.chemotherapyDrugs || []).map((drug, index) => (
+            <View key={index} style={[styles.drugItem, drug.doseModified && { borderLeftColor: colors.warning }]}>
               <View style={styles.drugHeader}>
-                <Text style={styles.drugName}>{drug.drug}</Text>
-                {drug.day && <Badge label={`Day ${drug.day}`} variant="neutral" size="small" />}
+                <Text style={styles.drugName} numberOfLines={2}>{drug.drugName}</Text>
+                <View style={{ flexDirection: 'row', gap: 4 }}>
+                  {drug.days?.map((d) => (
+                    <Badge key={d} label={`D${d}`} variant="neutral" size="small" />
+                  ))}
+                </View>
               </View>
               <View style={styles.drugDetails}>
-                <Text style={styles.drugDose}>{drug.dose}</Text>
-                <Text style={styles.drugRoute}>{drug.route} • {drug.timing}</Text>
-                {drug.infusion_duration && (
-                  <Text style={styles.drugInfusion}>Infusion: {drug.infusion_duration}</Text>
+                <Text style={styles.drugDose}>
+                  {drug.calculatedDose === 0 && drug.calculatedDoseUnit?.toLowerCase() === 'per label'
+                    ? 'Per label'
+                    : `${drug.calculatedDose != null ? Number(drug.calculatedDose).toFixed(1) : '--'} ${drug.calculatedDoseUnit || ''}`}
+                </Text>
+                <Text style={styles.drugRoute}>
+                  {drug.route}
+                  {drug.durationMinutes ? ` over ${drug.durationMinutes} min` : ''}
+                  {drug.diluent ? ` in ${drug.diluentVolumeMl != null ? `${drug.diluentVolumeMl}ml ` : ''}${drug.diluent}` : ''}
+                </Text>
+                {drug.doseModified && drug.modificationReason && (
+                  <Text style={styles.drugModified}>{drug.modificationReason}</Text>
+                )}
+                {drug.specialInstructions && (
+                  <Text style={styles.drugInfusion}>{drug.specialInstructions}</Text>
                 )}
               </View>
             </View>
@@ -264,62 +351,73 @@ export default function NurseProtocolReviewScreen() {
         </Card>
 
         {/* Premedications */}
-        {protocol.premedications && protocol.premedications.length > 0 && (
+        {protocol.preMedications && protocol.preMedications.length > 0 && (
           <Card variant="outlined" padding="medium" style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="medical" size={24} color={colors.success} />
-              <Text style={styles.sectionTitle}>Premedications</Text>
+              <Text style={styles.sectionTitle}>Pre-medications ({protocol.preMedications.length})</Text>
             </View>
-            
-            {protocol.premedications.map((drug, index) => (
+
+            {protocol.preMedications.map((drug, index) => (
               <View key={index} style={styles.premedItem}>
-                <Text style={styles.premedName}>{drug.drug}</Text>
+                <Text style={styles.premedName} numberOfLines={2}>{drug.drugName}</Text>
                 <Text style={styles.premedDetails}>
-                  {drug.dose} • {drug.route} • {drug.timing}
+                  {drug.calculatedDose === 0 && drug.calculatedDoseUnit?.toLowerCase() === 'per label'
+                    ? 'Per label'
+                    : `${drug.calculatedDose != null ? Number(drug.calculatedDose).toFixed(1) : '--'} ${drug.calculatedDoseUnit || ''}`} {drug.route}
+                  {drug.specialInstructions ? ` - ${drug.specialInstructions}` : ''}
                 </Text>
               </View>
             ))}
           </Card>
         )}
 
-        {/* Supportive Care */}
-        {protocol.supportive_care && protocol.supportive_care.length > 0 && (
+        {/* Take-home Medicines */}
+        {protocol.takeHomeMedicines && protocol.takeHomeMedicines.length > 0 && (
           <Card variant="outlined" padding="medium" style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Ionicons name="heart" size={24} color={colors.info} />
-              <Text style={styles.sectionTitle}>Supportive Care</Text>
+              <Ionicons name="home" size={24} color={colors.info} />
+              <Text style={styles.sectionTitle}>Take-home Medicines ({protocol.takeHomeMedicines.length})</Text>
             </View>
-            
-            {protocol.supportive_care.map((item, index) => (
-              <Text key={index} style={styles.supportiveItem}>• {item}</Text>
+
+            {protocol.takeHomeMedicines.map((drug, index) => (
+              <View key={index} style={styles.premedItem}>
+                <Text style={styles.premedName} numberOfLines={2}>{drug.drugName}</Text>
+                <Text style={styles.premedDetails}>
+                  {drug.calculatedDose === 0 && drug.calculatedDoseUnit?.toLowerCase() === 'per label'
+                    ? 'Per label'
+                    : `${drug.calculatedDose != null ? Number(drug.calculatedDose).toFixed(1) : '--'} ${drug.calculatedDoseUnit || ''}`} {drug.route}
+                  {drug.specialInstructions ? ` - ${drug.specialInstructions}` : ''}
+                </Text>
+              </View>
             ))}
           </Card>
         )}
 
         {/* Monitoring Requirements */}
-        {protocol.monitoring_requirements && protocol.monitoring_requirements.length > 0 && (
+        {protocol.monitoringRequirements && protocol.monitoringRequirements.length > 0 && (
           <Card variant="outlined" padding="medium" style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="eye" size={24} color={colors.warning} />
               <Text style={styles.sectionTitle}>Monitoring</Text>
             </View>
-            
-            {protocol.monitoring_requirements.map((item, index) => (
-              <Text key={index} style={styles.monitoringItem}>• {item}</Text>
+
+            {protocol.monitoringRequirements.map((item, index) => (
+              <Text key={index} style={styles.monitoringItem}>{item}</Text>
             ))}
           </Card>
         )}
 
-        {/* Dose Modifications */}
-        {protocol.dose_modifications && protocol.dose_modifications.length > 0 && (
+        {/* Dose Modifications Applied */}
+        {protocol.doseModificationsApplied && protocol.doseModificationsApplied.length > 0 && (
           <Card variant="outlined" padding="medium" style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="options" size={24} color={colors.text.secondary} />
               <Text style={styles.sectionTitle}>Dose Modifications</Text>
             </View>
             
-            {protocol.dose_modifications.map((item, index) => (
-              <Text key={index} style={styles.modificationItem}>• {item}</Text>
+            {protocol.doseModificationsApplied.map((item, index) => (
+              <Text key={index} style={styles.modificationItem}>{item}</Text>
             ))}
           </Card>
         )}
@@ -359,6 +457,7 @@ export default function NurseProtocolReviewScreen() {
           />
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Reject Modal */}
       <Modal
@@ -458,6 +557,7 @@ const styles = StyleSheet.create({
     fontSize: typography.caption1.fontSize,
     color: colors.text.secondary,
     marginTop: spacing.xs,
+    flexShrink: 1,
   },
   protocolCard: {
     marginBottom: spacing.lg,
@@ -480,7 +580,9 @@ const styles = StyleSheet.create({
   },
   protocolMeta: {
     flexDirection: 'row',
-    gap: spacing.lg,
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+    rowGap: spacing.xs,
   },
   metaItem: {
     flexDirection: 'row',
@@ -511,13 +613,25 @@ const styles = StyleSheet.create({
   },
   warningItem: {
     padding: spacing.sm,
-    backgroundColor: colors.error + '10',
     borderRadius: borderRadius.md,
     marginBottom: spacing.sm,
+    borderLeftWidth: 4,
+  },
+  warningBadge: {
+    fontSize: typography.caption2.fontSize,
+    fontWeight: '700',
+    marginBottom: 4,
   },
   warningText: {
     fontSize: typography.body.fontSize,
-    color: colors.error,
+    color: colors.text.primary,
+    flexShrink: 1,
+  },
+  drugModified: {
+    fontSize: typography.caption1.fontSize,
+    color: colors.warning,
+    fontWeight: '600',
+    marginTop: 4,
   },
   drugItem: {
     padding: spacing.md,
@@ -537,6 +651,7 @@ const styles = StyleSheet.create({
     fontSize: typography.headline.fontSize,
     fontWeight: '600',
     color: colors.text.primary,
+    flex: 1,
   },
   drugDetails: {
     marginTop: spacing.xs,
@@ -581,11 +696,13 @@ const styles = StyleSheet.create({
     fontSize: typography.body.fontSize,
     color: colors.text.secondary,
     marginBottom: spacing.xs,
+    lineHeight: 20,
   },
   modificationItem: {
     fontSize: typography.body.fontSize,
     color: colors.text.secondary,
     marginBottom: spacing.xs,
+    lineHeight: 20,
   },
   actionButtons: {
     flexDirection: 'row',

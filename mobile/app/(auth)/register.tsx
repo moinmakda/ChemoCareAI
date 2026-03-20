@@ -24,7 +24,7 @@ import { colors, typography, spacing, borderRadius } from '../../src/constants/t
 import { Button, Input, Card, Header } from '../../src/components';
 import { useAuthStore } from '../../src/store/authStore';
 
-type UserRole = 'patient' | 'doctor_opd' | 'doctor_daycare' | 'nurse';
+type UserRole = 'patient' | 'doctor_opd' | 'nurse';
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -139,7 +139,6 @@ export default function RegisterScreen() {
   const roles: { key: UserRole; label: string; description: string }[] = [
     { key: 'patient', label: 'Patient', description: 'Access your treatment plans and appointments' },
     { key: 'doctor_opd', label: 'Doctor (OPD)', description: 'Manage patients and create protocols' },
-    { key: 'doctor_daycare', label: 'Doctor (Day Care)', description: 'Manage day care treatments' },
     { key: 'nurse', label: 'Nurse', description: 'Monitor day care and administer treatments' },
   ];
 

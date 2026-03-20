@@ -1,0 +1,170 @@
+{
+  "protocols": {
+    "lymphoma_abvd": {
+      "code": "ABVD",
+      "name": "ABVD",
+      "category": "lymphoma",
+      "file": "data/protocols/lymphoma_abvd.json",
+      "drugs": ["Bleomycin", "Dacarbazine", "Doxorubicin", "Vinblastine"]
+    },
+    "lymphoma_gdp": {
+      "code": "GDP",
+      "name": "GDP",
+      "category": "lymphoma",
+      "file": "data/protocols/lymphoma_gdp.json",
+      "drugs": ["Dexamethasone", "Cisplatin", "Gemcitabine", "G-CSF (filgrastim or lenograstim)"]
+    },
+    "lymphoma_cvp": {
+      "code": "CVP",
+      "name": "CVP",
+      "category": "lymphoma",
+      "file": "data/protocols/lymphoma_cvp.json",
+      "drugs": ["Cyclophosphamide", "Vincristine", "Prednisolone"]
+    },
+    "lymphoma_rcvp": {
+      "code": "RCVP",
+      "name": "RCVP",
+      "category": "lymphoma",
+      "file": "data/protocols/lymphoma_rcvp.json",
+      "drugs": ["Rituximab", "Cyclophosphamide", "Vincristine", "Prednisolone"]
+    },
+    "lymphoma_r_gemox": {
+      "code": "R-GEMOX",
+      "name": "R-GemOx",
+      "category": "lymphoma",
+      "file": "data/protocols/lymphoma_r_gemox.json",
+      "drugs": ["Rituximab", "Gemcitabine", "Oxaliplatin"]
+    },
+    "aml_cytarabine_3000mg_m2_ambulatory": {
+      "code": "AMB-CYTARABINE",
+      "name": "ACUTE MYELOID LEUKAEMIA",
+      "category": "leukemia",
+      "file": "data/protocols/aml_cytarabine_3000mg_m2_ambulatory.json",
+      "drugs": [
+        "Cytarabine",
+        "Sodium Chloride 0.9%"
+      ]
+    },
+    "blinatumomab_all_nhs": {
+      "code": "BLINATUMOMAB_ALL",
+      "name": "Blinatumomab (3, 4 day) Protocol",
+      "category": "lymphoma",
+      "file": "data/protocols/blinatumomab_all_nhs.json",
+      "drugs": [
+        "Blinatumomab"
+      ]
+    },
+    "inotuzumab_ozogamicin_all_v1_0": {
+      "code": "IO-ALL",
+      "name": "Inotuzumab Ozogamicin",
+      "category": "lymphoma",
+      "file": "data/protocols/inotuzumab_ozogamicin_all_v1_0.json",
+      "drugs": [
+        "Inotuzumab Ozogamicin"
+      ]
+    },
+    "car_t_all_tisacel_cyclophosphamide_fludarabine_nhs_wessex": {
+      "code": "ALL-CAR-T-LD",
+      "name": "CHIMERIC ANTIGEN RECEPTOR T-CELL (CAR-T) THERAPY",
+      "category": "lymphoma",
+      "file": "data/protocols/car_t_all_tisacel_cyclophosphamide_fludarabine_nhs_wessex.json",
+      "drugs": [
+        "Fludarabine",
+        "Cyclophosphamide",
+        "Tisagenlecleucel"
+      ]
+    },
+    "all_tisacel_cytarabine_etoposide": {
+      "code": "TISACEL-CYTARABINE-ETOPOSIDE",
+      "name": "CHIMERIC ANTIGEN RECEPTOR T-CELL (CAR-T) THERAPY",
+      "category": "lymphoma",
+      "file": "data/protocols/all_tisacel_cytarabine_etoposide.json",
+      "drugs": [
+        "Etoposide",
+        "Cytarabine",
+        "Tisacel (Tisagenlecleucel)"
+      ]
+    }
+  },
+  "categories": {
+    "leukemia": [
+      "aml_cytarabine_3000mg_m2_ambulatory"
+    ],
+    "lymphoma": [
+      "blinatumomab_all_nhs",
+      "inotuzumab_ozogamicin_all_v1_0",
+      "car_t_all_tisacel_cyclophosphamide_fludarabine_nhs_wessex",
+      "all_tisacel_cytarabine_etoposide",
+      "lymphoma_abvd",
+      "lymphoma_gdp",
+      "lymphoma_cvp",
+      "lymphoma_rcvp",
+      "lymphoma_r_gemox"
+    ]
+  },
+  "drugs": {
+    "Cytarabine": [
+      "aml_cytarabine_3000mg_m2_ambulatory",
+      "all_tisacel_cytarabine_etoposide"
+    ],
+    "Sodium Chloride 0.9%": [
+      "aml_cytarabine_3000mg_m2_ambulatory"
+    ],
+    "Blinatumomab": [
+      "blinatumomab_all_nhs"
+    ],
+    "Inotuzumab Ozogamicin": [
+      "inotuzumab_ozogamicin_all_v1_0"
+    ],
+    "Fludarabine": [
+      "car_t_all_tisacel_cyclophosphamide_fludarabine_nhs_wessex"
+    ],
+    "Cyclophosphamide": [
+      "car_t_all_tisacel_cyclophosphamide_fludarabine_nhs_wessex"
+    ],
+    "Tisagenlecleucel": [
+      "car_t_all_tisacel_cyclophosphamide_fludarabine_nhs_wessex"
+    ],
+    "Etoposide": [
+      "all_tisacel_cytarabine_etoposide"
+    ],
+    "Tisacel (Tisagenlecleucel)": [
+      "all_tisacel_cytarabine_etoposide"
+    ],
+    "Bleomycin": [
+      "lymphoma_abvd"
+    ],
+    "Dacarbazine": [
+      "lymphoma_abvd"
+    ],
+    "Doxorubicin": [
+      "lymphoma_abvd"
+    ],
+    "Vinblastine": [
+      "lymphoma_abvd"
+    ],
+    "Cisplatin": [
+      "lymphoma_gdp"
+    ],
+    "Gemcitabine": [
+      "lymphoma_gdp",
+      "lymphoma_r_gemox"
+    ],
+    "Vincristine": [
+      "lymphoma_cvp",
+      "lymphoma_rcvp"
+    ],
+    "Prednisolone": [
+      "lymphoma_cvp",
+      "lymphoma_rcvp"
+    ],
+    "Rituximab": [
+      "lymphoma_rcvp",
+      "lymphoma_r_gemox"
+    ],
+    "Oxaliplatin": [
+      "lymphoma_r_gemox"
+    ]
+  },
+  "last_updated": "2026-03-12T00:00:00.000000"
+}

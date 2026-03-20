@@ -1,5 +1,7 @@
 /**
  * Doctor OPD Layout - Tab navigator for OPD doctor portal
+ * 4 visible tabs: Dashboard, Patients, AI Assistant, Profile
+ * Everything else accessible via navigation but hidden from tab bar
  */
 import React from 'react';
 import { Tabs } from 'expo-router';
@@ -46,20 +48,11 @@ export default function DoctorOPDLayout() {
         }}
       />
       <Tabs.Screen
-        name="protocols"
+        name="ai"
         options={{
-          title: 'Protocols',
+          title: 'AI Assistant',
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="document-text-outline" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="appointments"
-        options={{
-          title: 'Appointments',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="calendar-outline" size={size} color={color} />
+            <Ionicons name="sparkles-outline" size={size} color={color} />
           ),
         }}
       />
@@ -72,6 +65,17 @@ export default function DoctorOPDLayout() {
           ),
         }}
       />
+      {/* Hidden screens — accessible via navigation */}
+      <Tabs.Screen name="active" options={{ href: null }} />
+      <Tabs.Screen name="protocols" options={{ href: null }} />
+      <Tabs.Screen name="appointments" options={{ href: null }} />
+      <Tabs.Screen name="register-patient" options={{ href: null }} />
+      <Tabs.Screen name="protocol-approval" options={{ href: null }} />
+      <Tabs.Screen name="cycle-approval" options={{ href: null }} />
+      <Tabs.Screen name="discharge-summary" options={{ href: null }} />
+      <Tabs.Screen name="notes" options={{ href: null }} />
+      <Tabs.Screen name="patient-photos" options={{ href: null }} />
+      <Tabs.Screen name="patient-detail" options={{ href: null }} />
     </Tabs>
   );
 }

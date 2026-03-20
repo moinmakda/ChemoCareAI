@@ -10,10 +10,9 @@ Endpoints for appointment and treatment scheduling:
 """
 from datetime import date, time, datetime
 from typing import Optional, List
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from pydantic import BaseModel, Field
-
 from app.api.deps import get_db, get_current_user, get_current_doctor
 from app.models import User, Patient, Appointment, AppointmentType
 from app.services.scheduling import (
@@ -30,64 +29,21 @@ from app.services.scheduling import (
     TreatmentScheduleResult,
 )
 
+from app.schemas.scheduling import (
+    AvailableSlotsRequest,
+    ScheduleAppointmentRequest,
+    RescheduleRequest,
+    CancelRequest,
+    ScheduleTreatmentCyclesRequest,
+    TimeSlotResponse,
+    ChairAvailabilityResponse,
+    DailyScheduleResponse,
+    DailyScheduleSlot,
+    PatientScheduleResponse,
+    MyScheduleResponse,
+)
+
 router = APIRouter(prefix="/scheduling", tags=["scheduling"])
-
-
-# =============================================================================
-# REQUEST/RESPONSE MODELS
-# =============================================================================
-
-class AvailableSlotsRequest(BaseModel):
-    """Request for available slots."""
-    date: date
-    duration_minutes: int = 180
-
-
-class ScheduleAppointmentRequest(BaseModel):
-    """Request to schedule an appointment."""
-    patient_id: int
-    appointment_type: str = Field(..., description="Type: treatment, consultation, follow_up, lab")
-    preferred_date: date
-    preferred_time: Optional[str] = Field(None, description="Time in HH:MM format")
-    duration_minutes: Optional[int] = None
-    notes: Optional[str] = None
-    auto_assign_chair: bool = True
-
-
-class RescheduleRequest(BaseModel):
-    """Request to reschedule an appointment."""
-    new_date: date
-    new_time: Optional[str] = Field(None, description="Time in HH:MM format")
-
-
-class CancelRequest(BaseModel):
-    """Request to cancel an appointment."""
-    reason: Optional[str] = None
-
-
-class ScheduleTreatmentCyclesRequest(BaseModel):
-    """Request to schedule treatment cycles."""
-    treatment_plan_id: int
-    start_date: date
-    interval_days: int = 21
-    num_cycles: int = 6
-
-
-class TimeSlotResponse(BaseModel):
-    """Time slot in response."""
-    start_time: datetime
-    end_time: datetime
-    chair_number: Optional[int] = None
-    is_available: bool = True
-
-
-class ChairAvailabilityResponse(BaseModel):
-    """Chair availability response."""
-    chair_number: int
-    is_available: bool
-    current_patient_id: Optional[str] = None  # UUID as string
-    current_treatment: Optional[str] = None
-    available_from: Optional[datetime] = None
 
 
 # =============================================================================
@@ -222,7 +178,7 @@ async def create_appointment(
 
 @router.put("/appointments/{appointment_id}/reschedule", response_model=SchedulingResult)
 async def reschedule_existing_appointment(
-    appointment_id: int,
+    appointment_id: UUID,
     request: RescheduleRequest,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -272,7 +228,7 @@ async def reschedule_existing_appointment(
 
 @router.delete("/appointments/{appointment_id}", response_model=SchedulingResult)
 async def cancel_existing_appointment(
-    appointment_id: int,
+    appointment_id: UUID,
     reason: Optional[str] = Query(None, description="Cancellation reason"),
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -334,7 +290,7 @@ async def schedule_all_treatment_cycles(
 # SCHEDULE VIEWS
 # =============================================================================
 
-@router.get("/daily-schedule")
+@router.get("/daily-schedule", response_model=DailyScheduleResponse)
 async def get_daily_daycare_schedule(
     target_date: date = Query(..., description="Date to view"),
     db: AsyncSession = Depends(get_db),
@@ -354,25 +310,25 @@ async def get_daily_daycare_schedule(
     
     schedule = await get_daily_schedule(db, target_date)
     
-    return {
-        "date": schedule.date.isoformat(),
-        "total_appointments": schedule.total_appointments,
-        "total_treatments": schedule.total_treatments,
-        "chair_utilization": schedule.chair_utilization,
-        "available_slots": [
-            {
-                "start_time": slot.start_time.isoformat(),
-                "end_time": slot.end_time.isoformat(),
-                "chair_number": slot.chair_number,
-            }
+    return DailyScheduleResponse(
+        date=schedule.date.isoformat(),
+        total_appointments=schedule.total_appointments,
+        total_treatments=schedule.total_treatments,
+        chair_utilization=schedule.chair_utilization,
+        available_slots=[
+            DailyScheduleSlot(
+                start_time=slot.start_time.isoformat(),
+                end_time=slot.end_time.isoformat(),
+                chair_number=slot.chair_number,
+            )
             for slot in schedule.available_slots
         ],
-    }
+    )
 
 
-@router.get("/patient/{patient_id}/schedule")
+@router.get("/patient/{patient_id}/schedule", response_model=PatientScheduleResponse)
 async def get_patient_appointment_schedule(
-    patient_id: int,
+    patient_id: UUID,
     start_date: Optional[date] = Query(None, description="Start date filter"),
     end_date: Optional[date] = Query(None, description="End date filter"),
     db: AsyncSession = Depends(get_db),
@@ -396,15 +352,15 @@ async def get_patient_appointment_schedule(
         )
     
     schedule = await get_patient_schedule(db, patient_id, start_date, end_date)
-    
-    return {
-        "patient_id": patient_id,
-        "appointments": schedule,
-        "total": len(schedule),
-    }
+
+    return PatientScheduleResponse(
+        patient_id=patient_id,
+        appointments=schedule,
+        total=len(schedule),
+    )
 
 
-@router.get("/my-schedule")
+@router.get("/my-schedule", response_model=MyScheduleResponse)
 async def get_my_schedule(
     start_date: Optional[date] = Query(None, description="Start date filter"),
     end_date: Optional[date] = Query(None, description="End date filter"),
@@ -426,22 +382,22 @@ async def get_my_schedule(
         patient = result.scalar_one_or_none()
         
         if not patient:
-            return {"appointments": [], "total": 0}
-        
+            return MyScheduleResponse(appointments=[], total=0)
+
         schedule = await get_patient_schedule(db, patient.id, start_date, end_date)
-        return {
-            "appointments": schedule,
-            "total": len(schedule),
-        }
+        return MyScheduleResponse(
+            appointments=schedule,
+            total=len(schedule),
+        )
     else:
         # For staff, return their assigned appointments for today or date range
         today = date.today()
         target = start_date or today
         schedule = await get_daily_schedule(db, target)
-        
-        return {
-            "date": target.isoformat(),
-            "total_appointments": schedule.total_appointments,
-            "total_treatments": schedule.total_treatments,
-            "chair_utilization": schedule.chair_utilization,
-        }
+
+        return MyScheduleResponse(
+            date=target.isoformat(),
+            total_appointments=schedule.total_appointments,
+            total_treatments=schedule.total_treatments,
+            chair_utilization=schedule.chair_utilization,
+        )

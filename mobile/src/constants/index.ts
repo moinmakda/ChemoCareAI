@@ -23,7 +23,6 @@ export const STORAGE_KEYS = {
 export const USER_ROLES = {
   PATIENT: 'patient',
   DOCTOR_OPD: 'doctor_opd',
-  DOCTOR_DAYCARE: 'doctor_daycare',
   NURSE: 'nurse',
   ADMIN: 'admin',
 } as const;

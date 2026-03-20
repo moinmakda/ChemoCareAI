@@ -5,7 +5,6 @@ import axios, { AxiosInstance, AxiosError, InternalAxiosRequestConfig } from 'ax
 import * as SecureStore from 'expo-secure-store';
 
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
-console.log('[API] Using Base URL:', API_BASE_URL);
 
 const STORAGE_KEYS = {
   ACCESS_TOKEN: 'access_token',

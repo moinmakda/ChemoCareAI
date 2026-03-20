@@ -40,7 +40,7 @@ class TimeSlot(BaseModel):
 class SchedulingResult(BaseModel):
     """Result of a scheduling operation."""
     success: bool
-    appointment_id: Optional[int] = None
+    appointment_id: Optional[str] = None
     scheduled_time: Optional[datetime] = None
     chair_number: Optional[int] = None
     conflicts: List[str] = Field(default=[])
@@ -306,7 +306,7 @@ async def schedule_appointment(
     
     return SchedulingResult(
         success=True,
-        appointment_id=appointment.id,
+        appointment_id=str(appointment.id),
         scheduled_time=slot.start_time,
         chair_number=slot.chair_number,
         message=f"Appointment scheduled for {slot.start_time.strftime('%B %d, %Y at %I:%M %p')}",
@@ -402,7 +402,7 @@ async def schedule_treatment_cycles(
 
 async def reschedule_appointment(
     db: AsyncSession,
-    appointment_id: int,
+    appointment_id,
     new_date: date,
     new_time: Optional[time] = None,
 ) -> SchedulingResult:
@@ -458,7 +458,7 @@ async def reschedule_appointment(
     
     return SchedulingResult(
         success=True,
-        appointment_id=appointment.id,
+        appointment_id=str(appointment.id),
         scheduled_time=slot.start_time,
         chair_number=slot.chair_number,
         message=f"Rescheduled from {old_time.strftime('%B %d')} to {slot.start_time.strftime('%B %d, %Y at %I:%M %p')}",
@@ -467,7 +467,7 @@ async def reschedule_appointment(
 
 async def cancel_appointment(
     db: AsyncSession,
-    appointment_id: int,
+    appointment_id,
     cancellation_reason: Optional[str] = None,
 ) -> SchedulingResult:
     """Cancel an appointment."""
@@ -492,7 +492,7 @@ async def cancel_appointment(
     
     return SchedulingResult(
         success=True,
-        appointment_id=appointment.id,
+        appointment_id=str(appointment.id),
         message="Appointment cancelled successfully",
     )
 

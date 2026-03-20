@@ -64,16 +64,17 @@ export const PendingApprovalsCard: React.FC<PendingApprovalsCardProps> = ({
       });
     } else {
       // Doctor goes to approval screen
+      const approvalPath = '/(doctor-opd)/protocol-approval';
       router.push({
-        pathname: '/(doctor-daycare)/protocol-approval',
+        pathname: approvalPath as any,
         params: { requestId: request.id.toString() },
       });
     }
   };
 
-  const pendingRequests = userRole === 'nurse' 
-    ? pendingData?.nurse_pending || []
-    : pendingData?.doctor_pending || [];
+  const pendingRequests = userRole === 'nurse'
+    ? pendingData?.nursePending || []
+    : pendingData?.doctorPending || [];
 
   if (loading) {
     return (
@@ -119,7 +120,7 @@ export const PendingApprovalsCard: React.FC<PendingApprovalsCardProps> = ({
               Protocol Request #{request.id}
             </Text>
             <Text style={styles.requestMeta}>
-              {request.status.replace('_', ' ')} • {new Date(request.created_at).toLocaleDateString()}
+              {request.status?.replace('_', ' ')} • {new Date(request.createdAt).toLocaleDateString()}
             </Text>
           </View>
           <Ionicons name="chevron-forward" size={20} color={colors.text.tertiary} />

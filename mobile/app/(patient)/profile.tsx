@@ -20,10 +20,6 @@ import { Card, Avatar, Header, Modal, Button } from '../../src/components';
 import { useAuthStore } from '../../src/store/authStore';
 import { usePatientStore } from '../../src/store/patientStore';
 
-const showComingSoon = (feature: string) => {
-  Alert.alert('Coming Soon', `${feature} will be available in a future update.`);
-};
-
 export default function PatientProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -46,49 +42,22 @@ export default function PatientProfileScreen() {
 
   const menuSections = [
     {
-      title: 'Account',
+      title: 'My Health',
       items: [
         {
-          icon: 'person-outline',
-          label: 'Personal Information',
-          onPress: () => showComingSoon('Personal Information'),
+          icon: 'medical-outline',
+          label: 'Take-home Medications',
+          onPress: () => router.push('/(patient)/medications'),
         },
         {
-          icon: 'document-text-outline',
-          label: 'Medical History',
-          onPress: () => showComingSoon('Medical History'),
+          icon: 'flask-outline',
+          label: 'Lab Results',
+          onPress: () => router.push('/(patient)/labs'),
         },
         {
-          icon: 'people-outline',
-          label: 'Emergency Contacts',
-          onPress: () => showComingSoon('Emergency Contacts'),
-        },
-        {
-          icon: 'shield-checkmark-outline',
-          label: 'Insurance Information',
-          onPress: () => showComingSoon('Insurance Information'),
-        },
-      ],
-    },
-    {
-      title: 'Preferences',
-      items: [
-        {
-          icon: 'notifications-outline',
-          label: 'Notifications',
-          onPress: () => showComingSoon('Notification Settings'),
-        },
-        {
-          icon: 'language-outline',
-          label: 'Language',
-          value: 'English',
-          onPress: () => showComingSoon('Language Settings'),
-        },
-        {
-          icon: 'moon-outline',
-          label: 'Dark Mode',
-          value: 'Off',
-          onPress: () => showComingSoon('Dark Mode'),
+          icon: 'cash-outline',
+          label: 'Treatment Costs',
+          onPress: () => router.push('/(patient)/costs'),
         },
       ],
     },
@@ -96,34 +65,9 @@ export default function PatientProfileScreen() {
       title: 'Support',
       items: [
         {
-          icon: 'help-circle-outline',
-          label: 'Help Center',
-          onPress: () => showComingSoon('Help Center'),
-        },
-        {
           icon: 'chatbubble-ellipses-outline',
           label: 'Contact Support',
           onPress: () => Linking.openURL('tel:18002436226'),
-        },
-        {
-          icon: 'star-outline',
-          label: 'Rate the App',
-          onPress: () => showComingSoon('App Store Rating'),
-        },
-      ],
-    },
-    {
-      title: 'Legal',
-      items: [
-        {
-          icon: 'document-outline',
-          label: 'Terms of Service',
-          onPress: () => showComingSoon('Terms of Service'),
-        },
-        {
-          icon: 'lock-closed-outline',
-          label: 'Privacy Policy',
-          onPress: () => showComingSoon('Privacy Policy'),
         },
       ],
     },
@@ -146,7 +90,13 @@ export default function PatientProfileScreen() {
               name={user?.fullName || 'Patient'}
               size="xlarge"
             />
-            <TouchableOpacity style={styles.editAvatarButton} onPress={() => showComingSoon('Photo Upload')}>
+            <TouchableOpacity
+            style={styles.editAvatarButton}
+            onPress={() => {}}
+            activeOpacity={0.7}
+            accessibilityLabel="Change profile photo"
+            accessibilityRole="button"
+          >
               <Ionicons name="camera" size={16} color={colors.neutral[0]} />
             </TouchableOpacity>
           </View>
@@ -185,6 +135,9 @@ export default function PatientProfileScreen() {
                     index < section.items.length - 1 && styles.menuItemBorder,
                   ]}
                   onPress={item.onPress}
+                  activeOpacity={0.6}
+                  accessibilityLabel={item.label}
+                  accessibilityRole="button"
                 >
                   <View style={styles.menuItemLeft}>
                     <View style={styles.menuIconContainer}>
@@ -197,8 +150,8 @@ export default function PatientProfileScreen() {
                     <Text style={styles.menuLabel}>{item.label}</Text>
                   </View>
                   <View style={styles.menuItemRight}>
-                    {'value' in item && (
-                      <Text style={styles.menuValue}>{item.value}</Text>
+                    {'value' in item && (item as any).value && (
+                      <Text style={styles.menuValue}>{(item as any).value}</Text>
                     )}
                     <Ionicons
                       name="chevron-forward"
@@ -216,6 +169,9 @@ export default function PatientProfileScreen() {
         <TouchableOpacity
           style={styles.logoutButton}
           onPress={() => setShowLogoutModal(true)}
+          activeOpacity={0.6}
+          accessibilityLabel="Sign out"
+          accessibilityRole="button"
         >
           <Ionicons name="log-out-outline" size={20} color={colors.error} />
           <Text style={styles.logoutText}>Sign Out</Text>
@@ -264,7 +220,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.xxl,
+    paddingBottom: spacing.xxxl,
   },
   profileCard: {
     alignItems: 'center',
@@ -316,7 +272,7 @@ const styles = StyleSheet.create({
   },
   statLabel: {
     fontWeight: '400',
-    fontSize: 11,
+    fontSize: typography.caption2.fontSize,
     color: colors.text.secondary,
     marginTop: 2,
   },
@@ -343,6 +299,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
+    minHeight: 52,
   },
   menuItemBorder: {
     borderBottomWidth: 1,
@@ -383,6 +340,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.md,
     marginTop: spacing.xl,
     gap: spacing.sm,
+    minHeight: 48,
   },
   logoutText: {
     fontWeight: '600',
@@ -391,10 +349,11 @@ const styles = StyleSheet.create({
   },
   version: {
     fontWeight: '400',
-    fontSize: 11,
+    fontSize: typography.caption2.fontSize,
     color: colors.text.tertiary,
     textAlign: 'center',
     marginTop: spacing.lg,
+    marginBottom: spacing.lg,
   },
   modalContent: {
     gap: spacing.md,

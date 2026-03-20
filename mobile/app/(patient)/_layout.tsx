@@ -86,7 +86,19 @@ export default function PatientLayout() {
         }}
       />
       <Tabs.Screen
-        name="vitals-old"
+        name="medications"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="labs"
+        options={{
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="costs"
         options={{
           href: null,
         }}

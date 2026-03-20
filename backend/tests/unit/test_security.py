@@ -63,7 +63,7 @@ class TestTokenCreation:
     def test_create_access_token_includes_role(self):
         """Test access token includes role claim."""
         user_id = "user-123"
-        role = "DOCTOR_DAYCARE"
+        role = "DOCTOR_OPD"
         token = create_access_token(user_id, role)
         
         # Decode without verification to check claims

@@ -1,6 +1,7 @@
 """
 ChemoCare AI - FastAPI Backend Application
 """
+import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,6 +13,8 @@ from app.core.config import settings
 from app.core.database import init_db
 from app.api.v1 import api_router
 
+logger = logging.getLogger(__name__)
+
 # Global rate limiter — key by client IP
 limiter = Limiter(key_func=get_remote_address)
 
@@ -21,10 +24,10 @@ async def lifespan(app: FastAPI):
     """Application lifespan events."""
     # Startup
     await init_db()
-    print("Database initialized")
+    logger.info("Database initialized")
     yield
     # Shutdown
-    print("Application shutting down")
+    logger.info("Application shutting down")
 
 
 app = FastAPI(
@@ -50,6 +53,13 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Mount static files for photo uploads
+import os
+from fastapi.staticfiles import StaticFiles
+uploads_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads", "photos")
+os.makedirs(uploads_dir, exist_ok=True)
+app.mount("/uploads/photos", StaticFiles(directory=uploads_dir), name="photos")
 
 
 # Security headers middleware

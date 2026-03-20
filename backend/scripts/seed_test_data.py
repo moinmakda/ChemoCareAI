@@ -178,7 +178,7 @@ async def create_users(session: AsyncSession) -> dict:
             email="doctor@test.com",
             password_hash=TEST_PASSWORD_HASH,
             full_name="Dr. Arun Mehta",
-            role=UserRole.DOCTOR_DAYCARE,
+            role=UserRole.DOCTOR_OPD,
             is_active=True,
             is_verified=True,
         ),
@@ -805,48 +805,54 @@ async def create_treatment_cycles(session: AsyncSession) -> list:
 
 
 async def create_appointments(session: AsyncSession) -> list:
-    """Create appointments for patients."""
+    """Create appointments for patients, one per treatment cycle plus non-chemo appointments."""
     print("📅 Creating appointments...")
-    
+
     today = date.today()
     appointments = []
-    
-    # Patient 1 appointments
-    patient1_appointments = [
-        # Past completed chemo - Cycle 4
-        Appointment(
+
+    # --- Patient 1: One appointment per FOLFOX cycle (12 cycles) ---
+    folfox_start = today - timedelta(days=56)
+    for i in range(12):
+        cycle_date = folfox_start + timedelta(days=14 * i)
+
+        if i < 4:  # Completed cycles
+            apt_status = AppointmentStatus.COMPLETED
+            checked_in = datetime.combine(cycle_date, time(8, 45))
+            checked_out = datetime.combine(cycle_date, time(15, 30))
+            notes = f"Cycle {i + 1} FOLFOX completed successfully"
+        elif i == 4:  # Today - in progress
+            apt_status = AppointmentStatus.IN_PROGRESS
+            checked_in = datetime.now() - timedelta(minutes=135)
+            checked_out = None
+            notes = f"Cycle {i + 1} FOLFOX in progress"
+        else:  # Future
+            apt_status = AppointmentStatus.SCHEDULED
+            checked_in = None
+            checked_out = None
+            notes = f"Cycle {i + 1} FOLFOX scheduled"
+
+        apt = Appointment(
             id=uuid4(),
             patient_id=PATIENT_ID,
-            cycle_id=FOLFOX_CYCLE_IDS[3],
+            cycle_id=FOLFOX_CYCLE_IDS[i],
             appointment_type=AppointmentType.DAYCARE_CHEMO,
-            scheduled_date=today - timedelta(days=14),
+            scheduled_date=cycle_date,
             scheduled_time=time(9, 0),
             duration_mins=360,
-            chair_number=5,
+            chair_number=5 if i <= 4 else None,
             doctor_id=DOCTOR_ID,
-            nurse_id=NURSE_ID,
-            status=AppointmentStatus.COMPLETED,
-            checked_in_at=datetime.combine(today - timedelta(days=14), time(8, 45)),
-            checked_out_at=datetime.combine(today - timedelta(days=14), time(15, 30)),
-            notes="Cycle 4 FOLFOX completed successfully",
-        ),
-        # Today's chemo - Cycle 5
-        Appointment(
-            id=uuid4(),
-            patient_id=PATIENT_ID,
-            cycle_id=FOLFOX_CYCLE_IDS[4],
-            appointment_type=AppointmentType.DAYCARE_CHEMO,
-            scheduled_date=today,
-            scheduled_time=time(9, 0),
-            duration_mins=360,
-            chair_number=5,
-            doctor_id=DOCTOR_ID,
-            nurse_id=NURSE_ID,
-            status=AppointmentStatus.IN_PROGRESS,
-            checked_in_at=datetime.now() - timedelta(minutes=135),
-            notes="Cycle 5 FOLFOX in progress",
-        ),
-        # Future follow-up
+            nurse_id=NURSE_ID if i <= 4 else None,
+            status=apt_status,
+            checked_in_at=checked_in,
+            checked_out_at=checked_out,
+            notes=notes,
+        )
+        appointments.append(apt)
+        session.add(apt)
+
+    # Patient 1 non-chemo appointments
+    non_chemo_p1 = [
         Appointment(
             id=uuid4(),
             patient_id=PATIENT_ID,
@@ -858,7 +864,6 @@ async def create_appointments(session: AsyncSession) -> list:
             status=AppointmentStatus.SCHEDULED,
             notes="Mid-treatment review with oncologist",
         ),
-        # Lab work
         Appointment(
             id=uuid4(),
             patient_id=PATIENT_ID,
@@ -870,66 +875,68 @@ async def create_appointments(session: AsyncSession) -> list:
             notes="Pre-cycle 6 labs (CBC, LFT, RFT)",
         ),
     ]
-    
-    # Patient 2 appointments
-    patient2_appointments = [
-        # Past chemo - Cycle 1
-        Appointment(
-            id=uuid4(),
-            patient_id=PATIENT_2_ID,
-            cycle_id=ACT_CYCLE_IDS[0],
-            appointment_type=AppointmentType.DAYCARE_CHEMO,
-            scheduled_date=today - timedelta(days=7),
-            scheduled_time=time(10, 0),
-            duration_mins=180,
-            chair_number=3,
-            doctor_id=DOCTOR_ID,
-            nurse_id=NURSE_ID,
-            status=AppointmentStatus.COMPLETED,
-            checked_in_at=datetime.combine(today - timedelta(days=7), time(9, 45)),
-            checked_out_at=datetime.combine(today - timedelta(days=7), time(13, 0)),
-            notes="Cycle 1 AC completed",
-        ),
-        # Next chemo - Cycle 2
-        Appointment(
-            id=uuid4(),
-            patient_id=PATIENT_2_ID,
-            cycle_id=ACT_CYCLE_IDS[1],
-            appointment_type=AppointmentType.DAYCARE_CHEMO,
-            scheduled_date=today + timedelta(days=14),
-            scheduled_time=time(10, 0),
-            duration_mins=180,
-            chair_number=3,
-            doctor_id=DOCTOR_ID,
-            nurse_id=NURSE_2_ID,
-            status=AppointmentStatus.CONFIRMED,
-            notes="Cycle 2 AC scheduled",
-        ),
-    ]
-    
-    # Patient 3 - new patient, only OPD consultation
-    patient3_appointments = [
-        Appointment(
-            id=uuid4(),
-            patient_id=PATIENT_3_ID,
-            appointment_type=AppointmentType.OPD_CONSULTATION,
-            scheduled_date=today + timedelta(days=2),
-            scheduled_time=time(14, 0),
-            duration_mins=45,
-            doctor_id=OPD_DOCTOR_ID,
-            status=AppointmentStatus.SCHEDULED,
-            notes="Initial oncology consultation - DLBCL staging",
-        ),
-    ]
-    
-    all_appointments = patient1_appointments + patient2_appointments + patient3_appointments
-    for apt in all_appointments:
-        session.add(apt)
+    for apt in non_chemo_p1:
         appointments.append(apt)
-    
+        session.add(apt)
+
+    # --- Patient 2: One appointment per AC-T cycle (4 cycles) ---
+    act_start = today - timedelta(days=7)
+    for i in range(4):
+        cycle_date = act_start + timedelta(days=21 * i)
+
+        if i == 0:  # Completed
+            apt_status = AppointmentStatus.COMPLETED
+            checked_in = datetime.combine(cycle_date, time(9, 45))
+            checked_out = datetime.combine(cycle_date, time(13, 0))
+            notes = f"Cycle {i + 1} AC completed"
+        elif i == 1:  # Next scheduled
+            apt_status = AppointmentStatus.CONFIRMED
+            checked_in = None
+            checked_out = None
+            notes = f"Cycle {i + 1} AC scheduled"
+        else:  # Future
+            apt_status = AppointmentStatus.SCHEDULED
+            checked_in = None
+            checked_out = None
+            notes = f"Cycle {i + 1} AC scheduled"
+
+        apt = Appointment(
+            id=uuid4(),
+            patient_id=PATIENT_2_ID,
+            cycle_id=ACT_CYCLE_IDS[i],
+            appointment_type=AppointmentType.DAYCARE_CHEMO,
+            scheduled_date=cycle_date,
+            scheduled_time=time(10, 0),
+            duration_mins=180,
+            chair_number=3 if i <= 1 else None,
+            doctor_id=DOCTOR_ID,
+            nurse_id=NURSE_ID if i == 0 else (NURSE_2_ID if i == 1 else None),
+            status=apt_status,
+            checked_in_at=checked_in,
+            checked_out_at=checked_out,
+            notes=notes,
+        )
+        appointments.append(apt)
+        session.add(apt)
+
+    # --- Patient 3: OPD consultation only (no treatment plan yet) ---
+    apt = Appointment(
+        id=uuid4(),
+        patient_id=PATIENT_3_ID,
+        appointment_type=AppointmentType.OPD_CONSULTATION,
+        scheduled_date=today + timedelta(days=2),
+        scheduled_time=time(14, 0),
+        duration_mins=45,
+        doctor_id=OPD_DOCTOR_ID,
+        status=AppointmentStatus.SCHEDULED,
+        notes="Initial oncology consultation - DLBCL staging",
+    )
+    appointments.append(apt)
+    session.add(apt)
+
     await session.flush()
     print(f"   ✓ Created {len(appointments)} appointments")
-    
+
     return appointments
 
 

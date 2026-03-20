@@ -38,6 +38,7 @@ export default function PatientChatScreen() {
   const flatListRef = useRef<FlatList>(null);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
+  const [aiAvailable, setAiAvailable] = useState(true);
 
   // Messages with initial welcome message
   const [messages, setMessages] = useState<DisplayMessage[]>([
@@ -61,12 +62,13 @@ export default function PatientChatScreen() {
     }));
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!message.trim() || loading) return;
+  const handleSend = async (overrideMsg?: string) => {
+    const text = overrideMsg || message;
+    if (!text.trim() || loading) return;
 
     const userMessage: DisplayMessage = {
       id: Date.now().toString(),
-      text: message.trim(),
+      text: text.trim(),
       sender: 'user',
       timestamp: new Date().toLocaleTimeString('en-US', {
         hour: 'numeric',
@@ -97,15 +99,20 @@ export default function PatientChatScreen() {
           hour: 'numeric',
           minute: '2-digit',
         }),
-        isUrgent: response.is_urgent,
-        shouldContactCareTeam: response.should_contact_care_team,
-        suggestedActions: response.suggested_actions,
+        isUrgent: response.isUrgent,
+        shouldContactCareTeam: response.shouldContactCareTeam,
+        suggestedActions: response.suggestedActions,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
 
+      // Detect fallback mode
+      if (response.message.includes('temporarily unavailable')) {
+        setAiAvailable(false);
+      }
+
       // Show alert if urgent
-      if (response.is_urgent) {
+      if (response.isUrgent) {
         Alert.alert(
           '⚠️ Important Notice',
           'Based on what you shared, I recommend contacting your care team promptly.',
@@ -186,9 +193,7 @@ export default function PatientChatScreen() {
               <TouchableOpacity
                 key={idx}
                 style={styles.suggestedAction}
-                onPress={() => {
-                  setMessage(action);
-                }}
+                onPress={() => handleSend(action)}
               >
                 <Ionicons name="arrow-forward-circle-outline" size={16} color={colors.primary[500]} />
                 <Text style={styles.suggestedActionText} numberOfLines={1}>{action}</Text>
@@ -218,6 +223,14 @@ export default function PatientChatScreen() {
           AI-powered assistant. For emergencies, call your care team directly.
         </Text>
       </View>
+
+      {/* AI Unavailable Banner */}
+      {!aiAvailable && (
+        <View style={styles.aiBanner}>
+          <Ionicons name="information-circle" size={16} color={colors.warning} />
+          <Text style={styles.aiBannerText}>AI assistant is in offline mode. Responses are limited.</Text>
+        </View>
+      )}
 
       {/* Messages */}
       <FlatList
@@ -257,7 +270,7 @@ export default function PatientChatScreen() {
 
         <TouchableOpacity
           style={[styles.sendButton, (!message.trim() || loading) && styles.sendButtonDisabled]}
-          onPress={handleSend}
+          onPress={() => handleSend()}
           disabled={!message.trim() || loading}
         >
           <Ionicons
@@ -283,6 +296,20 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.lg,
     gap: spacing.xs,
+  },
+  aiBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFF8E1',
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
+    gap: spacing.xs,
+  },
+  aiBannerText: {
+    flex: 1,
+    fontWeight: '400',
+    fontSize: 11,
+    color: colors.warning,
   },
   infoBannerText: {
     flex: 1,

@@ -8,7 +8,6 @@ from typing import List, Optional
 from uuid import UUID
 from datetime import date, datetime
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, and_
 
@@ -28,105 +27,22 @@ from app.models import (
     AdminStatus,
 )
 from app.api.deps import allow_medical_staff, allow_nurses
+from app.schemas.daycare import (
+    VitalsStatus,
+    AlertInfo,
+    ActivePatientResponse,
+    ChairSchedule,
+    ChairStatus,
+    InfusionDrug,
+    InfusionSessionResponse,
+    ReactionReport,
+    ReactionResponse,
+    SessionCompletionResponse,
+    DaycareStatsResponse,
+)
+from app.schemas.auth import MessageResponse
 
 router = APIRouter(prefix="/daycare", tags=["Day Care"])
-
-
-# =============================================================================
-# SCHEMAS
-# =============================================================================
-
-class VitalsStatus(BaseModel):
-    """Last recorded vitals for a patient."""
-    temperature: Optional[float] = None
-    blood_pressure: Optional[str] = None
-    heart_rate: Optional[int] = None
-    oxygen_saturation: Optional[int] = None
-
-
-class AlertInfo(BaseModel):
-    """Alert information for a patient session."""
-    id: str
-    type: str  # vital_warning, vital_critical, reaction, delay, completion
-    message: str
-    patient_id: str
-    patient_name: str
-    chair_number: Optional[int] = None
-    timestamp: str
-    acknowledged: bool = False
-    severity: str  # low, medium, high, critical
-
-
-class ActivePatientResponse(BaseModel):
-    """Active patient in day care."""
-    id: str
-    patient_id: str
-    patient_name: str
-    chair_number: Optional[int] = None
-    protocol_name: str
-    current_drug: Optional[str] = None
-    status: str  # awaiting, premedication, infusing, observation, completed, alert
-    progress: int  # 0-100 percentage
-    start_time: Optional[str] = None
-    estimated_end_time: Optional[str] = None
-    nurse_assigned: Optional[str] = None
-    nurse_id: Optional[str] = None
-    vitals_status: str = "normal"  # normal, warning, critical
-    last_vitals: Optional[VitalsStatus] = None
-    alerts: List[AlertInfo] = []
-
-
-class ChairSchedule(BaseModel):
-    """Scheduled session for a chair."""
-    time: str
-    patient_name: str
-    duration: int
-
-
-class ChairStatus(BaseModel):
-    """Status of a day care chair."""
-    id: int
-    status: str  # available, occupied, maintenance, reserved
-    current_patient_id: Optional[str] = None
-    current_patient_name: Optional[str] = None
-    scheduled_sessions: List[ChairSchedule] = []
-
-
-class InfusionDrug(BaseModel):
-    """Drug in an infusion session."""
-    name: str
-    dose: str
-    duration: int
-    order: int
-    status: str  # pending, infusing, completed, skipped
-
-
-class InfusionSessionResponse(BaseModel):
-    """Detailed infusion session information."""
-    id: str
-    patient_id: str
-    patient_name: str
-    protocol_id: Optional[str] = None
-    protocol_name: str
-    cycle_number: int
-    chair_number: Optional[int] = None
-    scheduled_start: str
-    actual_start: Optional[str] = None
-    estimated_end: str
-    actual_end: Optional[str] = None
-    status: str
-    drugs: List[InfusionDrug] = []
-    reactions: List[dict] = []
-    notes: Optional[str] = None
-
-
-class ReactionReport(BaseModel):
-    """Report an adverse reaction during infusion."""
-    reaction_type: str = Field(..., description="Type of reaction (allergic, infusion, etc.)")
-    severity: str = Field(..., description="Severity: mild, moderate, severe, life_threatening")
-    description: str = Field(..., description="Description of the reaction")
-    action_taken: Optional[str] = None
-    vital_signs: Optional[dict] = None
 
 
 # =============================================================================
@@ -577,7 +493,7 @@ async def get_session_details(
     )
 
 
-@router.post("/sessions/{session_id}/start")
+@router.post("/sessions/{session_id}/start", response_model=MessageResponse)
 async def start_infusion(
     session_id: UUID,
     db: AsyncSession = Depends(get_db),
@@ -639,11 +555,11 @@ async def start_infusion(
                     break
     
     await db.commit()
-    
-    return {"message": "Infusion started", "session_id": str(session_id)}
+
+    return MessageResponse(message="Infusion started")
 
 
-@router.patch("/sessions/{session_id}/progress")
+@router.patch("/sessions/{session_id}/progress", response_model=MessageResponse)
 async def update_progress(
     session_id: UUID,
     progress: int = Query(..., ge=0, le=100),
@@ -679,11 +595,11 @@ async def update_progress(
                 drug.completed_at = datetime.utcnow()
     
     await db.commit()
-    
-    return {"message": "Progress updated", "progress": progress}
+
+    return MessageResponse(message="Progress updated")
 
 
-@router.post("/sessions/{session_id}/reaction")
+@router.post("/sessions/{session_id}/reaction", response_model=ReactionResponse)
 async def report_reaction(
     session_id: UUID,
     reaction: ReactionReport,
@@ -737,15 +653,15 @@ async def report_reaction(
                 current_drug.status = AdminStatus.PAUSED
     
     await db.commit()
-    
-    return {
-        "message": "Reaction reported",
-        "reaction_id": f"reaction-{datetime.utcnow().timestamp()}",
-        "severity": reaction.severity,
-    }
+
+    return ReactionResponse(
+        message="Reaction reported",
+        reaction_id=f"reaction-{datetime.utcnow().timestamp()}",
+        severity=reaction.severity,
+    )
 
 
-@router.post("/sessions/{session_id}/complete")
+@router.post("/sessions/{session_id}/complete", response_model=SessionCompletionResponse)
 async def complete_session(
     session_id: UUID,
     discharge_notes: Optional[str] = None,
@@ -805,11 +721,11 @@ async def complete_session(
                 plan.completed_cycles = (plan.completed_cycles or 0) + 1
     
     await db.commit()
-    
-    return {"message": "Session completed", "session_id": str(session_id)}
+
+    return SessionCompletionResponse(message="Session completed", session_id=str(session_id))
 
 
-@router.get("/stats")
+@router.get("/stats", response_model=DaycareStatsResponse)
 async def get_daycare_stats(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(allow_medical_staff),
@@ -864,9 +780,9 @@ async def get_daycare_stats(
     # This query is illustrative; for speed we might stick to 0 or simple count
     pending_alerts = 0
     
-    return {
-        "totalPatients": total_patients,
-        "todayAppointments": today_appointments,
-        "activeTreatments": active_treatments,
-        "pendingAlerts": pending_alerts,
-    }
+    return DaycareStatsResponse(
+        total_patients=total_patients,
+        today_appointments=today_appointments,
+        active_treatments=active_treatments,
+        pending_alerts=pending_alerts,
+    )

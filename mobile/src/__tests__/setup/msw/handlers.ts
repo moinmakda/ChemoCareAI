@@ -24,7 +24,7 @@ export const mockUsers = {
     id: 'user-doctor-1',
     email: 'doctor@test.com',
     fullName: 'Dr. Test Doctor',
-    role: 'doctor_daycare',
+    role: 'doctor_opd',
     isActive: true,
     isVerified: true,
     createdAt: '2024-01-01T00:00:00Z',

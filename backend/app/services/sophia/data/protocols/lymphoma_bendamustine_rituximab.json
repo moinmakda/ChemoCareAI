@@ -1,0 +1,665 @@
+{
+  "protocol_id": "bendamustine_rituximab",
+  "protocol_name": "Bendamustine-Rituximab (BR)",
+  "protocol_code": "BENDAMUSTINE-RITUXIMAB",
+  "full_name": "Bendamustine-Rituximab (BR) for indolent NHL and MCL",
+  "indication": "Relapsed or refractory Non-Hodgkin Lymphoma; Relapsed or refractory Mantle Cell Lymphoma. CD20-positive.",
+  "cycle_length_days": 28,
+  "total_cycles": 6,
+  "version": "1.4",
+  "treatment_intent": "palliative",
+  "drugs": [
+    {
+      "drug_id": "rituximab",
+      "drug_name": "Rituximab",
+      "dose": 375.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 500,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Intravenous infusion in 500ml sodium chloride 0.9%. Rate per rituximab administration guidelines. Dose rounded to nearest 100mg. Rituximab dose reductions are NOT permitted.",
+      "prn": false
+    },
+    {
+      "drug_id": "bendamustine",
+      "drug_name": "Bendamustine",
+      "dose": 90.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1,
+        2
+      ],
+      "duration_minutes": 30,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 500,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "After rituximab on Day 1",
+      "frequency": "Days 1 and 2",
+      "special_instructions": "Intravenous infusion in 500ml sodium chloride 0.9% over 30 minutes. Dose banded (2.5 mg/ml). VESICANT — extravasation risk. Administer AFTER rituximab on Day 1.",
+      "prn": false
+    }
+  ],
+  "pre_medications": [
+    {
+      "drug_id": "chlorphenamine",
+      "drug_name": "Chlorphenamine",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to rituximab",
+      "frequency": null,
+      "special_instructions": "Chlorphenamine 10mg IV 30 minutes prior to rituximab infusion.",
+      "prn": false
+    },
+    {
+      "drug_id": "hydrocortisone_premed",
+      "drug_name": "Hydrocortisone",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to rituximab",
+      "frequency": null,
+      "special_instructions": "Hydrocortisone 100mg IV 30 minutes prior to rituximab — mandatory rituximab pre-medication.",
+      "prn": false
+    },
+    {
+      "drug_id": "paracetamol",
+      "drug_name": "Paracetamol",
+      "dose": 1000.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to rituximab",
+      "frequency": null,
+      "special_instructions": "Paracetamol 1g oral 30 minutes prior to rituximab.",
+      "prn": false
+    },
+    {
+      "drug_id": "ondansetron",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        2
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 3,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "15-30 minutes prior to chemotherapy",
+      "frequency": null,
+      "special_instructions": "Ondansetron 8mg oral or IV prior to chemotherapy on Days 1 and 2. On Day 2 please ensure the patient has taken the ondansetron at home.",
+      "prn": false
+    }
+  ],
+  "rescue_medications": [
+    {
+      "drug_id": "hydrocortisone",
+      "drug_name": "Hydrocortisone",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Available as required for rituximab infusion reactions.",
+      "prn": true
+    },
+    {
+      "drug_id": "salbutamol",
+      "drug_name": "Salbutamol",
+      "dose": 2.5,
+      "dose_unit": "mg",
+      "route": "Nebulised",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Available as required for rituximab-related bronchospasm.",
+      "prn": true
+    },
+    {
+      "drug_id": "pethidine_rescue",
+      "drug_name": "Pethidine",
+      "dose": 25.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 99,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": 50.0,
+      "max_dose_unit": "mg",
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Consider pethidine 25-50mg IV for rituximab-related rigors that fail to respond to steroids. Controlled drug — prescribe per local policy.",
+      "prn": true
+    }
+  ],
+  "take_home_medicines": [
+    {
+      "drug_id": "metoclopramide_tho",
+      "drug_name": "Metoclopramide",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        2,
+        3
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Three times daily when required",
+      "special_instructions": "Take-home antiemetic: metoclopramide 10mg three times daily as required for days 2-3.",
+      "prn": true
+    },
+    {
+      "drug_id": "ondansetron_tho",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        2,
+        3
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Starting evening of Day 1",
+      "frequency": "Twice daily for 3 days starting evening of Day 1",
+      "special_instructions": "Take-home antiemetic: ondansetron 8mg twice daily for 3 days. First dose on the evening of Day 1 of treatment.",
+      "prn": false
+    },
+    {
+      "drug_id": "cotrimoxazole_tho",
+      "drug_name": "Co-trimoxazole",
+      "dose": 960.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": null,
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Monday, Wednesday and Friday",
+      "frequency": "Once daily on Monday, Wednesday and Friday (three times weekly)",
+      "special_instructions": "PCP prophylaxis: co-trimoxazole 960mg once daily on Monday, Wednesday and Friday for the duration of treatment. Mandatory prophylaxis — do not omit. If intolerant, discuss alternative (e.g. nebulised pentamidine or dapsone) with consultant.",
+      "prn": false
+    },
+    {
+      "drug_id": "allopurinol_tho",
+      "drug_name": "Allopurinol",
+      "dose": 300.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": null,
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 3,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "For 14 days from start of cycle",
+      "frequency": "Once daily for 14 days (high TLS risk patients only)",
+      "special_instructions": "Allopurinol 300mg once daily for 14 days — for high tumour lysis syndrome risk patients only (high tumour burden, bulky disease, or elevated LDH). CAUTION: co-administration of allopurinol with bendamustine significantly increases risk of severe skin reactions including Stevens-Johnson syndrome (SJS) and toxic epidermal necrolysis. Use only when TLS risk outweighs SJS risk — document rationale.",
+      "prn": false
+    }
+  ],
+  "cycle_variations": [],
+  "dose_modifications": [
+    {
+      "rule_id": "bendamustine_haem_neutropenia_1st",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "0.5-1.5",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 0.5,
+      "threshold_high": 1.5,
+      "affected_drugs": [
+        "bendamustine"
+      ],
+      "modification": "delay",
+      "modification_type": "delay",
+      "modification_percent": null,
+      "delay_days": 7,
+      "description": "Neutrophils 0.5-1.5×10⁹/L: delay until recovery then give 100%",
+      "action_text": "Delay until ANC ≥1.5 then give 100%",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "bendamustine_haem_neutropenia_severe_1st",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 0.5",
+      "condition_type": "less_than",
+      "threshold_value": 0.5,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "bendamustine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "ANC <0.5 or febrile neutropenia (1st occurrence): delay then 75%",
+      "action_text": "Delay until recovery then give 75%",
+      "priority": 2,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "bendamustine_haem_neutropenia_severe_2nd",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 0.5",
+      "condition_type": "less_than",
+      "threshold_value": 0.5,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "bendamustine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "ANC <0.5 or febrile neutropenia (2nd occurrence): delay then 50%",
+      "action_text": "Delay then give 50%",
+      "priority": 3,
+      "check_if_already_reduced": true
+    },
+    {
+      "rule_id": "bendamustine_haem_platelets_low",
+      "parameter": "platelets",
+      "parameter_unit": "x10⁹/L",
+      "condition": "25-100",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 25.0,
+      "threshold_high": 100.0,
+      "affected_drugs": [
+        "bendamustine"
+      ],
+      "modification": "delay",
+      "modification_type": "delay",
+      "modification_percent": null,
+      "delay_days": 7,
+      "description": "Platelets 25-100×10⁹/L: delay until recovery",
+      "action_text": "Delay until platelets ≥100",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "bendamustine_haem_platelets_very_low_1st",
+      "parameter": "platelets",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 25",
+      "condition_type": "less_than",
+      "threshold_value": 25.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "bendamustine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Platelets <25 or bleeding (1st): delay then 75%",
+      "action_text": "Delay then give 75%",
+      "priority": 2,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "bendamustine_haem_platelets_very_low_2nd",
+      "parameter": "platelets",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 25",
+      "condition_type": "less_than",
+      "threshold_value": 25.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "bendamustine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Platelets <25 (2nd occurrence): delay then 50%",
+      "action_text": "Delay then give 50%",
+      "priority": 3,
+      "check_if_already_reduced": true
+    },
+    {
+      "rule_id": "bendamustine_hepatic_bili_moderate",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "21-51",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 21.0,
+      "threshold_high": 51.0,
+      "affected_drugs": [
+        "bendamustine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 70,
+      "delay_days": null,
+      "description": "Bilirubin 21-51 µmol/L: reduce bendamustine to 70%",
+      "action_text": "Reduce to 70% of dose",
+      "priority": 4,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "bendamustine_hepatic_bili_severe",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 51",
+      "condition_type": "greater_than",
+      "threshold_value": 51.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "bendamustine"
+      ],
+      "modification": "omit",
+      "modification_type": "omit",
+      "modification_percent": 0,
+      "delay_days": null,
+      "description": "Bilirubin >51 µmol/L: no information available — omit and seek specialist advice",
+      "action_text": "Omit — seek specialist hepatology advice",
+      "priority": 5,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "bendamustine_renal_severe",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "≤ 10",
+      "condition_type": "less_equal",
+      "threshold_value": 10.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "bendamustine"
+      ],
+      "modification": "omit",
+      "modification_type": "omit",
+      "modification_percent": 0,
+      "delay_days": null,
+      "description": "CrCl ≤10 ml/min: no information available — omit and seek specialist advice",
+      "action_text": "Omit — seek specialist renal advice",
+      "priority": 4,
+      "check_if_already_reduced": false
+    }
+  ],
+  "hematological_toxicity_rules": [
+    {
+      "toxicity_type": "neutropenia",
+      "grade": null,
+      "threshold": "< 1.5",
+      "threshold_value": 1.5,
+      "threshold_low": null,
+      "threshold_high": null,
+      "action": "delay",
+      "delay_days": 7,
+      "reduction_percent": null,
+      "check_drugs": [
+        "bendamustine"
+      ],
+      "additional_notes": "Rituximab dose reductions are NOT permitted. Haematological dose modifications apply to bendamustine only."
+    }
+  ],
+  "non_hematological_toxicity_rules": [
+    {
+      "toxicity_type": "rituximab_infusion_reaction",
+      "grade": null,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "rituximab"
+      ],
+      "action": "hold",
+      "action_text": "Grade 3-4 CRS or anaphylaxis: stop rituximab immediately, give hydrocortisone 100mg IV and manage as anaphylaxis. Do not rechallenge if grade 4.",
+      "monitoring_frequency": "each_dose"
+    },
+    {
+      "toxicity_type": "bendamustine_extravasation",
+      "grade": null,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "bendamustine"
+      ],
+      "action": "stop_infusion",
+      "action_text": "Bendamustine is a VESICANT. If extravasation occurs, stop infusion immediately and manage per local extravasation policy. Central venous access preferred for repeated cycles.",
+      "monitoring_frequency": "each_dose"
+    }
+  ],
+  "age_based_modifications": [],
+  "treatment_delay_criteria": [
+    {
+      "parameter": "neutrophils",
+      "threshold": "< 1.5",
+      "threshold_value": 1.5,
+      "delay_until": "Neutrophils ≥1.5×10⁹/L",
+      "max_delay_weeks": 2,
+      "action_if_not_recovered": "Reduce bendamustine dose per modification rules."
+    },
+    {
+      "parameter": "platelets",
+      "threshold": "< 100",
+      "threshold_value": 100.0,
+      "delay_until": "Platelets ≥100×10⁹/L",
+      "max_delay_weeks": 2,
+      "action_if_not_recovered": "Reduce bendamustine dose per modification rules."
+    },
+    {
+      "condition": "active_infection",
+      "parameter": "",
+      "threshold": "",
+      "delay_until": "Resolution of active infection",
+      "max_delay_weeks": null,
+      "action_if_not_recovered": "Discuss with consultant."
+    }
+  ],
+  "baseline_requirements": [
+    {
+      "test": "Hepatitis B serology (HBsAg, anti-HBc, anti-HBs)",
+      "includes": [],
+      "timing": "Before first rituximab dose",
+      "required": "true"
+    },
+    {
+      "test": "FBC, renal function, LFTs",
+      "includes": [
+        "neutrophils",
+        "platelets",
+        "creatinine clearance",
+        "bilirubin"
+      ],
+      "timing": "Before each cycle",
+      "required": "true"
+    }
+  ],
+  "pre_cycle_labs": [
+    {
+      "test": "FBC (neutrophils, platelets, haemoglobin)",
+      "timing": "Within 48 hours before each cycle",
+      "required": true
+    },
+    {
+      "test": "Renal function (creatinine clearance)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "LFTs (bilirubin)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "Hepatitis B status",
+      "timing": "Before first cycle",
+      "required": true
+    }
+  ],
+  "toxicities": [
+    {
+      "drug_id": "rituximab",
+      "adverse_effects": [
+        "Infusion reactions (fever, chills, urticaria, angioedema, CRS)",
+        "Progressive multifocal leukoencephalopathy (PML — rare)",
+        "Hepatitis B reactivation",
+        "Immunosuppression",
+        "Hypogammaglobulinaemia"
+      ]
+    },
+    {
+      "drug_id": "bendamustine",
+      "adverse_effects": [
+        "Myelosuppression (neutropenia, thrombocytopenia)",
+        "Nausea and vomiting",
+        "Fatigue",
+        "Infection (including opportunistic infections)",
+        "Extravasation injury (vesicant)",
+        "Skin reactions (rash, Stevens-Johnson syndrome — rare with allopurinol co-administration)",
+        "Tumour lysis syndrome",
+        "Transfusion-associated graft-versus-host disease (TA-GVHD) — irradiated blood products required for life"
+      ]
+    }
+  ],
+  "monitoring": [
+    "FBC, renal function, and LFTs before each cycle",
+    "Rituximab infusion vital signs monitoring (temperature, BP, pulse, O2 sats) during every infusion",
+    "Hepatitis B monitoring if positive serology detected — expert review required",
+    "Monitor for neurological or cognitive symptoms (PML risk with rituximab)",
+    "Monitor for tumour lysis syndrome — especially cycle 1",
+    "Monitor skin reactions if allopurinol co-administered with bendamustine (SJS risk)"
+  ],
+  "warnings": [
+    "Check hepatitis B status before starting rituximab — risk of fatal reactivation.",
+    "Risk of progressive multifocal leukoencephalopathy (PML) with rituximab — monitor for neurological symptoms.",
+    "Cytokine release syndrome risk with rituximab — most common during first infusion.",
+    "Bendamustine is a VESICANT — use caution with peripheral cannulae; central venous access preferred for repeated cycles.",
+    "PCP prophylaxis with co-trimoxazole 960mg three times weekly is mandatory for the duration of treatment.",
+    "Consider antiviral prophylaxis (aciclovir 400mg BD) for herpes reactivation.",
+    "Rituximab dose reductions are NOT permitted.",
+    "Monitor for tumour lysis syndrome — especially cycle 1.",
+    "Bendamustine — avoid mixing with other drugs; flush line thoroughly before and after.",
+    "CAUTION: Concomitant allopurinol with bendamustine significantly increases risk of severe skin reactions including Stevens-Johnson syndrome (SJS) and toxic epidermal necrolysis. Avoid co-administration where possible.",
+    "Bendamustine metabolism involves cytochrome P450 (CYP) 1A2 isoenzyme. Potential for interaction with CYP1A2 inhibitors such as fluvoxamine, ciprofloxacin, aciclovir and cimetidine exists."
+  ],
+  "required_patient_fields": {
+    "hepatitis_b_status": "required before rituximab",
+    "neutrophils": "required",
+    "platelets": "required",
+    "bilirubin": "required",
+    "creatinine_clearance": "required"
+  },
+  "source_file": "lymphoma_bendamustine_rituximab.json",
+  "reference_url": "https://www.wessexcanceralliance.nhs.uk/protocols/lymphoma/",
+  "source": "NHS Wessex Cancer Alliance"
+}

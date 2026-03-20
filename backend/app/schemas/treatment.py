@@ -188,6 +188,92 @@ class TreatmentCycleResponse(BaseModel):
 
 
 # Drug Administration Schemas
+# Treatment Calendar Schemas
+class CalendarDaySchema(BaseModel):
+    """A single day in the treatment calendar."""
+    date: date
+    day_in_cycle: int
+    cycle_number: int
+    day_type: str  # "treatment", "take_home", "lab", "rest"
+    cycle_status: str
+    drugs: List[Dict[str, Any]] = []
+    appointments: List[Dict[str, Any]] = []
+    notes: Optional[str] = None
+
+
+class TreatmentCalendarResponse(BaseModel):
+    """Calendar view of a treatment plan."""
+    plan_id: UUID
+    protocol_name: str
+    cycle_length_days: int
+    total_cycles: int
+    completed_cycles: int
+    current_cycle: Optional[int] = None
+    next_treatment_date: Optional[date] = None
+    calendar_days: List[CalendarDaySchema]
+
+
+# Patient Registration (by OPD Doctor)
+class PatientRegistrationWithPlan(BaseModel):
+    """Register a new patient with a treatment plan in one step."""
+    first_name: str
+    last_name: str
+    date_of_birth: date
+    gender: str
+    cancer_type: Optional[str] = None
+    cancer_stage: Optional[str] = None
+    height_cm: Optional[float] = None
+    weight_kg: Optional[float] = None
+    phone: Optional[str] = None
+    patient_email: Optional[str] = None
+    protocol_code: Optional[str] = None
+    protocol_name: str
+    custom_protocol: Optional[Dict[str, Any]] = None
+    start_date: date
+    planned_cycles: int
+    cycle_length_days: int = 21
+    opd_notes: Optional[str] = None
+
+
+class PatientRegistrationResponse(BaseModel):
+    """Response after registering a patient with plan."""
+    patient_id: UUID
+    patient_name: str
+    treatment_plan_id: UUID
+    protocol_name: str
+    cycles_created: int
+    login_email: str
+    login_password: Optional[str] = None
+    start_date: date
+    next_treatment_date: Optional[date] = None
+    email_sent_to: Optional[str] = None
+
+
+class DischargeSummaryResponse(BaseModel):
+    """Structured discharge summary for a completed treatment cycle."""
+    patient_name: str
+    patient_age: Optional[int] = None
+    diagnosis: Optional[str] = None
+    protocol_name: str
+    cycle_number: int
+    total_cycles: int
+    cycle_date: str
+    drugs_administered: List[Dict[str, Any]]
+    pre_medications_given: List[Dict[str, Any]] = []
+    vitals: Optional[Dict[str, Any]] = None
+    reactions: Optional[List[str]] = None
+    dose_modifications: Optional[str] = None
+    next_cycle_date: Optional[str] = None
+    next_cycle_number: Optional[int] = None
+    take_home_medications: List[Dict[str, Any]]
+    rescue_medications: List[Dict[str, Any]] = []
+    monitoring_requirements: List[str] = []
+    protocol_warnings: List[str] = []
+    follow_up_instructions: str
+    warning_signs: List[str]
+    generated_at: str
+
+
 class DrugAdministrationUpdate(BaseModel):
     """Schema for updating drug administration."""
     actual_dose: Optional[float] = None
@@ -228,6 +314,111 @@ class DrugAdministrationResponse(BaseModel):
     notes: Optional[str] = None
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
+
+
+class CycleCompletionResponse(BaseModel):
+    """Response after completing a treatment cycle."""
+    cycle: TreatmentCycleResponse
+    discharge_summary: Optional[Dict[str, Any]] = None
+
+
+class SophiaProtocolDrugsResponse(BaseModel):
+    """Response for SOPHIA protocol drugs endpoint."""
+    protocol_code: str
+    protocol_name: str
+    core_drugs: List[Dict[str, Any]] = []
+    pre_medications: List[Dict[str, Any]] = []
+    take_home_medicines: List[Dict[str, Any]] = []
+    rescue_medications: List[Dict[str, Any]] = []
+
+
+# Pre-chemo Labs (Feature 1)
+class PreChemoLabsInput(BaseModel):
+    neutrophils: Optional[float] = None
+    platelets: Optional[float] = None
+    hemoglobin: Optional[float] = None
+    wbc: Optional[float] = None
+    gfr: Optional[float] = None
+    creatinine: Optional[float] = None
+    bilirubin: Optional[float] = None
+    alt: Optional[float] = None
+    ast: Optional[float] = None
+    notes: Optional[str] = None
+
+
+class LabSafetyResult(BaseModel):
+    parameter: str
+    value: float
+    threshold: float
+    status: str  # "block", "warn", "ok"
+    message: str
+
+
+class PreChemoLabsResponse(BaseModel):
+    cycle_id: UUID
+    labs: Dict[str, Any]
+    safety_results: List[LabSafetyResult]
+    can_proceed: bool
+    warnings: List[str]
+
+
+# Dose Recalculation (Feature 3)
+class DoseRecalculationRequest(BaseModel):
+    weight_kg: float
+    height_cm: Optional[float] = None
+
+
+class DoseRecalculationResponse(BaseModel):
+    cycle_id: UUID
+    old_bsa: Optional[float] = None
+    new_bsa: float
+    bsa_change_percent: float
+    drugs: List[Dict[str, Any]]
+    flagged: bool
+
+
+# Timeline (Feature 5)
+class TimelineItem(BaseModel):
+    date: date
+    type: str  # "treatment", "lab", "medication", "rest", "appointment"
+    title: str
+    description: Optional[str] = None
+    status: Optional[str] = None
+    cycle_number: Optional[int] = None
+    is_action_required: bool = False
+
+
+class TimelineResponse(BaseModel):
+    plan_id: UUID
+    protocol_name: str
+    total_cycles: int
+    completed_cycles: int
+    items: List[TimelineItem]
+
+
+# Cost Tracking (Feature 10)
+class CycleCostUpdate(BaseModel):
+    session_cost: Optional[float] = None
+    lab_cost: Optional[float] = None
+    other_charges: Optional[float] = None
+
+
+class CycleCostDetail(BaseModel):
+    cycle_number: int
+    cycle_id: UUID
+    session_cost: Optional[float] = None
+    lab_cost: Optional[float] = None
+    other_charges: Optional[float] = None
+    drug_costs: List[Dict[str, Any]] = []
+    cycle_total: float
+
+
+class TreatmentCostResponse(BaseModel):
+    plan_id: UUID
+    protocol_name: str
+    estimated_total_cost: Optional[float] = None
+    total_spent: float
+    cycles: List[CycleCostDetail]

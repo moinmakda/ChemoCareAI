@@ -1,7 +1,7 @@
 /**
  * Doctor OPD Profile Screen - Account settings and information
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -17,15 +17,27 @@ import { Ionicons } from '@expo/vector-icons';
 import { colors, typography, spacing, borderRadius } from '../../src/constants/theme';
 import { Card, Avatar, Header, Modal, Button } from '../../src/components';
 import { useAuthStore } from '../../src/store/authStore';
-
-const showComingSoon = (feature: string) => {
-  Alert.alert('Coming Soon', `${feature} will be available in a future update.`);
-};
+import { doctorService } from '../../src/services/doctorService';
 
 export default function DoctorOPDProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [todayCount, setTodayCount] = useState<number | null>(null);
+  const [totalPatients, setTotalPatients] = useState<number | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [stats, patients] = await Promise.all([
+          doctorService.getDashboardStats(),
+          doctorService.getPatients({ limit: 1 }),
+        ]);
+        setTodayCount(stats.todayAppointments);
+        setTotalPatients(stats.totalPatients);
+      } catch {}
+    })();
+  }, []);
 
   const handleLogout = async () => {
     setShowLogoutModal(false);
@@ -35,32 +47,16 @@ export default function DoctorOPDProfileScreen() {
 
   const menuSections = [
     {
-      title: 'Account',
+      title: 'Clinical',
       items: [
-        { icon: 'person-outline', label: 'Personal Information', onPress: () => showComingSoon('Personal Information') },
-        { icon: 'medical-outline', label: 'Medical License', onPress: () => showComingSoon('Medical License') },
-        { icon: 'calendar-outline', label: 'Consultation Hours', onPress: () => showComingSoon('Consultation Hours') },
-      ],
-    },
-    {
-      title: 'OPD Settings',
-      items: [
-        { icon: 'document-text-outline', label: 'Prescription Templates', onPress: () => showComingSoon('Prescription Templates') },
-        { icon: 'flask-outline', label: 'Protocol Templates', onPress: () => router.push('/(doctor-opd)/protocols') },
-        { icon: 'git-branch-outline', label: 'Referral Settings', onPress: () => showComingSoon('Referral Settings') },
-      ],
-    },
-    {
-      title: 'Preferences',
-      items: [
-        { icon: 'notifications-outline', label: 'Notifications', onPress: () => showComingSoon('Notification Settings') },
-        { icon: 'language-outline', label: 'Language', value: 'English', onPress: () => showComingSoon('Language Settings') },
+        { icon: 'flask-outline', label: 'Protocol Library', onPress: () => router.push('/(doctor-opd)/protocols') },
+        { icon: 'people-outline', label: 'My Patients', onPress: () => router.push('/(doctor-opd)/patients') },
+        { icon: 'calendar-outline', label: 'Appointments', onPress: () => router.push('/(doctor-opd)/appointments') },
       ],
     },
     {
       title: 'Support',
       items: [
-        { icon: 'help-circle-outline', label: 'Help Center', onPress: () => showComingSoon('Help Center') },
         { icon: 'chatbubble-ellipses-outline', label: 'Contact Support', onPress: () => Linking.openURL('tel:18002436226') },
       ],
     },
@@ -94,13 +90,13 @@ export default function DoctorOPDProfileScreen() {
 
           <View style={styles.profileStats}>
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>18</Text>
-              <Text style={styles.statLabel}>Appointments Today</Text>
+              <Text style={styles.statValue}>{todayCount ?? '—'}</Text>
+              <Text style={styles.statLabel}>Today's Appts</Text>
             </View>
             <View style={styles.statDivider} />
             <View style={styles.statItem}>
-              <Text style={styles.statValue}>89</Text>
-              <Text style={styles.statLabel}>This Week</Text>
+              <Text style={styles.statValue}>{totalPatients ?? '—'}</Text>
+              <Text style={styles.statLabel}>Total Patients</Text>
             </View>
           </View>
         </Card>
@@ -126,7 +122,7 @@ export default function DoctorOPDProfileScreen() {
                     <Text style={styles.menuLabel}>{item.label}</Text>
                   </View>
                   <View style={styles.menuItemRight}>
-                    {'value' in item && <Text style={styles.menuValue}>{item.value}</Text>}
+                    {'value' in item && (item as any).value && <Text style={styles.menuValue}>{(item as any).value}</Text>}
                     <Ionicons name="chevron-forward" size={18} color={colors.text.tertiary} />
                   </View>
                 </TouchableOpacity>

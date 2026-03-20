@@ -22,6 +22,7 @@ import { nurseService, MedicationAPI } from '../../src/services/nurseService';
 interface MedicationItem {
   id: string;
   patientId: string;
+  cycleId: string;
   patientName: string;
   drugName: string;
   dose: string;
@@ -35,7 +36,8 @@ interface MedicationItem {
 // Convert API response to display format
 const mapMedicationToDisplay = (med: any): MedicationItem => ({
   id: med.id,
-  patientId: med.patientId || med.cycleId,
+  patientId: med.patientId || '',
+  cycleId: med.cycleId || '',
   patientName: med.patientName || 'Unknown Patient',
   drugName: med.drugName,
   dose: `${med.plannedDose}${med.unit}`,
@@ -92,15 +94,16 @@ export default function NurseMedicationsScreen() {
     return m.status === filter;
   });
 
-  // Group by patient
+  // Group by patient (fall back to cycleId when patientId is missing)
   const groupedMedications = filteredMedications.reduce((acc, med) => {
-    if (!acc[med.patientId]) {
-      acc[med.patientId] = {
+    const groupKey = med.patientId || med.cycleId || med.id;
+    if (!acc[groupKey]) {
+      acc[groupKey] = {
         patientName: med.patientName,
         medications: [],
       };
     }
-    acc[med.patientId].medications.push(med);
+    acc[groupKey].medications.push(med);
     return acc;
   }, {} as Record<string, { patientName: string; medications: MedicationItem[] }>);
 
@@ -209,6 +212,15 @@ export default function NurseMedicationsScreen() {
                   <Ionicons name="pause-circle-outline" size={18} color={Colors.warning} />
                   <Text style={styles.holdButtonText}>Hold</Text>
                 </TouchableOpacity>
+                {med.cycleId ? (
+                  <TouchableOpacity
+                    style={styles.treatmentButton}
+                    onPress={() => router.push({ pathname: '/(nurse)/treatment-admin', params: { cycleId: med.cycleId, patientId: med.patientId } })}
+                  >
+                    <Ionicons name="flask-outline" size={18} color={Colors.primary} />
+                    <Text style={styles.treatmentButtonText}>Full Admin</Text>
+                  </TouchableOpacity>
+                ) : null}
               </View>
             )}
 
@@ -535,6 +547,23 @@ const styles = StyleSheet.create({
     fontFamily: Typography.fontFamily.medium,
     fontSize: Typography.fontSize.sm,
     color: Colors.error,
+  },
+  treatmentButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    borderRadius: BorderRadius.md,
+    backgroundColor: `${Colors.primary}15`,
+    borderWidth: 1,
+    borderColor: Colors.primary,
+  },
+  treatmentButtonText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.primary,
   },
   emptyState: {
     alignItems: 'center',

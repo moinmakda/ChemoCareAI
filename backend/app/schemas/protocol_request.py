@@ -97,26 +97,65 @@ class MedicalHistoryBase(BaseModel):
 
 
 class ClinicalDataCollectionBase(BaseModel):
-    """Base clinical data collection schema."""
+    """Base clinical data collection schema (extended for SOPHIA engine)."""
+    # SOPHIA protocol selection
+    protocol_code: Optional[str] = Field(None, description="SOPHIA protocol code (e.g., LYMPHOMA-RCHOP21)")
+    cycle_number: Optional[int] = Field(None, ge=1, description="Current cycle number")
+    excluded_drugs: Optional[List[str]] = Field(default=None, description="Drug IDs to exclude")
+
     # Patient measurements
     height_cm: Optional[float] = Field(None, ge=50, le=300)
     weight_kg: Optional[float] = Field(None, ge=10, le=500)
     bsa: Optional[float] = Field(None, description="Calculated BSA")
-    
+
     # Cancer details
     cancer_type: Optional[str] = None
     cancer_subtype: Optional[str] = None
     disease_stage: Optional[str] = None
     histology: Optional[str] = None
     molecular_markers: Optional[Dict[str, Any]] = None
-    
-    # Lab reports
+
+    # SOPHIA mandatory labs (individual values for dose calculations)
+    neutrophils: Optional[float] = Field(None, description="Neutrophils x10^9/L")
+    platelets: Optional[float] = Field(None, description="Platelets x10^9/L")
+    hemoglobin: Optional[float] = Field(None, description="Haemoglobin g/dL")
+    bilirubin: Optional[float] = Field(None, description="Bilirubin umol/L")
+    gfr: Optional[float] = Field(None, description="GFR / CrCl ml/min")
+    creatinine: Optional[float] = Field(None, description="Serum creatinine umol/L")
+
+    # Optional labs
+    ast: Optional[float] = Field(None, description="AST U/L")
+    alt: Optional[float] = Field(None, description="ALT U/L")
+    ldh: Optional[float] = Field(None, description="LDH U/L")
+
+    # Lab panels (nested dicts from document extraction)
+    full_blood_count: Optional[Dict[str, float]] = Field(None, description="FBC: wbc, hb, platelets, neutrophils")
+    liver_function: Optional[Dict[str, float]] = Field(None, description="LFT: alt, ast, alp, ggt, bilirubin")
+    urea_electrolytes: Optional[Dict[str, float]] = Field(None, description="U&E: sodium, potassium, urea")
+    immunoglobulins: Optional[Dict[str, float]] = Field(None, description="Igs: igg, iga, igm")
+
+    # Lab reports (structured)
     lab_reports: List[LabReportBase] = Field(default=[])
     latest_labs: Optional[LabReportBase] = None
-    
+
+    # Safety assessment
+    known_allergies: Optional[List[str]] = Field(default=None, description="Known drug allergies")
+    active_infection: Optional[bool] = Field(None, description="Active infection / fever")
+    pregnancy_status: Optional[str] = Field(None, description="not_pregnant, pregnant, unknown, not_applicable")
+    tls_risk: Optional[str] = Field(None, description="Tumor lysis risk: low, intermediate, high")
+    lvef_percent: Optional[float] = Field(None, description="Left ventricular ejection fraction %")
+    peripheral_neuropathy_grade: Optional[int] = Field(None, ge=0, le=4, description="CTCAE neuropathy grade")
+    prior_anthracycline_dose: Optional[float] = Field(None, description="Lifetime anthracycline mg/m2")
+    prior_cardiac_history: Optional[bool] = None
+
+    # Virology (string: positive/negative/unknown)
+    hep_b_surface: Optional[str] = None
+    hep_b_core: Optional[str] = None
+    hep_c_antibody: Optional[str] = None
+
     # History
     medical_history: Optional[MedicalHistoryBase] = None
-    
+
     # Current status
     current_symptoms: List[str] = Field(default=[])
     performance_status: Optional[str] = None

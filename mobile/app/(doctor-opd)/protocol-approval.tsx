@@ -13,6 +13,8 @@ import {
   ActivityIndicator,
   TextStyle,
   TextInput,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,41 +27,40 @@ import {
 } from '../../src/services/protocolService';
 import { patientService } from '../../src/services';
 
-interface DrugDose {
-  drug: string;
-  dose: string;
-  route: string;
-  timing: string;
-  day?: number;
-  infusion_duration?: string;
-}
-
+// SOPHIA protocol response (camelCase — api.ts interceptor converts)
 interface GeneratedProtocol {
-  protocol_name: string;
-  regimen_code: string;
-  cycle_length_days: number;
-  total_cycles: number;
-  drugs: DrugDose[];
-  premedications: DrugDose[];
-  supportive_care: string[];
-  monitoring_requirements: string[];
-  dose_modifications: string[];
-  warnings: string[];
-  ai_confidence: number;
-  ai_reasoning: string;
+  protocolName: string;
+  protocolCode: string;
+  cycleLengthDays: number;
+  totalCycles: number;
+  cycleNumber: number;
+  patientBsa: number;
+  patientBsaCapped: boolean;
+  chemotherapyDrugs: any[];
+  preMedications: any[];
+  takeHomeMedicines: any[];
+  rescueMedications: any[];
+  warnings: { level: string; message: string }[];
+  doseModificationsApplied: string[];
+  monitoringRequirements: string[];
+  specialInstructions: string[];
+  treatmentDelayRecommended: boolean;
+  treatmentAbsolutelyContraindicated: boolean;
+  delayReasons: string[];
+  [key: string]: any;
 }
 
 export default function DoctorProtocolApprovalScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ requestId: string }>();
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [protocolRequest, setProtocolRequest] = useState<ProtocolRequest | null>(null);
   const [protocol, setProtocol] = useState<GeneratedProtocol | null>(null);
   const [patient, setPatient] = useState<any>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Modification mode
   const [isModifying, setIsModifying] = useState(false);
   const [modifiedProtocol, setModifiedProtocol] = useState<GeneratedProtocol | null>(null);
@@ -76,19 +77,19 @@ export default function DoctorProtocolApprovalScreen() {
       router.back();
       return;
     }
-    
+
     try {
       const request = await getProtocolRequest(params.requestId);
       setProtocolRequest(request);
-      
-      if (request.generated_protocol) {
-        const proto = request.generated_protocol as GeneratedProtocol;
-        setProtocol(proto);
-        setModifiedProtocol(JSON.parse(JSON.stringify(proto))); // Deep copy
+
+      const gp = (request as any).generatedProtocol;
+      if (gp) {
+        setProtocol(gp as GeneratedProtocol);
+        setModifiedProtocol(JSON.parse(JSON.stringify(gp))); // Deep copy
       }
-      
+
       // Load patient
-      const patientData = await patientService.getPatient(request.patient_id);
+      const patientData = await patientService.getPatient((request as any).patientId);
       setPatient(patientData);
     } catch {
       Alert.alert('Error', 'Failed to load protocol request');
@@ -99,7 +100,7 @@ export default function DoctorProtocolApprovalScreen() {
 
   const handleApprove = async () => {
     if (!protocolRequest) return;
-    
+
     Alert.alert(
       'Approve Protocol',
       'This will finalize the protocol and allow scheduling. Continue?',
@@ -112,21 +113,26 @@ export default function DoctorProtocolApprovalScreen() {
 
   const submitApproval = async () => {
     setIsSubmitting(true);
-    
+
     try {
       const protocolToSubmit = isModifying ? modifiedProtocol : undefined;
-      
+
       await doctorApproveProtocol(
         protocolRequest!.id,
         isModifying ? 'modify' : 'approve',
         reviewNotes,
         protocolToSubmit as Record<string, any>
       );
-      
+
+      const protocolName = protocol?.protocolName || 'the protocol';
+      const protocolsRoute = '/(doctor-opd)/protocols';
       Alert.alert(
-        '✅ Protocol Approved',
-        'The treatment protocol has been approved. You can now schedule treatment cycles.',
-        [{ text: 'OK', onPress: () => router.back() }]
+        'Protocol Approved',
+        `Treatment plan updated for ${protocolName}. The cycle is now approved and ready for treatment.`,
+        [
+          { text: 'View Treatment Plans', onPress: () => router.replace(protocolsRoute as any) },
+          { text: 'Done', onPress: () => router.back(), style: 'cancel' },
+        ]
       );
     } catch (error: any) {
       Alert.alert('Error', error.response?.data?.detail || 'Failed to approve protocol');
@@ -140,13 +146,13 @@ export default function DoctorProtocolApprovalScreen() {
       Alert.alert('Required', 'Please provide a reason for rejection');
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       await doctorApproveProtocol(protocolRequest!.id, 'reject', rejectReason);
       setShowRejectModal(false);
-      
+
       Alert.alert(
         'Protocol Rejected',
         'The protocol has been rejected and sent back for revision.',
@@ -159,12 +165,12 @@ export default function DoctorProtocolApprovalScreen() {
     }
   };
 
-  const updateDrugDose = (index: number, field: keyof DrugDose, value: string) => {
+  const updateDrugDose = (index: number, field: string, value: string) => {
     if (!modifiedProtocol) return;
-    
-    const newDrugs = [...modifiedProtocol.drugs];
-    newDrugs[index] = { ...newDrugs[index], [field]: value };
-    setModifiedProtocol({ ...modifiedProtocol, drugs: newDrugs });
+
+    const drugs = [...(modifiedProtocol.chemotherapyDrugs || [])];
+    drugs[index] = { ...drugs[index], [field]: value };
+    setModifiedProtocol({ ...modifiedProtocol, chemotherapyDrugs: drugs });
     setIsModifying(true);
   };
 
@@ -172,7 +178,7 @@ export default function DoctorProtocolApprovalScreen() {
     if (!modifiedProtocol) return;
     const num = parseInt(value);
     if (!isNaN(num) && num > 0) {
-      setModifiedProtocol({ ...modifiedProtocol, total_cycles: num });
+      setModifiedProtocol({ ...modifiedProtocol, totalCycles: num });
       setIsModifying(true);
     }
   };
@@ -212,23 +218,28 @@ export default function DoctorProtocolApprovalScreen() {
 
   return (
     <View style={styles.container}>
-      <Header 
-        title="Protocol Approval" 
-        showBackButton 
+      <Header
+        title="Protocol Approval"
+        showBackButton
         onBackPress={() => router.back()}
       />
-      
-      <ScrollView 
+
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+      <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {/* Patient Info */}
         {patient && (
           <Card variant="outlined" padding="medium" style={styles.patientCard}>
             <Text style={styles.patientName}>{patient.firstName} {patient.lastName}</Text>
-            <Text style={styles.patientMeta}>
-              {patient.cancerType} • {patient.cancerStage} • Age {patient.age || 'N/A'}
+            <Text style={styles.patientMeta} numberOfLines={2}>
+              {patient.cancerType || 'Type TBD'} • {patient.cancerStage || 'Stage TBD'} • Age {patient.age || 'N/A'}
             </Text>
           </Card>
         )}
@@ -248,40 +259,40 @@ export default function DoctorProtocolApprovalScreen() {
         )}
 
         {/* AI Confidence */}
-        <View style={[styles.confidenceBanner, { backgroundColor: getConfidenceColor(protocol.ai_confidence) + '15' }]}>
-          <Ionicons name="sparkles" size={24} color={getConfidenceColor(protocol.ai_confidence)} />
+        <View style={[styles.confidenceBanner, { backgroundColor: getConfidenceColor((protocol as any).aiConfidence) + '15' }]}>
+          <Ionicons name="sparkles" size={24} color={getConfidenceColor((protocol as any).aiConfidence)} />
           <View style={styles.confidenceInfo}>
-            <Text style={[styles.confidenceTitle, { color: getConfidenceColor(protocol.ai_confidence) }]}>
-              AI Confidence: {Math.round(protocol.ai_confidence * 100)}%
+            <Text style={[styles.confidenceTitle, { color: getConfidenceColor((protocol as any).aiConfidence) }]}>
+              AI Confidence: {Math.round(((protocol as any).aiConfidence || 0) * 100)}%
             </Text>
-            <Text style={styles.confidenceReason}>{protocol.ai_reasoning}</Text>
+            <Text style={styles.confidenceReason}>{(protocol as any).aiReasoning}</Text>
           </View>
         </View>
 
         {/* Protocol Overview - Editable */}
         <Card variant="elevated" padding="large" style={styles.section}>
           <Text style={styles.sectionTitle}>Protocol Overview</Text>
-          
+
           <View style={styles.protocolRow}>
             <Text style={styles.protocolLabel}>Protocol Name</Text>
-            <Text style={styles.protocolValue}>{modifiedProtocol.protocol_name}</Text>
+            <Text style={styles.protocolValue} numberOfLines={2}>{modifiedProtocol.protocolName}</Text>
           </View>
-          
+
           <View style={styles.protocolRow}>
             <Text style={styles.protocolLabel}>Regimen Code</Text>
-            <Text style={styles.protocolValue}>{modifiedProtocol.regimen_code}</Text>
+            <Text style={styles.protocolValue}>{(modifiedProtocol as any).regimenCode || modifiedProtocol.protocolCode}</Text>
           </View>
-          
+
           <View style={styles.protocolRow}>
             <Text style={styles.protocolLabel}>Cycle Length</Text>
-            <Text style={styles.protocolValue}>{modifiedProtocol.cycle_length_days} days</Text>
+            <Text style={styles.protocolValue}>{modifiedProtocol.cycleLengthDays} days</Text>
           </View>
-          
+
           <View style={styles.editableRow}>
             <Text style={styles.protocolLabel}>Total Cycles</Text>
             <TextInput
               style={styles.editableInput}
-              value={modifiedProtocol.total_cycles.toString()}
+              value={modifiedProtocol.totalCycles.toString()}
               onChangeText={updateCycles}
               keyboardType="number-pad"
             />
@@ -293,11 +304,20 @@ export default function DoctorProtocolApprovalScreen() {
           <Card variant="outlined" padding="medium" style={[styles.section, styles.warningsCard]}>
             <View style={styles.sectionHeader}>
               <Ionicons name="warning" size={24} color={colors.error} />
-              <Text style={[styles.sectionTitle, { color: colors.error }]}>Warnings</Text>
+              <Text style={[styles.sectionTitle, { color: colors.error }]}>
+                Safety Alerts ({protocol.warnings.length})
+              </Text>
             </View>
-            {protocol.warnings.map((warning, index) => (
-              <Text key={index} style={styles.warningText}>⚠️ {warning}</Text>
-            ))}
+            {protocol.warnings.map((warning: any, index: number) => {
+              const w = typeof warning === 'string' ? { level: 'warning', message: warning } : warning;
+              const color = w.level === 'critical' ? colors.error : w.level === 'warning' ? colors.warning : colors.info;
+              return (
+                <View key={index} style={[styles.warningItem, { borderLeftColor: color, backgroundColor: color + '10' }]}>
+                  <Text style={{ fontSize: 11, fontWeight: '700', color, marginBottom: 2 }}>{w.level?.toUpperCase()}</Text>
+                  <Text style={styles.warningText}>{w.message}</Text>
+                </View>
+              );
+            })}
           </Card>
         )}
 
@@ -308,68 +328,73 @@ export default function DoctorProtocolApprovalScreen() {
             <Text style={styles.sectionTitle}>Chemotherapy Drugs</Text>
             <Badge label="Editable" variant="info" size="small" />
           </View>
-          
-          {modifiedProtocol.drugs.map((drug, index) => (
-            <View key={index} style={styles.drugCard}>
+
+          {(modifiedProtocol.chemotherapyDrugs || []).map((drug: any, index: number) => (
+            <View key={index} style={[styles.drugCard, drug.doseModified && { borderLeftWidth: 3, borderLeftColor: colors.warning }]}>
               <View style={styles.drugHeader}>
-                <Text style={styles.drugName}>{drug.drug}</Text>
-                {drug.day && <Badge label={`Day ${drug.day}`} variant="neutral" size="small" />}
+                <Text style={styles.drugName} numberOfLines={2}>{drug.drugName}</Text>
+                <View style={{ flexDirection: 'row', gap: 4 }}>
+                  {drug.days?.map((d: number) => (
+                    <Badge key={d} label={`D${d}`} variant="neutral" size="small" />
+                  ))}
+                </View>
               </View>
-              
+
               <View style={styles.drugEditRow}>
                 <Text style={styles.drugLabel}>Dose:</Text>
                 <TextInput
                   style={styles.drugInput}
-                  value={drug.dose}
-                  onChangeText={(v) => updateDrugDose(index, 'dose', v)}
+                  value={String(drug.calculatedDose ?? '')}
+                  onChangeText={(v) => updateDrugDose(index, 'calculatedDose', v)}
+                  keyboardType="decimal-pad"
                 />
+                <Text style={styles.drugUnit}>{drug.calculatedDoseUnit || ''}</Text>
               </View>
-              
+
               <View style={styles.drugEditRow}>
                 <Text style={styles.drugLabel}>Route:</Text>
-                <TextInput
-                  style={styles.drugInput}
-                  value={drug.route}
-                  onChangeText={(v) => updateDrugDose(index, 'route', v)}
-                />
+                <Text style={styles.drugValue}>{drug.route}</Text>
               </View>
-              
-              <View style={styles.drugEditRow}>
-                <Text style={styles.drugLabel}>Timing:</Text>
-                <TextInput
-                  style={styles.drugInput}
-                  value={drug.timing}
-                  onChangeText={(v) => updateDrugDose(index, 'timing', v)}
-                />
-              </View>
-              
-              {drug.infusion_duration && (
+
+              {drug.durationMinutes && (
                 <View style={styles.drugEditRow}>
-                  <Text style={styles.drugLabel}>Infusion:</Text>
-                  <TextInput
-                    style={styles.drugInput}
-                    value={drug.infusion_duration}
-                    onChangeText={(v) => updateDrugDose(index, 'infusion_duration', v)}
-                  />
+                  <Text style={styles.drugLabel}>Duration:</Text>
+                  <Text style={styles.drugValue}>{drug.durationMinutes} min</Text>
                 </View>
+              )}
+
+              {drug.diluent && (
+                <View style={styles.drugEditRow}>
+                  <Text style={styles.drugLabel}>Diluent:</Text>
+                  <Text style={styles.drugValue}>{drug.diluentVolumeMl != null ? `${drug.diluentVolumeMl}ml ` : ''}{drug.diluent}</Text>
+                </View>
+              )}
+
+              {drug.doseModified && drug.modificationReason && (
+                <Text style={{ fontSize: 13, color: colors.warning, fontWeight: '600', marginTop: 4 }}>
+                  {drug.modificationReason}
+                </Text>
               )}
             </View>
           ))}
         </Card>
 
         {/* Premedications */}
-        {modifiedProtocol.premedications && modifiedProtocol.premedications.length > 0 && (
+        {modifiedProtocol.preMedications && modifiedProtocol.preMedications.length > 0 && (
           <Card variant="outlined" padding="medium" style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="medical" size={24} color={colors.success} />
-              <Text style={styles.sectionTitle}>Premedications</Text>
+              <Text style={styles.sectionTitle}>Pre-medications ({modifiedProtocol.preMedications.length})</Text>
             </View>
-            
-            {modifiedProtocol.premedications.map((drug, index) => (
+
+            {modifiedProtocol.preMedications.map((drug: any, index: number) => (
               <View key={index} style={styles.premedItem}>
-                <Text style={styles.premedName}>{drug.drug}</Text>
+                <Text style={styles.premedName}>{drug.drugName}</Text>
                 <Text style={styles.premedDetails}>
-                  {drug.dose} • {drug.route} • {drug.timing}
+                  {drug.calculatedDose === 0 && drug.calculatedDoseUnit?.toLowerCase() === 'per label'
+                    ? 'Per label'
+                    : `${drug.calculatedDose != null ? Number(drug.calculatedDose).toFixed(1) : '--'} ${drug.calculatedDoseUnit || ''}`} {drug.route}
+                  {drug.specialInstructions ? ` - ${drug.specialInstructions}` : ''}
                 </Text>
               </View>
             ))}
@@ -377,108 +402,121 @@ export default function DoctorProtocolApprovalScreen() {
         )}
 
         {/* Patient Clinical Data / Labs */}
-        {protocolRequest?.clinical_data && (
-          <Card variant="outlined" padding="medium" style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="flask" size={24} color={colors.info} />
-              <Text style={styles.sectionTitle}>Clinical Data</Text>
-            </View>
-
-            {/* Biometrics */}
-            {(protocolRequest.clinical_data.height_cm || protocolRequest.clinical_data.weight_kg || protocolRequest.clinical_data.bsa) && (
-              <View style={styles.labGrid}>
-                {protocolRequest.clinical_data.height_cm && (
-                  <View style={styles.labItem}>
-                    <Text style={styles.labValue}>{protocolRequest.clinical_data.height_cm} cm</Text>
-                    <Text style={styles.labLabel}>Height</Text>
-                  </View>
-                )}
-                {protocolRequest.clinical_data.weight_kg && (
-                  <View style={styles.labItem}>
-                    <Text style={styles.labValue}>{protocolRequest.clinical_data.weight_kg} kg</Text>
-                    <Text style={styles.labLabel}>Weight</Text>
-                  </View>
-                )}
-                {protocolRequest.clinical_data.bsa && (
-                  <View style={styles.labItem}>
-                    <Text style={styles.labValue}>{protocolRequest.clinical_data.bsa} m²</Text>
-                    <Text style={styles.labLabel}>BSA</Text>
-                  </View>
-                )}
+        {(() => {
+          const cd: any = (protocolRequest as any)?.clinicalData;
+          if (!cd) return null;
+          const labs = cd.latestLabs;
+          const fbc = labs?.fullBloodCount;
+          const lft = labs?.liverFunction;
+          const hist = cd.medicalHistory;
+          const allergies = cd.knownAllergies || hist?.allergies || [];
+          return (
+            <Card variant="outlined" padding="medium" style={styles.section}>
+              <View style={styles.sectionHeader}>
+                <Ionicons name="flask" size={24} color={colors.info} />
+                <Text style={styles.sectionTitle}>Clinical Data</Text>
               </View>
-            )}
 
-            {/* Latest Labs */}
-            {protocolRequest.clinical_data.latest_labs && (
-              <>
-                <Text style={styles.labSectionTitle}>Latest Labs</Text>
+              {(cd.heightCm || cd.weightKg || cd.bsa) && (
                 <View style={styles.labGrid}>
-                  {protocolRequest.clinical_data.latest_labs.full_blood_count?.wbc !== undefined && (
+                  {cd.heightCm && (
                     <View style={styles.labItem}>
-                      <Text style={styles.labValue}>{protocolRequest.clinical_data.latest_labs.full_blood_count.wbc}</Text>
-                      <Text style={styles.labLabel}>WBC</Text>
+                      <Text style={styles.labValue}>{cd.heightCm} cm</Text>
+                      <Text style={styles.labLabel}>Height</Text>
                     </View>
                   )}
-                  {protocolRequest.clinical_data.latest_labs.full_blood_count?.hb !== undefined && (
+                  {cd.weightKg && (
                     <View style={styles.labItem}>
-                      <Text style={styles.labValue}>{protocolRequest.clinical_data.latest_labs.full_blood_count.hb}</Text>
-                      <Text style={styles.labLabel}>Hb</Text>
+                      <Text style={styles.labValue}>{cd.weightKg} kg</Text>
+                      <Text style={styles.labLabel}>Weight</Text>
                     </View>
                   )}
-                  {protocolRequest.clinical_data.latest_labs.full_blood_count?.platelets !== undefined && (
+                  {cd.bsa && (
                     <View style={styles.labItem}>
-                      <Text style={styles.labValue}>{protocolRequest.clinical_data.latest_labs.full_blood_count.platelets}</Text>
-                      <Text style={styles.labLabel}>Platelets</Text>
-                    </View>
-                  )}
-                  {protocolRequest.clinical_data.latest_labs.creatinine !== undefined && (
-                    <View style={styles.labItem}>
-                      <Text style={styles.labValue}>{protocolRequest.clinical_data.latest_labs.creatinine}</Text>
-                      <Text style={styles.labLabel}>Creatinine</Text>
-                    </View>
-                  )}
-                  {protocolRequest.clinical_data.latest_labs.gfr !== undefined && (
-                    <View style={styles.labItem}>
-                      <Text style={styles.labValue}>{protocolRequest.clinical_data.latest_labs.gfr}</Text>
-                      <Text style={styles.labLabel}>GFR</Text>
-                    </View>
-                  )}
-                  {protocolRequest.clinical_data.latest_labs.bilirubin !== undefined && (
-                    <View style={styles.labItem}>
-                      <Text style={styles.labValue}>{protocolRequest.clinical_data.latest_labs.bilirubin}</Text>
-                      <Text style={styles.labLabel}>Bilirubin</Text>
-                    </View>
-                  )}
-                  {protocolRequest.clinical_data.latest_labs.liver_function?.alt !== undefined && (
-                    <View style={styles.labItem}>
-                      <Text style={styles.labValue}>{protocolRequest.clinical_data.latest_labs.liver_function.alt}</Text>
-                      <Text style={styles.labLabel}>ALT</Text>
+                      <Text style={styles.labValue}>{cd.bsa} m²</Text>
+                      <Text style={styles.labLabel}>BSA</Text>
                     </View>
                   )}
                 </View>
-              </>
-            )}
+              )}
 
-            {/* Allergies / Comorbidities */}
-            {protocolRequest.clinical_data.medical_history?.allergies && protocolRequest.clinical_data.medical_history.allergies.length > 0 && (
-              <View style={styles.warningRow}>
-                <Ionicons name="alert-circle" size={16} color={colors.error} />
-                <Text style={styles.allergyText}>
-                  Allergies: {protocolRequest.clinical_data.medical_history.allergies.join(', ')}
-                </Text>
-              </View>
-            )}
-          </Card>
-        )}
+              {/* SOPHIA direct labs */}
+              {(cd.neutrophils || cd.platelets || cd.hemoglobin || cd.bilirubin || cd.gfr) && (
+                <>
+                  <Text style={styles.labSectionTitle}>Labs</Text>
+                  <View style={styles.labGrid}>
+                    {cd.neutrophils !== undefined && (
+                      <View style={styles.labItem}>
+                        <Text style={styles.labValue}>{cd.neutrophils}</Text>
+                        <Text style={styles.labLabel}>Neutrophils</Text>
+                      </View>
+                    )}
+                    {cd.platelets !== undefined && (
+                      <View style={styles.labItem}>
+                        <Text style={styles.labValue}>{cd.platelets}</Text>
+                        <Text style={styles.labLabel}>Platelets</Text>
+                      </View>
+                    )}
+                    {cd.hemoglobin !== undefined && (
+                      <View style={styles.labItem}>
+                        <Text style={styles.labValue}>{cd.hemoglobin}</Text>
+                        <Text style={styles.labLabel}>Hb</Text>
+                      </View>
+                    )}
+                    {cd.bilirubin !== undefined && (
+                      <View style={styles.labItem}>
+                        <Text style={styles.labValue}>{cd.bilirubin}</Text>
+                        <Text style={styles.labLabel}>Bilirubin</Text>
+                      </View>
+                    )}
+                    {cd.gfr !== undefined && (
+                      <View style={styles.labItem}>
+                        <Text style={styles.labValue}>{cd.gfr}</Text>
+                        <Text style={styles.labLabel}>GFR</Text>
+                      </View>
+                    )}
+                    {cd.creatinine !== undefined && (
+                      <View style={styles.labItem}>
+                        <Text style={styles.labValue}>{cd.creatinine}</Text>
+                        <Text style={styles.labLabel}>Creatinine</Text>
+                      </View>
+                    )}
+                    {cd.ast !== undefined && (
+                      <View style={styles.labItem}>
+                        <Text style={styles.labValue}>{cd.ast}</Text>
+                        <Text style={styles.labLabel}>AST</Text>
+                      </View>
+                    )}
+                    {cd.alt !== undefined && (
+                      <View style={styles.labItem}>
+                        <Text style={styles.labValue}>{cd.alt}</Text>
+                        <Text style={styles.labLabel}>ALT</Text>
+                      </View>
+                    )}
+                  </View>
+                </>
+              )}
+
+              {allergies.length > 0 && (
+                <View style={styles.warningRow}>
+                  <Ionicons name="alert-circle" size={16} color={colors.error} />
+                  <Text style={styles.allergyText}>
+                    Allergies: {allergies.join(', ')}
+                  </Text>
+                </View>
+              )}
+            </Card>
+          );
+        })()}
 
         {/* Nurse Review Notes */}
-        {protocolRequest?.nurse_review_notes && (
+        {(protocolRequest as any)?.nurseReviewNotes && (
           <Card variant="outlined" padding="medium" style={styles.section}>
             <View style={styles.sectionHeader}>
               <Ionicons name="chatbubble-ellipses" size={24} color={colors.info} />
               <Text style={styles.sectionTitle}>Nurse Notes</Text>
             </View>
-            <Text style={styles.nurseNotes}>{protocolRequest.nurse_review_notes}</Text>
+            <Text style={styles.nurseNotes}>{(protocolRequest as any).nurseReviewNotes}</Text>
           </Card>
         )}
 
@@ -488,7 +526,7 @@ export default function DoctorProtocolApprovalScreen() {
             <Ionicons name="create" size={24} color={colors.primary[500]} />
             <Text style={styles.sectionTitle}>Doctor Notes</Text>
           </View>
-          
+
           <Input
             placeholder="Add notes about your decision..."
             value={reviewNotes}
@@ -517,6 +555,7 @@ export default function DoctorProtocolApprovalScreen() {
           />
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Reject Modal */}
       <Modal
@@ -664,10 +703,16 @@ const styles = StyleSheet.create({
     borderColor: colors.error,
     backgroundColor: colors.error + '08',
   },
+  warningItem: {
+    padding: spacing.sm,
+    borderRadius: borderRadius.md,
+    marginBottom: spacing.sm,
+    borderLeftWidth: 4,
+  },
   warningText: {
     fontSize: typography.body.fontSize,
-    color: colors.error,
-    marginBottom: spacing.sm,
+    color: colors.text.primary,
+    flexShrink: 1,
   },
   protocolRow: {
     flexDirection: 'row',
@@ -685,6 +730,8 @@ const styles = StyleSheet.create({
     fontSize: typography.body.fontSize,
     fontWeight: '500',
     color: colors.text.primary,
+    flex: 1,
+    textAlign: 'right' as const,
   },
   editableRow: {
     flexDirection: 'row',
@@ -721,6 +768,7 @@ const styles = StyleSheet.create({
     fontSize: typography.headline.fontSize,
     fontWeight: '600',
     color: colors.text.primary,
+    flex: 1,
   },
   drugEditRow: {
     flexDirection: 'row',
@@ -742,6 +790,17 @@ const styles = StyleSheet.create({
     borderRadius: borderRadius.sm,
     borderWidth: 1,
     borderColor: colors.border.light,
+  },
+  drugUnit: {
+    fontSize: typography.caption1.fontSize,
+    color: colors.text.secondary,
+    marginLeft: spacing.sm,
+    minWidth: 30,
+  },
+  drugValue: {
+    flex: 1,
+    fontSize: typography.body.fontSize,
+    color: colors.text.primary,
   },
   premedItem: {
     padding: spacing.sm,

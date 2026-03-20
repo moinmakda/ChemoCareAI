@@ -7,7 +7,7 @@
     "icon": "./assets/icon.png",
     "scheme": "chemocare",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
+    "newArchEnabled": false,
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -26,7 +26,10 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0066CC"
       },
-      "package": "com.chemocare.ai"
+      "package": "com.chemocare.ai",
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -45,6 +48,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "8e27a9b4-9499-4257-8d58-9c5ba74f6e8a"
+      }
+    },
+    "owner": "moinmakda"
   }
 }

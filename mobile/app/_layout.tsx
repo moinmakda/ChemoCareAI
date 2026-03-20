@@ -34,7 +34,6 @@ export default function RootLayout() {
           <Stack.Screen name="(auth)" options={{ animation: 'fade' }} />
           <Stack.Screen name="(patient)" />
           <Stack.Screen name="(doctor-opd)" />
-          <Stack.Screen name="(doctor-daycare)" />
           <Stack.Screen name="(nurse)" />
         </Stack>
       </SafeAreaProvider>

@@ -120,10 +120,12 @@ class TreatmentPlan(Base):
     daycare_approved_by = Column(UUID(as_uuid=True), ForeignKey("doctors.id"), nullable=True)
     daycare_approved_at = Column(DateTime, nullable=True)
     daycare_notes = Column(Text, nullable=True)
-    
+    estimated_total_cost = Column(Numeric(12, 2), nullable=True)
+    total_spent = Column(Numeric(12, 2), default=0)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relationships
     patient = relationship("Patient", backref="treatment_plans")
     protocol_template = relationship("ProtocolTemplate", backref="treatment_plans")
@@ -171,10 +173,13 @@ class TreatmentCycle(Base):
     immediate_reactions = Column(JSONB, nullable=True)
     discharge_notes = Column(Text, nullable=True)
     follow_up_instructions = Column(Text, nullable=True)
-    
+    session_cost = Column(Numeric(10, 2), nullable=True)
+    lab_cost = Column(Numeric(10, 2), nullable=True)
+    other_charges = Column(Numeric(10, 2), nullable=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relationships
     treatment_plan = relationship("TreatmentPlan", back_populates="cycles")
     drug_administrations = relationship("DrugAdministration", back_populates="cycle", cascade="all, delete-orphan")
@@ -226,10 +231,12 @@ class DrugAdministration(Base):
     # Reactions
     reactions = Column(JSONB, default=list)
     notes = Column(Text, nullable=True)
-    
+    unit_cost = Column(Numeric(10, 2), nullable=True)
+    total_cost = Column(Numeric(10, 2), nullable=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relationships
     cycle = relationship("TreatmentCycle", back_populates="drug_administrations")
     

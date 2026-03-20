@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     # CORS - stored as string, parsed to list
     CORS_ORIGINS: str = "*"  # Allow all origins in development
     
+    # Email / SMTP
+    SMTP_HOST: str = "smtpout.secureserver.net"
+    SMTP_PORT: int = 465
+    SMTP_USER: str = "support@jivana.org.in"
+    SMTP_PASSWORD: str = ""
+
     # Push Notifications
     EXPO_PUSH_TOKEN: str = ""
     

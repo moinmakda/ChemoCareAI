@@ -133,7 +133,7 @@ export const scheduleAppointment = async (data: {
  * Reschedule an existing appointment
  */
 export const rescheduleAppointment = async (
-  appointmentId: number,
+  appointmentId: string,
   newDate: string,
   newTime?: string
 ): Promise<SchedulingResult> => {
@@ -148,7 +148,7 @@ export const rescheduleAppointment = async (
  * Cancel an appointment
  */
 export const cancelAppointment = async (
-  appointmentId: number,
+  appointmentId: string,
   reason?: string
 ): Promise<SchedulingResult> => {
   const response = await apiClient.delete(`/scheduling/appointments/${appointmentId}`, {

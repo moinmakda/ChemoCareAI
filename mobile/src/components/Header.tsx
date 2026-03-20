@@ -32,7 +32,6 @@ export const Header: React.FC<HeaderProps> = ({
   style,
 }) => {
   const router = useRouter();
-  const insets = useSafeAreaInsets();
 
   const handleBackPress = () => {
     if (onBackPress) {
@@ -47,7 +46,6 @@ export const Header: React.FC<HeaderProps> = ({
       style={[
         styles.container,
         !transparent && styles.solid,
-        { paddingTop: insets.top },
         style,
       ]}
     >

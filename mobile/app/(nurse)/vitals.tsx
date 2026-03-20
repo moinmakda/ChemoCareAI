@@ -80,7 +80,7 @@ export default function NurseVitalsScreen() {
         patientMap[p.id] = `${p.firstName} ${p.lastName}`;
       });
 
-      const allVitals: VitalEntry[] = (allVitalsRaw as VitalAPI[]).map(v => ({
+      const allVitals: VitalEntry[] = (allVitalsRaw as unknown as VitalAPI[]).map(v => ({
         id: v.id,
         patientId: v.patientId,
         patientName: patientMap[v.patientId] || 'Unknown Patient',

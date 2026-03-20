@@ -160,6 +160,15 @@ export const doctorService = {
   },
 
   /**
+   * Get active treatments - combines appointments and today's treatment cycles
+   */
+  async getActiveTreatments(): Promise<AppointmentAPI[]> {
+    // Get today's appointments (which should be linked to cycles)
+    const appointments = await this.getActiveAppointments();
+    return appointments;
+  },
+
+  /**
    * Update appointment status
    */
   async updateAppointmentStatus(appointmentId: string, status: string, notes?: string): Promise<AppointmentAPI> {
@@ -262,5 +271,45 @@ export const doctorService = {
     const params = patientId ? { patient_id: patientId } : {};
     const response = await apiClient.get('/treatment-plans', { params });
     return response.data;
+  },
+
+  /**
+   * Get patient alerts (symptom/vital alerts for medical staff)
+   */
+  async getPatientAlerts(limit: number = 20): Promise<any[]> {
+    const response = await apiClient.get('/patient-alerts', { params: { limit } });
+    return response.data;
+  },
+
+  // Feature 8: Clinical Notes
+  async createNote(data: { patientId: string; content: string; noteType?: string; isPrivate?: boolean; cycleId?: string }): Promise<any> {
+    const response = await apiClient.post('/clinical-notes', {
+      patient_id: data.patientId,
+      content: data.content,
+      note_type: data.noteType || 'clinical',
+      is_private: data.isPrivate || false,
+      cycle_id: data.cycleId,
+    });
+    return response.data;
+  },
+
+  async getNotes(patientId: string, cycleId?: string): Promise<any[]> {
+    const params: any = { patient_id: patientId };
+    if (cycleId) params.cycle_id = cycleId;
+    const response = await apiClient.get('/clinical-notes', { params });
+    return response.data;
+  },
+
+  async updateNote(noteId: string, data: { content?: string; noteType?: string; isPrivate?: boolean }): Promise<any> {
+    const response = await apiClient.put(`/clinical-notes/${noteId}`, {
+      content: data.content,
+      note_type: data.noteType,
+      is_private: data.isPrivate,
+    });
+    return response.data;
+  },
+
+  async deleteNote(noteId: string): Promise<void> {
+    await apiClient.delete(`/clinical-notes/${noteId}`);
   },
 };

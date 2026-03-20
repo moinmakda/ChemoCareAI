@@ -13,6 +13,8 @@ import {
   Alert,
   TextStyle,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -28,6 +30,7 @@ export default function PatientVitalsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [showLogModal, setShowLogModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [displayCount, setDisplayCount] = useState(10);
   
   // Form state for logging vitals
   const [formData, setFormData] = useState<VitalCreate>({
@@ -43,7 +46,7 @@ export default function PatientVitalsScreen() {
 
   const loadVitals = async () => {
     try {
-      const data = await vitalsService.getVitals(undefined, 30);
+      const data = await vitalsService.getVitals(undefined, 100);
       setVitals(data);
     } catch (error: any) {
       if (error.response?.status !== 404) {
@@ -245,7 +248,7 @@ export default function PatientVitalsScreen() {
         <Header title="My Vitals" />
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.primary[500]} />
-          <Text style={styles.loadingText}>Loading vitals...</Text>
+          <Text style={styles.loadingText}>Loading your vitals history...</Text>
         </View>
       </View>
     );
@@ -256,16 +259,25 @@ export default function PatientVitalsScreen() {
       <Header
         title="My Vitals"
         rightComponent={
-          <TouchableOpacity onPress={() => setShowLogModal(true)}>
+          <TouchableOpacity
+            onPress={() => setShowLogModal(true)}
+            activeOpacity={0.6}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityLabel="Log new vitals"
+            accessibilityRole="button"
+          >
             <Ionicons name="add-circle" size={28} color={colors.primary[500]} />
           </TouchableOpacity>
         }
       />
 
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -297,7 +309,13 @@ export default function PatientVitalsScreen() {
                 <Text style={styles.vitalLabel}>{vital.label}</Text>
                 <View style={styles.vitalValueRow}>
                   <Text style={styles.vitalValue}>
-                    {vital.value !== undefined ? vital.value : '--'}
+                    {vital.value !== undefined
+                      ? (typeof vital.value === 'number'
+                          ? (vital.type === 'temperature' || vital.type === 'weight'
+                              ? vital.value.toFixed(1)
+                              : vital.value)
+                          : vital.value)
+                      : '--'}
                   </Text>
                   <Text style={styles.vitalUnit}>{vital.unit}</Text>
                 </View>
@@ -333,7 +351,7 @@ export default function PatientVitalsScreen() {
             </View>
           </Card>
         ) : (
-          vitals.slice(0, 10).map((vital, index) => (
+          vitals.slice(0, displayCount).map((vital, index) => (
             <Card key={vital.id || index} variant="default" padding="medium" style={styles.historyCard}>
               <View style={styles.historyHeader}>
                 <Text style={styles.historyDate}>{formatDate(vital.recordedAt)}</Text>
@@ -342,19 +360,19 @@ export default function PatientVitalsScreen() {
                 )}
               </View>
               <View style={styles.historyVitals}>
-                {vital.temperatureF && (
+                {vital.temperatureF != null && (
                   <View style={styles.historyVitalItem}>
-                    <Text style={styles.historyVitalValue}>{vital.temperatureF}°F</Text>
+                    <Text style={styles.historyVitalValue}>{Number(vital.temperatureF).toFixed(1)}°F</Text>
                     <Text style={styles.historyVitalLabel}>Temp</Text>
                   </View>
                 )}
-                {vital.pulseBpm && (
+                {vital.pulseBpm != null && (
                   <View style={styles.historyVitalItem}>
                     <Text style={styles.historyVitalValue}>{vital.pulseBpm}</Text>
                     <Text style={styles.historyVitalLabel}>Pulse</Text>
                   </View>
                 )}
-                {vital.bloodPressureSystolic && (
+                {vital.bloodPressureSystolic != null && (
                   <View style={styles.historyVitalItem}>
                     <Text style={styles.historyVitalValue}>
                       {vital.bloodPressureSystolic}/{vital.bloodPressureDiastolic}
@@ -362,15 +380,15 @@ export default function PatientVitalsScreen() {
                     <Text style={styles.historyVitalLabel}>BP</Text>
                   </View>
                 )}
-                {vital.oxygenSaturation && (
+                {vital.oxygenSaturation != null && (
                   <View style={styles.historyVitalItem}>
                     <Text style={styles.historyVitalValue}>{vital.oxygenSaturation}%</Text>
                     <Text style={styles.historyVitalLabel}>O2</Text>
                   </View>
                 )}
-                {vital.weightKg && (
+                {vital.weightKg != null && (
                   <View style={styles.historyVitalItem}>
-                    <Text style={styles.historyVitalValue}>{vital.weightKg}kg</Text>
+                    <Text style={styles.historyVitalValue}>{Number(vital.weightKg).toFixed(1)} kg</Text>
                     <Text style={styles.historyVitalLabel}>Weight</Text>
                   </View>
                 )}
@@ -391,7 +409,18 @@ export default function PatientVitalsScreen() {
             </Card>
           ))
         )}
+        {vitals.length > displayCount && (
+          <TouchableOpacity
+            style={styles.loadMoreBtn}
+            onPress={() => setDisplayCount(prev => prev + 10)}
+          >
+            <Text style={styles.loadMoreText}>
+              Load More ({vitals.length - displayCount} remaining)
+            </Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Log Vitals Modal */}
       <Modal
@@ -403,7 +432,7 @@ export default function PatientVitalsScreen() {
         title="Log Vitals"
         size="large"
       >
-        <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
+        <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag">
           <Text style={styles.modalSubtitle}>
             Enter your current readings. Leave blank any you don't have.
           </Text>
@@ -618,7 +647,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   historyCard: {
-    marginBottom: spacing.sm,
+    marginBottom: spacing.md,
   },
   historyHeader: {
     flexDirection: 'row',
@@ -632,11 +661,13 @@ const styles = StyleSheet.create({
   },
   selfReportedBadge: {
     fontSize: typography.caption2.fontSize,
-    color: colors.primary[500],
+    fontWeight: '500',
+    color: colors.primary[600],
     backgroundColor: colors.primary[50],
-    paddingHorizontal: spacing.xs,
-    paddingVertical: 2,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
     borderRadius: borderRadius.sm,
+    overflow: 'hidden',
   },
   historyVitals: {
     flexDirection: 'row',
@@ -697,5 +728,19 @@ const styles = StyleSheet.create({
   saveButton: {
     marginTop: spacing.lg,
     marginBottom: spacing.md,
+  },
+  loadMoreBtn: {
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    marginTop: spacing.sm,
+    backgroundColor: colors.neutral[0],
+    borderRadius: borderRadius.md,
+    borderWidth: 1,
+    borderColor: colors.border.light,
+  },
+  loadMoreText: {
+    fontSize: typography.body.fontSize,
+    fontWeight: '500',
+    color: colors.primary[500],
   },
 });

@@ -258,3 +258,176 @@ class SymptomEntryResponse(BaseModel):
         if v is None:
             return None
         return str(v)
+
+
+class MedicationResponse(BaseModel):
+    """Response for a medication/drug administration."""
+    id: str
+    patient_id: str
+    cycle_id: str = ""
+    patient_name: str
+    drug_name: str
+    dose: str
+    planned_dose: str
+    unit: str
+    route: str
+    status: str
+    scheduled_time: str
+    notes: Optional[str] = None
+
+
+class MedicationStatusUpdate(BaseModel):
+    """Request to update medication status."""
+    status: str = Field(..., description="Status: pending, in_progress, completed, held")
+
+
+class DashboardStatsResponse(BaseModel):
+    """Dashboard statistics for medical staff."""
+    total_patients: int
+    today_appointments: int
+    active_treatments: int
+    pending_alerts: int
+
+
+class PatientDashboardStatsResponse(BaseModel):
+    """Dashboard statistics for patients."""
+    next_appointment: Optional[str] = None
+    days_until_next: int = 0
+    completed_sessions: int = 0
+    upcoming_sessions: int = 0
+    last_vitals_date: Optional[str] = None
+
+
+# Clinical Notes (Feature 8)
+class ClinicalNoteCreate(BaseModel):
+    patient_id: str
+    cycle_id: Optional[str] = None
+    appointment_id: Optional[str] = None
+    note_type: str = "clinical"
+    content: str
+    is_private: bool = False
+
+    @field_validator('content', mode='before')
+    @classmethod
+    def sanitize_content(cls, v):
+        return _strip_tags(v)
+
+
+class ClinicalNoteUpdate(BaseModel):
+    content: Optional[str] = None
+    note_type: Optional[str] = None
+    is_private: Optional[bool] = None
+
+    @field_validator('content', mode='before')
+    @classmethod
+    def sanitize_content(cls, v):
+        return _strip_tags(v)
+
+
+class ClinicalNoteResponse(BaseModel):
+    id: UUID
+    patient_id: UUID
+    doctor_id: UUID
+    cycle_id: Optional[UUID] = None
+    appointment_id: Optional[UUID] = None
+    note_type: str
+    content: str
+    is_private: bool
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# Shift Handover (Feature 9)
+class ShiftHandoverCreate(BaseModel):
+    shift_date: date
+    shift_type: str  # "morning", "afternoon", "night"
+    patients_summary: List[Dict[str, Any]] = []
+    general_notes: Optional[str] = None
+
+    @field_validator('general_notes', mode='before')
+    @classmethod
+    def sanitize_notes(cls, v):
+        return _strip_tags(v)
+
+
+class ShiftHandoverResponse(BaseModel):
+    id: UUID
+    shift_date: date
+    shift_type: str
+    outgoing_nurse_id: Optional[UUID] = None
+    incoming_nurse_id: Optional[UUID] = None
+    patients_summary: List[Dict[str, Any]] = []
+    general_notes: Optional[str] = None
+    acknowledged_at: Optional[datetime] = None
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+# Lab Results (Feature 7)
+class LabUpload(BaseModel):
+    patient_id: str
+    title: str
+    lab_date: Optional[date] = None
+    parameters: Dict[str, Any] = {}
+    notes: Optional[str] = None
+
+    @field_validator('title', 'notes', mode='before')
+    @classmethod
+    def sanitize_text_fields(cls, v):
+        return _strip_tags(v)
+
+
+class LabResultResponse(BaseModel):
+    id: str
+    patient_id: str
+    title: str
+    lab_date: Optional[date] = None
+    parameters: Dict[str, Any] = {}
+    source: str  # "upload", "pre_chemo", "clinical_data"
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class LabTrendPoint(BaseModel):
+    date: date
+    value: float
+    source: str
+
+
+class LabTrendResponse(BaseModel):
+    parameter: str
+    unit: Optional[str] = None
+    points: List[LabTrendPoint]
+
+
+# Photo Documentation (Feature 15)
+class PhotoUploadRequest(BaseModel):
+    patient_id: str
+    category: str = "other"  # "port_site", "skin_reaction", "wound", "other"
+    description: Optional[str] = None
+    cycle_id: Optional[str] = None
+
+    @field_validator('description', mode='before')
+    @classmethod
+    def sanitize_description(cls, v):
+        return _strip_tags(v)
+
+
+class PhotoResponse(BaseModel):
+    id: str
+    patient_id: str
+    file_url: str
+    category: str
+    description: Optional[str] = None
+    uploaded_at: datetime
+    uploaded_by: Optional[str] = None
+
+    class Config:
+        from_attributes = True

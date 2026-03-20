@@ -11,13 +11,17 @@ import {
   RefreshControl,
   ActivityIndicator,
   Alert,
+  Modal,
+  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { Card, Avatar, Badge, Button, Header } from '../../src/components';
 import { doctorService, AppointmentAPI, PatientSummaryAPI } from '../../src/services/doctorService';
+import { rescheduleAppointment, cancelAppointment } from '../../src/services/schedulingService';
 
 interface AppointmentWithPatient extends AppointmentAPI {
   patientName?: string;
@@ -34,6 +38,62 @@ export default function DoctorOPDAppointmentsScreen() {
   const [appointments, setAppointments] = useState<AppointmentWithPatient[]>([]);
   const [patients, setPatients] = useState<Record<string, PatientSummaryAPI>>({});
   const [filter, setFilter] = useState<'all' | 'today' | 'upcoming' | 'completed'>('all');
+  const [actionLoading, setActionLoading] = useState(false);
+  const [rescheduleModalVisible, setRescheduleModalVisible] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState(new Date());
+  const [rescheduleTargetId, setRescheduleTargetId] = useState<string | null>(null);
+
+  const isActionable = (status: string) =>
+    ['scheduled', 'confirmed'].includes(status);
+
+  const handleReschedule = (appointmentId: string) => {
+    setRescheduleTargetId(appointmentId);
+    setRescheduleDate(new Date());
+    setRescheduleModalVisible(true);
+  };
+
+  const confirmReschedule = async () => {
+    if (!rescheduleTargetId) return;
+    const dateStr = rescheduleDate.toISOString().split('T')[0];
+    setRescheduleModalVisible(false);
+    setActionLoading(true);
+    try {
+      await rescheduleAppointment(rescheduleTargetId, dateStr);
+      Alert.alert('Success', 'Appointment rescheduled successfully.');
+      onRefresh();
+    } catch (err: any) {
+      Alert.alert('Error', err?.message || 'Failed to reschedule appointment.');
+    } finally {
+      setActionLoading(false);
+      setRescheduleTargetId(null);
+    }
+  };
+
+  const handleCancelAppointment = (appointmentId: string, patientName: string) => {
+    Alert.alert(
+      'Cancel Appointment',
+      `Cancel appointment for ${patientName}?`,
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes, Cancel',
+          style: 'destructive',
+          onPress: async () => {
+            setActionLoading(true);
+            try {
+              await cancelAppointment(appointmentId, 'Cancelled by doctor');
+              Alert.alert('Cancelled', 'Appointment has been cancelled.');
+              onRefresh();
+            } catch (err: any) {
+              Alert.alert('Error', err?.message || 'Failed to cancel appointment.');
+            } finally {
+              setActionLoading(false);
+            }
+          },
+        },
+      ]
+    );
+  };
 
   // Fetch data
   const fetchData = useCallback(async () => {
@@ -154,11 +214,34 @@ export default function DoctorOPDAppointmentsScreen() {
   const renderAppointment = ({ item }: { item: AppointmentWithPatient }) => (
     <TouchableOpacity
       style={styles.appointmentCard}
-      onPress={() => Alert.alert(
-        item.patientName || 'Appointment',
-        `${getAppointmentTypeLabel(item.appointmentType)}\n${formatDate(item.scheduledDate)} at ${formatTime(item.scheduledTime)}\nDuration: ${item.durationMins} mins\nStatus: ${item.status}${item.notes ? `\n\nNotes: ${item.notes}` : ''}`,
-        [{ text: 'Close' }]
-      )}
+      onPress={() => {
+        const details = `${getAppointmentTypeLabel(item.appointmentType)}\n${formatDate(item.scheduledDate)} at ${formatTime(item.scheduledTime)}\nDuration: ${item.durationMins} mins\nStatus: ${item.status}${item.notes ? `\n\nNotes: ${item.notes}` : ''}`;
+
+        if (isActionable(item.status)) {
+          Alert.alert(
+            item.patientName || 'Appointment',
+            details,
+            [
+              {
+                text: 'Reschedule',
+                onPress: () => handleReschedule(item.id),
+              },
+              {
+                text: 'Cancel Appointment',
+                style: 'destructive',
+                onPress: () => handleCancelAppointment(item.id, item.patientName || 'Unknown'),
+              },
+              { text: 'Close', style: 'cancel' },
+            ]
+          );
+        } else {
+          Alert.alert(
+            item.patientName || 'Appointment',
+            details,
+            [{ text: 'Close' }]
+          );
+        }
+      }}
     >
       <View style={styles.appointmentHeader}>
         <View style={styles.patientInfo}>
@@ -245,7 +328,7 @@ export default function DoctorOPDAppointmentsScreen() {
             <Ionicons name="calendar-outline" size={48} color={Colors.textTertiary} />
             <Text style={styles.emptyTitle}>No Appointments</Text>
             <Text style={styles.emptyText}>
-              {filter === 'today' 
+              {filter === 'today'
                 ? 'No appointments scheduled for today'
                 : filter === 'upcoming'
                 ? 'No upcoming appointments'
@@ -256,6 +339,105 @@ export default function DoctorOPDAppointmentsScreen() {
           </View>
         }
       />
+
+      {/* Reschedule Modal */}
+      {/* Android: native date picker dialog */}
+      {Platform.OS === 'android' && rescheduleModalVisible && (
+        <DateTimePicker
+          value={rescheduleDate}
+          mode="date"
+          display="default"
+          minimumDate={new Date()}
+          onChange={(event, date) => {
+            if (event.type === 'dismissed') {
+              setRescheduleModalVisible(false);
+              return;
+            }
+            if (date) {
+              setRescheduleDate(date);
+              setRescheduleModalVisible(false);
+              const dateStr = date.toISOString().split('T')[0];
+              if (rescheduleTargetId) {
+                Alert.alert(
+                  'Confirm Reschedule',
+                  `Reschedule to ${date.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}?`,
+                  [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Confirm', onPress: async () => {
+                      setActionLoading(true);
+                      try {
+                        await rescheduleAppointment(String(rescheduleTargetId), dateStr);
+                        Alert.alert('Success', 'Appointment rescheduled.');
+                        fetchData();
+                      } catch (err: any) {
+                        Alert.alert('Error', err?.message || 'Failed to reschedule.');
+                      } finally {
+                        setActionLoading(false);
+                        setRescheduleTargetId(null);
+                      }
+                    }},
+                  ]
+                );
+              }
+            }
+          }}
+        />
+      )}
+
+      {/* iOS: modal with spinner */}
+      {Platform.OS === 'ios' && (
+      <Modal
+        visible={rescheduleModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setRescheduleModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <TouchableOpacity style={{ flex: 1 }} activeOpacity={1} onPress={() => setRescheduleModalVisible(false)} />
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Reschedule Appointment</Text>
+            <Text style={styles.modalSubtitle}>Select a new date:</Text>
+
+            <View style={{ alignItems: 'center', marginVertical: 12 }}>
+              <DateTimePicker
+                value={rescheduleDate}
+                mode="date"
+                display="spinner"
+                minimumDate={new Date()}
+                onChange={(_, date) => { if (date) setRescheduleDate(date); }}
+                style={{ height: 150, width: '100%' }}
+              />
+            </View>
+
+            <Text style={{ textAlign: 'center', fontSize: 15, fontWeight: '600', color: Colors.textPrimary, marginBottom: 12 }}>
+              {rescheduleDate.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </Text>
+
+            <View style={styles.modalButtonRow}>
+              <TouchableOpacity
+                style={styles.modalCancelBtn}
+                onPress={() => setRescheduleModalVisible(false)}
+              >
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.modalConfirmBtn}
+                onPress={confirmReschedule}
+              >
+                <Text style={styles.modalConfirmText}>Reschedule</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      )}
+
+      {/* Loading overlay */}
+      {actionLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      )}
     </View>
   );
 }
@@ -376,5 +558,78 @@ const styles = StyleSheet.create({
     color: Colors.textTertiary,
     marginTop: Spacing.xs,
     textAlign: 'center',
+  },
+
+  // Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: Spacing.xl,
+  },
+  modalContent: {
+    backgroundColor: Colors.white,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    width: '100%',
+    maxWidth: 340,
+  },
+  modalTitle: {
+    fontFamily: Typography.fontFamily.semiBold,
+    fontSize: Typography.fontSize.lg,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
+  },
+  modalSubtitle: {
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.md,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 10,
+    fontFamily: Typography.fontFamily.regular,
+    fontSize: Typography.fontSize.md,
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
+  },
+  modalButtonRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    gap: Spacing.sm,
+  },
+  modalCancelBtn: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.md,
+  },
+  modalCancelText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+  },
+  modalConfirmBtn: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 8,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.primary,
+  },
+  modalConfirmText: {
+    fontFamily: Typography.fontFamily.medium,
+    fontSize: Typography.fontSize.sm,
+    color: Colors.white,
+  },
+
+  // Loading overlay
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(255,255,255,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

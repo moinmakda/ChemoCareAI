@@ -64,7 +64,7 @@ export default function PatientHomeScreen() {
         today.setHours(0, 0, 0, 0);
         
         const upcomingAppointments = appointments
-          .filter(apt => new Date(apt.scheduledDate) >= today && apt.status !== 'cancelled')
+          .filter(apt => new Date(apt.scheduledDate) >= today && !['cancelled', 'completed', 'no_show'].includes(apt.status))
           .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
         
         if (upcomingAppointments.length > 0) {
@@ -110,7 +110,7 @@ export default function PatientHomeScreen() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const upcoming = appointments
-          .filter(apt => new Date(apt.scheduledDate) >= today && apt.status !== 'cancelled')
+          .filter(apt => new Date(apt.scheduledDate) >= today && !['cancelled', 'completed', 'no_show'].includes(apt.status))
           .sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime());
         setNextAppointment(upcoming[0] || null);
         const vitals = await vitalsService.getLatestVital();
@@ -132,7 +132,7 @@ export default function PatientHomeScreen() {
   const getActiveTreatmentProgress = () => {
     const activePlan = treatmentPlans?.find(p => p.status === 'active' || p.status === 'approved');
     if (activePlan) {
-      const percentage = Math.round((activePlan.completedCycles / activePlan.plannedCycles) * 100);
+      const percentage = activePlan.plannedCycles > 0 ? Math.round((activePlan.completedCycles / activePlan.plannedCycles) * 100) : 0;
       return {
         completed: activePlan.completedCycles,
         total: activePlan.plannedCycles,
@@ -187,7 +187,7 @@ export default function PatientHomeScreen() {
             title="Get Started"
             variant="primary"
             size="large"
-            onPress={() => router.push('/(patient)/onboarding')}
+            onPress={() => Alert.alert('Profile Setup', 'Please contact your care team to complete your patient profile. They will register you through the system.', [{ text: 'OK' }])}
             style={styles.onboardingButton}
           />
         </View>
@@ -203,7 +203,12 @@ export default function PatientHomeScreen() {
           <Text style={styles.greeting}>{getGreeting()},</Text>
           <Text style={styles.userName}>{user?.fullName || 'Patient'}</Text>
         </View>
-        <TouchableOpacity onPress={() => router.push('/(patient)/profile')}>
+        <TouchableOpacity
+          onPress={() => router.push('/(patient)/profile')}
+          activeOpacity={0.7}
+          accessibilityLabel="View profile"
+          accessibilityRole="button"
+        >
           <Avatar
             source={user?.avatar ? { uri: user.avatar } : undefined}
             name={user?.fullName}
@@ -247,7 +252,7 @@ export default function PatientHomeScreen() {
                 </View>
 
                 <View style={styles.appointmentDetails}>
-                  <Text style={styles.appointmentType}>{formatAppointmentType(nextAppointment.appointmentType)}</Text>
+                  <Text style={styles.appointmentType} numberOfLines={1}>{formatAppointmentType(nextAppointment.appointmentType)}</Text>
                   {nextAppointment.chairNumber && (
                     <Text style={styles.appointmentDoctor}>Chair #{nextAppointment.chairNumber}</Text>
                   )}
@@ -285,17 +290,23 @@ export default function PatientHomeScreen() {
             <Card variant="default" padding="medium" style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Treatment Progress</Text>
-                <TouchableOpacity onPress={() => router.push('/(patient)/schedule')}>
+                <TouchableOpacity
+                  onPress={() => router.push('/(patient)/schedule')}
+                  activeOpacity={0.6}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityLabel="See treatment details"
+                  accessibilityRole="link"
+                >
                   <Text style={styles.seeAllText}>See Details</Text>
                 </TouchableOpacity>
               </View>
 
               {treatmentProgress ? (
                 <View style={styles.progressContainer}>
-                  <Text style={styles.protocolName}>{treatmentProgress.protocolName}</Text>
+                  <Text style={styles.protocolName} numberOfLines={2}>{treatmentProgress.protocolName}</Text>
                   <View style={styles.progressBar}>
                     <View
-                      style={[styles.progressFill, { width: `${treatmentProgress.percentage}%` }]}
+                      style={[styles.progressFill, { width: `${Math.min(treatmentProgress.percentage, 100)}%` }]}
                     />
                   </View>
                   <View style={styles.progressStats}>
@@ -307,28 +318,48 @@ export default function PatientHomeScreen() {
                 </View>
               ) : (
                 <View style={styles.noDataContainerSmall}>
+                  <Ionicons name="flask-outline" size={32} color={colors.neutral[300]} />
                   <Text style={styles.noDataTextSmall}>No active treatment plan</Text>
+                  <Text style={styles.noDataSubtext}>Your care team will set up your treatment plan</Text>
                 </View>
               )}
             </Card>
 
             {/* Quick Actions */}
             <View style={styles.quickActions}>
-              <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/(patient)/vitals')}>
+              <TouchableOpacity
+                style={styles.quickAction}
+                onPress={() => router.push('/(patient)/vitals')}
+                activeOpacity={0.7}
+                accessibilityLabel="Log vitals"
+                accessibilityRole="button"
+              >
                 <View style={[styles.quickActionIcon, { backgroundColor: colors.primary[100] }]}>
                   <Ionicons name="heart" size={24} color={colors.primary[500]} />
                 </View>
                 <Text style={styles.quickActionText}>Log Vitals</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/(patient)/schedule')}>
+              <TouchableOpacity
+                style={styles.quickAction}
+                onPress={() => router.push('/(patient)/schedule')}
+                activeOpacity={0.7}
+                accessibilityLabel="View schedule"
+                accessibilityRole="button"
+              >
                 <View style={[styles.quickActionIcon, { backgroundColor: colors.successLight }]}>
                   <Ionicons name="calendar" size={24} color={colors.success} />
                 </View>
                 <Text style={styles.quickActionText}>Schedule</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/(patient)/symptoms')}>
+              <TouchableOpacity
+                style={styles.quickAction}
+                onPress={() => router.push('/(patient)/symptoms')}
+                activeOpacity={0.7}
+                accessibilityLabel="Log symptoms"
+                accessibilityRole="button"
+              >
                 <View style={[styles.quickActionIcon, { backgroundColor: colors.warningLight }]}>
                   <Ionicons name="alert-circle" size={24} color={colors.warning} />
                 </View>
@@ -338,6 +369,9 @@ export default function PatientHomeScreen() {
               <TouchableOpacity
                 style={styles.quickAction}
                 onPress={() => router.push('/(patient)/chat')}
+                activeOpacity={0.7}
+                accessibilityLabel="Chat with care team"
+                accessibilityRole="button"
               >
                 <View style={[styles.quickActionIcon, { backgroundColor: colors.infoLight }]}>
                   <Ionicons name="chatbubble" size={24} color={colors.info} />
@@ -346,11 +380,81 @@ export default function PatientHomeScreen() {
               </TouchableOpacity>
             </View>
 
+            {/* Today's Medications Card (Feature 6) */}
+            <Card variant="default" padding="medium" style={styles.sectionCard}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Take-home Meds</Text>
+                <TouchableOpacity
+                  onPress={() => router.push('/(patient)/medications')}
+                  activeOpacity={0.6}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityLabel="View medications"
+                  accessibilityRole="link"
+                >
+                  <Text style={styles.seeAllText}>View All</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={styles.medsCard}
+                onPress={() => router.push('/(patient)/medications')}
+                activeOpacity={0.7}
+                accessibilityLabel="View take-home medications"
+                accessibilityRole="button"
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: colors.status.onHoldBg }]}>
+                  <Ionicons name="medical" size={24} color={colors.status.onHold} />
+                </View>
+                <View style={{ flex: 1, marginLeft: spacing.md }}>
+                  <Text style={styles.medsCardTitle}>Track Your Medications</Text>
+                  <Text style={styles.medsCardSubtitle}>Log taken or skipped doses</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.text.tertiary} />
+              </TouchableOpacity>
+            </Card>
+
+            {/* Recent Labs Card (Feature 7) */}
+            <Card variant="default" padding="medium" style={styles.sectionCard}>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Lab Results</Text>
+                <TouchableOpacity
+                  onPress={() => router.push('/(patient)/labs')}
+                  activeOpacity={0.6}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityLabel="View lab results"
+                  accessibilityRole="link"
+                >
+                  <Text style={styles.seeAllText}>View All</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={styles.medsCard}
+                onPress={() => router.push('/(patient)/labs')}
+                activeOpacity={0.7}
+                accessibilityLabel="View lab results"
+                accessibilityRole="button"
+              >
+                <View style={[styles.quickActionIcon, { backgroundColor: colors.warningLight }]}>
+                  <Ionicons name="flask" size={24} color={colors.warning} />
+                </View>
+                <View style={{ flex: 1, marginLeft: spacing.md }}>
+                  <Text style={styles.medsCardTitle}>Blood Work & Labs</Text>
+                  <Text style={styles.medsCardSubtitle}>View results and trends</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.text.tertiary} />
+              </TouchableOpacity>
+            </Card>
+
             {/* Recent Vitals */}
             <Card variant="default" padding="medium" style={styles.sectionCard}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Recent Vitals</Text>
-                <TouchableOpacity onPress={() => router.push('/(patient)/vitals')}>
+                <TouchableOpacity
+                  onPress={() => router.push('/(patient)/vitals')}
+                  activeOpacity={0.6}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityLabel="See all vitals"
+                  accessibilityRole="link"
+                >
                   <Text style={styles.seeAllText}>See All</Text>
                 </TouchableOpacity>
               </View>
@@ -360,7 +464,7 @@ export default function PatientHomeScreen() {
                   <View style={styles.vitalItem}>
                     <Ionicons name="thermometer-outline" size={20} color={colors.primary[500]} />
                     <Text style={styles.vitalValue}>
-                      {latestVitals.temperatureF ? `${latestVitals.temperatureF}°F` : '--'}
+                      {latestVitals.temperatureF ? `${Number(latestVitals.temperatureF).toFixed(1)}°F` : '--'}
                     </Text>
                     <Text style={styles.vitalLabel}>Temperature</Text>
                   </View>
@@ -386,14 +490,16 @@ export default function PatientHomeScreen() {
                   <View style={styles.vitalItem}>
                     <Ionicons name="scale-outline" size={20} color={colors.warning} />
                     <Text style={styles.vitalValue}>
-                      {latestVitals.weightKg ? `${latestVitals.weightKg} kg` : '--'}
+                      {latestVitals.weightKg ? `${Number(latestVitals.weightKg).toFixed(1)} kg` : '--'}
                     </Text>
                     <Text style={styles.vitalLabel}>Weight</Text>
                   </View>
                 </View>
               ) : (
                 <View style={styles.noDataContainerSmall}>
+                  <Ionicons name="heart-outline" size={32} color={colors.neutral[300]} />
                   <Text style={styles.noDataTextSmall}>No vitals recorded yet</Text>
+                  <Text style={styles.noDataSubtext}>Tap "Log Vitals" above to record your first reading</Text>
                 </View>
               )}
             </Card>
@@ -532,7 +638,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   progressBar: {
-    height: 8,
+    height: 10,
     backgroundColor: colors.neutral[200],
     borderRadius: borderRadius.full,
     overflow: 'hidden',
@@ -562,7 +668,8 @@ const styles = StyleSheet.create({
   },
   quickAction: {
     alignItems: 'center',
-    width: 72,
+    width: 76,
+    paddingVertical: spacing.xs,
   },
   quickActionIcon: {
     width: 56,
@@ -646,17 +753,40 @@ const styles = StyleSheet.create({
   noDataContainerSmall: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.md,
+    paddingVertical: spacing.lg,
+    gap: spacing.sm,
   },
   noDataTextSmall: {
+    fontSize: typography.callout.fontSize,
+    fontWeight: '500',
+    color: colors.text.secondary,
+  },
+  noDataSubtext: {
     fontSize: typography.caption1.fontSize,
     color: colors.text.tertiary,
+    textAlign: 'center',
+    paddingHorizontal: spacing.lg,
   },
   protocolName: {
     fontSize: typography.callout.fontSize,
     fontWeight: '500',
     color: colors.text.primary,
     marginBottom: spacing.xs,
+  },
+  medsCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.sm,
+  },
+  medsCardTitle: {
+    fontSize: typography.callout.fontSize,
+    fontWeight: '600',
+    color: colors.text.primary,
+  },
+  medsCardSubtitle: {
+    fontSize: typography.caption1.fontSize,
+    color: colors.text.secondary,
+    marginTop: 2,
   },
   onboardingPrompt: {
     flex: 1,

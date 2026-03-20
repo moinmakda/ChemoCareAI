@@ -13,6 +13,7 @@ from sqlalchemy import select
 from app.core.database import get_db
 from app.models import Patient, ProtocolTemplate, User
 from app.api.deps import get_current_user, allow_doctors, allow_medical_staff
+from app.schemas.ai import RiskAssessmentRequest, RiskAssessmentResponse, AIRecommendationsResponse, AIHealthResponse
 from app.services.gemini_ai import (
     generate_protocol as ai_generate_protocol,
     calculate_dose_with_ai,
@@ -102,13 +103,6 @@ class SymptomAnalysisRequest(BaseModel):
         default=None,
         description="Relevant patient history notes"
     )
-
-
-class RiskAssessmentRequest(BaseModel):
-    """Request for risk assessment."""
-    patient_id: str = Field(description="UUID of the patient")
-    protocol_name: str = Field(description="Name of the chemotherapy protocol")
-    cycle_number: int = Field(description="Current cycle number")
 
 
 class RecommendationRequest(BaseModel):
@@ -361,6 +355,7 @@ async def analyze_symptoms(
 
 @router.post(
     "/risk-assessment",
+    response_model=RiskAssessmentResponse,
     summary="Assess Treatment Risks",
     description="Assess treatment risks for a patient using Gemini AI."
 )
@@ -420,6 +415,7 @@ async def assess_risk(
 
 @router.get(
     "/recommendations/{patient_id}",
+    response_model=AIRecommendationsResponse,
     summary="Get AI Recommendations",
     description="Get personalized AI recommendations for a patient."
 )
@@ -478,6 +474,7 @@ async def get_recommendations(
 
 @router.get(
     "/health",
+    response_model=AIHealthResponse,
     summary="AI Service Health Check",
     description="Check if the Gemini AI service is available."
 )
@@ -523,22 +520,72 @@ async def patient_chat(
     The AI provides supportive, empathetic responses while identifying
     any symptoms that may require medical attention.
     """
-    # Get patient information if user is a patient
-    patient_name = current_user.full_name or "Patient"
+    # Build clinical context for the AI
+    patient_name = current_user.full_name or "User"
     patient_diagnosis = None
     current_treatment = None
-    
+    clinical_context = None
+
     if current_user.role == "patient":
         result = await db.execute(
             select(Patient).where(Patient.user_id == current_user.id)
         )
         patient = result.scalar_one_or_none()
-        
         if patient:
             patient_diagnosis = f"{patient.cancer_type or ''} {patient.cancer_stage or ''}".strip() or None
-            # TODO: Get current treatment from active treatment plan
-            current_treatment = None
-    
+
+    # For ALL roles: build a clinical summary from active patients/plans
+    # This gives the AI real context to answer clinical questions
+    from app.models import TreatmentPlan, TreatmentCycle, DrugAdministration
+    from app.models.treatment import PlanStatus
+
+    try:
+        # Get active treatment plans (limit to recent for performance)
+        plans_result = await db.execute(
+            select(TreatmentPlan).where(
+                TreatmentPlan.status.in_([PlanStatus.ACTIVE, PlanStatus.APPROVED])
+            ).limit(10)
+        )
+        active_plans = plans_result.scalars().all()
+
+        if active_plans:
+            summaries = []
+            for plan in active_plans[:5]:
+                # Get patient info
+                pat_result = await db.execute(select(Patient).where(Patient.id == plan.patient_id))
+                pat = pat_result.scalar_one_or_none()
+                pat_name = f"{pat.first_name} {pat.last_name}" if pat else "Unknown"
+
+                # Get latest cycle info
+                cycle_result = await db.execute(
+                    select(TreatmentCycle).where(
+                        TreatmentCycle.treatment_plan_id == plan.id
+                    ).order_by(TreatmentCycle.cycle_number.desc()).limit(1)
+                )
+                latest_cycle = cycle_result.scalar_one_or_none()
+
+                protocol_data = plan.custom_protocol or {}
+                drugs = protocol_data.get("chemotherapy_drugs") or protocol_data.get("drugs") or []
+                drug_names = [d.get("drug_name", "") for d in drugs if d.get("drug_name")]
+
+                summary = f"- {pat_name}: {plan.protocol_name}, {plan.completed_cycles}/{plan.planned_cycles} cycles done"
+                if pat and pat.cancer_type:
+                    summary += f", dx: {pat.cancer_type} {pat.cancer_stage or ''}"
+                if drug_names:
+                    summary += f", drugs: {', '.join(drug_names[:4])}"
+                if latest_cycle:
+                    summary += f", last cycle status: {latest_cycle.status.value if hasattr(latest_cycle.status, 'value') else str(latest_cycle.status)}"
+                    if latest_cycle.pre_chemo_labs:
+                        labs = latest_cycle.pre_chemo_labs
+                        lab_str = ", ".join(f"{k}={v}" for k,v in labs.items() if v is not None)
+                        if lab_str:
+                            summary += f", labs: {lab_str}"
+                summaries.append(summary)
+
+            current_treatment = f"Active patients:\n" + "\n".join(summaries)
+    except Exception:
+        pass  # Non-critical context enrichment
+
     try:
         response = await ai_patient_chat(
             patient_name=patient_name,

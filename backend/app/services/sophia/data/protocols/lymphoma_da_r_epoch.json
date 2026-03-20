@@ -1,0 +1,1231 @@
+{
+  "protocol_id": "da_r_epoch",
+  "protocol_name": "DA-R-EPOCH",
+  "protocol_code": "DA-R-EPOCH",
+  "full_name": "Dose-Adjusted Rituximab-Etoposide-Prednisolone-Vincristine-Cyclophosphamide-Doxorubicin (DA-R-EPOCH)",
+  "indication": "Aggressive CD20-positive B-cell lymphoma including DLBCL, primary mediastinal B-cell lymphoma, Burkitt-like lymphoma. Used particularly for high-risk/complex disease.",
+  "cycle_length_days": 21,
+  "total_cycles": 6,
+  "version": "1.1",
+  "treatment_intent": "curative",
+  "drugs": [
+    {
+      "drug_id": "rituximab",
+      "drug_name": "Rituximab",
+      "dose": 375.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 500,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Day 1 — prior to continuous infusion drugs",
+      "frequency": null,
+      "special_instructions": "Rituximab 375 mg/m² IV infusion in 500ml NaCl 0.9% on Day 1 only. Dose rounded to nearest 100mg. Administer before starting the combination bag infusions. Prednisolone 100mg (flat dose) to be self-administered by patient on the morning of treatment prior to rituximab.",
+      "prn": false
+    },
+    {
+      "drug_id": "etoposide",
+      "drug_name": "Etoposide",
+      "dose": 100.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1,
+        3
+      ],
+      "duration_minutes": 2880,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 1000,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Combined infusion bag on Days 1 and 3, each over 48 hours",
+      "frequency": "Two 48-hour infusions: Day 1 and Day 3",
+      "special_instructions": "Etoposide 100 mg/m² per 48-hour bag (total 200 mg/m² per cycle). Mixed in the SAME 1000ml sodium chloride 0.9% bag as doxorubicin and vincristine. Two bags administered: Day 1 over 48 hours, Day 3 over 48 hours. CENTRAL LINE (PICC or central access) MANDATORY — vesicant administration as continuous infusion. Dose banded (20mg/ml).",
+      "prn": false
+    },
+    {
+      "drug_id": "doxorubicin",
+      "drug_name": "Doxorubicin",
+      "dose": 20.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1,
+        3
+      ],
+      "duration_minutes": 2880,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 1000,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Combined infusion bag on Days 1 and 3, each over 48 hours",
+      "frequency": "Two 48-hour infusions: Day 1 and Day 3",
+      "special_instructions": "Doxorubicin 20 mg/m² per 48-hour bag (total 40 mg/m² per cycle). Co-infused with etoposide and vincristine in same 1000ml NaCl 0.9% bag via CENTRAL LINE. Vesicant — PICC or central access mandatory. Dose banded (2mg/ml). Maximum lifetime cumulative dose 450 mg/m² (400 mg/m² if prior mediastinal/pericardial radiotherapy).",
+      "prn": false
+    },
+    {
+      "drug_id": "vincristine",
+      "drug_name": "Vincristine",
+      "dose": 0.8,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1,
+        3
+      ],
+      "duration_minutes": 2880,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 1000,
+      "administration_order": 3,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Combined infusion bag on Days 1 and 3, each over 48 hours",
+      "frequency": "Two 48-hour infusions: Day 1 and Day 3",
+      "special_instructions": "Vincristine 0.8 mg/m² per 48-hour bag (total 1.6 mg/m² per cycle). Co-infused with doxorubicin and etoposide in same 1000ml NaCl 0.9% bag. Doses should NOT be routinely capped — based on actual body weight. ARIA caps at 2.4m² and may need manual adjustment. VESICANT — PICC or central line mandatory. NPSA/2008/RRR04. Dose banded (1mg/ml).",
+      "prn": false
+    },
+    {
+      "drug_id": "cyclophosphamide",
+      "drug_name": "Cyclophosphamide",
+      "dose": 750.0,
+      "dose_unit": "mg/m²",
+      "route": "IV bolus",
+      "days": [
+        5
+      ],
+      "duration_minutes": 10,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 100,
+      "administration_order": 4,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Day 5 — after 96-hour infusion complete",
+      "frequency": null,
+      "special_instructions": "Cyclophosphamide 750 mg/m² IV bolus on Day 5 after completion of the 96-hour continuous infusion. Over 10 minutes in 100ml NaCl 0.9%.",
+      "prn": false
+    },
+    {
+      "drug_id": "prednisolone",
+      "drug_name": "Prednisolone",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 5,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Morning of treatment",
+      "frequency": "Once daily on Days 1-5",
+      "special_instructions": "Prednisolone 100mg FLAT DOSE oral once daily on Days 1-5. Take with or after food in the morning. Day 1: patient to self-administer on morning of treatment (also acts as rituximab pre-medication). Days 2-5: patient self-administers at home. This is a flat dose — NOT BSA-dosed.",
+      "prn": false
+    },
+    {
+      "drug_id": "filgrastim",
+      "drug_name": "G-CSF (filgrastim or lenograstim)",
+      "dose": 300.0,
+      "dose_unit": "mcg",
+      "route": "Subcutaneous",
+      "days": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 6,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "From Day 6 until ANC >5×10⁹/L",
+      "frequency": "Once daily from Day 6 until neutrophil count above 5×10⁹/L (10 doses supplied)",
+      "special_instructions": "G-CSF is MANDATORY from Day 6 of every cycle. Continue until neutrophil count above 5×10⁹/L (10 doses supplied). Options: filgrastim/bioequivalent 30 million units (300 mcg) OD SC; or lenograstim/bioequivalent 13.4 million units (263 mcg) OD SC; or pegfilgrastim/bioequivalent 6mg once only SC. Record nadir ANC and nadir platelets — required for dose adjustment next cycle.",
+      "prn": false
+    }
+  ],
+  "pre_medications": [
+    {
+      "drug_id": "chlorphenamine",
+      "drug_name": "Chlorphenamine",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to rituximab",
+      "frequency": null,
+      "special_instructions": "Chlorphenamine 10mg IV 30 minutes before rituximab.",
+      "prn": false
+    },
+    {
+      "drug_id": "paracetamol",
+      "drug_name": "Paracetamol",
+      "dose": 1000.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "30 minutes prior to rituximab",
+      "frequency": null,
+      "special_instructions": "Paracetamol 1g oral 30 minutes before rituximab.",
+      "prn": false
+    },
+    {
+      "drug_id": "ondansetron",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "Oral or IV",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "15-30 minutes before starting infusions",
+      "frequency": null,
+      "special_instructions": "Ondansetron 8mg oral or IV prior to commencing continuous infusions.",
+      "prn": false
+    }
+  ],
+  "rescue_medications": [
+    {
+      "drug_id": "hydrocortisone",
+      "drug_name": "Hydrocortisone",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Available PRN for rituximab infusion reactions.",
+      "prn": true
+    },
+    {
+      "drug_id": "salbutamol",
+      "drug_name": "Salbutamol",
+      "dose": 2.5,
+      "dose_unit": "mg",
+      "route": "Nebulised",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Available PRN for rituximab-related bronchospasm.",
+      "prn": true
+    },
+    {
+      "drug_id": "pethidine_rescue",
+      "drug_name": "Pethidine",
+      "dose": 25.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 99,
+      "is_core_drug": false,
+      "is_optional": true,
+      "max_dose": 50.0,
+      "max_dose_unit": "mg",
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Consider pethidine 25-50mg IV for rituximab-related rigors that fail to respond to steroids. Controlled drug — prescribe per local policy.",
+      "prn": true
+    }
+  ],
+  "take_home_medicines": [
+    {
+      "drug_id": "co_trimoxazole",
+      "drug_name": "Co-trimoxazole",
+      "dose": 960.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily on Monday, Wednesday and Friday — 21 days per cycle",
+      "special_instructions": "PCP prophylaxis: co-trimoxazole 960mg once daily on Monday, Wednesday and Friday for 21 days per cycle.",
+      "prn": false
+    },
+    {
+      "drug_id": "aciclovir",
+      "drug_name": "Aciclovir",
+      "dose": 400.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Twice daily",
+      "special_instructions": "Antiviral prophylaxis: aciclovir 400mg twice daily for 21 days per cycle.",
+      "prn": false
+    },
+    {
+      "drug_id": "ondansetron_tho",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Evening of Day 1 then twice daily",
+      "frequency": "Twice daily starting evening of Day 1 for 5 days",
+      "special_instructions": "Take-home antiemetic: ondansetron 8mg twice daily starting on the evening of Day 1 of the cycle for 5 days.",
+      "prn": false
+    },
+    {
+      "drug_id": "metoclopramide_tho",
+      "drug_name": "Metoclopramide",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 3,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Three times daily when required",
+      "special_instructions": "Take-home antiemetic: metoclopramide 10mg three times daily when required for nausea. Supply 21 days or nearest original pack size.",
+      "prn": true
+    },
+    {
+      "drug_id": "allopurinol",
+      "drug_name": "Allopurinol",
+      "dose": 300.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 4,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily for 7 days (cycle 1 only)",
+      "special_instructions": "Allopurinol 300mg once daily for 7 days — cycle 1 only. TLS prophylaxis.",
+      "prn": false
+    },
+    {
+      "drug_id": "prednisolone_tho",
+      "drug_name": "Prednisolone",
+      "dose": 100.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 99,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Morning",
+      "frequency": "Once daily in the morning on days 2, 3, 4 and 5",
+      "special_instructions": "Prednisolone 100mg is given in clinic on Day 1 (morning of treatment). Take-home prednisolone 100mg continues on days 2-5. Take in the morning with or after food.",
+      "prn": false
+    }
+  ],
+  "cycle_variations": [],
+  "dose_escalation_levels": [
+    {
+      "level": 3,
+      "cyclophosphamide_mg_m2": 1100,
+      "doxorubicin_mg_m2": 14,
+      "etoposide_mg_m2": 70,
+      "description": "Level 3 — maximum escalation"
+    },
+    {
+      "level": 2,
+      "cyclophosphamide_mg_m2": 900,
+      "doxorubicin_mg_m2": 12,
+      "etoposide_mg_m2": 60,
+      "description": "Level 2"
+    },
+    {
+      "level": 1,
+      "cyclophosphamide_mg_m2": 750,
+      "doxorubicin_mg_m2": 10,
+      "etoposide_mg_m2": 50,
+      "description": "Level 1 — starting dose"
+    },
+    {
+      "level": -1,
+      "cyclophosphamide_mg_m2": 600,
+      "doxorubicin_mg_m2": 8,
+      "etoposide_mg_m2": 40,
+      "description": "Level -1 — first de-escalation"
+    },
+    {
+      "level": -2,
+      "cyclophosphamide_mg_m2": 500,
+      "doxorubicin_mg_m2": 6,
+      "etoposide_mg_m2": 30,
+      "description": "Level -2 — maximum de-escalation"
+    }
+  ],
+  "dose_modifications": [
+    {
+      "rule_id": "epoch_dose_escalation",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "≥ 0.5 (nadir)",
+      "condition_type": "greater_equal",
+      "threshold_value": 0.5,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "etoposide",
+        "doxorubicin",
+        "cyclophosphamide"
+      ],
+      "modification": "increase",
+      "modification_type": "increase",
+      "modification_percent": 120,
+      "delay_days": null,
+      "description": "If nadir ANC ≥0.5 AND nadir platelets ≥25: escalate etoposide, doxorubicin, cyclophosphamide by 20% for next cycle",
+      "action_text": "Escalate etoposide, doxorubicin and cyclophosphamide by 20% for next cycle",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "epoch_dose_maintain_anc",
+      "parameter": "nadir_anc",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 0.5 on 1 or 2 measurements",
+      "condition_type": "clinical_decision",
+      "threshold_value": 0.5,
+      "frequency_qualifier": "1-2 measurements",
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "cyclophosphamide",
+        "doxorubicin",
+        "etoposide"
+      ],
+      "modification": "maintain",
+      "modification_type": "maintain",
+      "modification_percent": 100,
+      "delay_days": null,
+      "description": "Nadir ANC <0.5×10⁹/L on 1 or 2 measurements: maintain doses at the same level as the previous cycle (do not escalate or reduce).",
+      "action_text": "Maintain doses at current level (nadir ANC <0.5 on 1-2 measurements)",
+      "priority": 99,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "epoch_dose_reduction_anc",
+      "parameter": "neutrophils",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 0.5",
+      "condition_type": "less_than",
+      "threshold_value": 0.5,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "etoposide",
+        "doxorubicin",
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 80,
+      "delay_days": null,
+      "description": "Nadir ANC <0.5×10⁹/L on 3 or more measurements: reduce etoposide, doxorubicin, cyclophosphamide by 20% (decrease by 1 level).",
+      "action_text": "Reduce etoposide, doxorubicin and cyclophosphamide by 20% (nadir ANC <0.5 on 3 or more measurements)",
+      "priority": 2,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "epoch_dose_reduction_platelets",
+      "parameter": "platelets",
+      "parameter_unit": "x10⁹/L",
+      "condition": "< 25",
+      "condition_type": "less_than",
+      "threshold_value": 25.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "etoposide",
+        "doxorubicin",
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 80,
+      "delay_days": null,
+      "description": "Nadir platelets <25×10⁹/L on 1 or more measurements: decrease doses by 1 level (reduce etoposide, doxorubicin, cyclophosphamide by 20%).",
+      "action_text": "Reduce etoposide, doxorubicin and cyclophosphamide by 20% (nadir platelets <25 on 1 or more measurements)",
+      "priority": 2,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "cyclo_renal_75",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "10-20",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 10.0,
+      "threshold_high": 20.0,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "CrCl 10-20 ml/min: reduce cyclophosphamide to 75%",
+      "action_text": "Reduce cyclophosphamide to 75%",
+      "priority": 3,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "cyclo_renal_omit",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "< 10",
+      "condition_type": "less_than",
+      "threshold_value": 10.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "omit",
+      "modification_type": "omit",
+      "modification_percent": 0,
+      "delay_days": null,
+      "description": "CrCl <10 ml/min: omit cyclophosphamide",
+      "action_text": "Omit cyclophosphamide",
+      "priority": 4,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "doxorubicin_hepatic_75",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "< 30 AND AST 80-120 units/L",
+      "condition_type": "less_than",
+      "threshold_value": 30.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin <30 µmol/L AND AST/ALT 2-3×ULN — reduce doxorubicin to 75%.",
+      "action_text": "Reduce doxorubicin to 75% (bilirubin <30 + AST 2-3×ULN)",
+      "priority": 98,
+      "check_if_already_reduced": false,
+      "secondary_parameter": "ast",
+      "secondary_condition_type": "range",
+      "secondary_threshold_value": null,
+      "secondary_threshold_low": 80.0,
+      "secondary_threshold_high": 120.0,
+      "secondary_connector": "AND"
+    },
+    {
+      "rule_id": "doxorubicin_hepatic_50",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "30-50",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 30.0,
+      "threshold_high": 50.0,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Bilirubin 30-50 µmol/L: reduce doxorubicin to 50%",
+      "action_text": "Reduce doxorubicin to 50%",
+      "priority": 5,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "doxorubicin_hepatic_25",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "51-85",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 51.0,
+      "threshold_high": 85.0,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 25,
+      "delay_days": null,
+      "description": "Bilirubin 51-85 µmol/L: reduce doxorubicin to 25%",
+      "action_text": "Reduce doxorubicin to 25%",
+      "priority": 6,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "doxorubicin_hepatic_omit",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 85",
+      "condition_type": "greater_than",
+      "threshold_value": 85.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "omit",
+      "modification_type": "omit",
+      "modification_percent": 0,
+      "delay_days": null,
+      "description": "Bilirubin >85 µmol/L: omit doxorubicin",
+      "action_text": "Omit doxorubicin",
+      "priority": 7,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "doxorubicin_renal_below10",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "< 10",
+      "condition_type": "less_than",
+      "threshold_value": 10.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "clinical_decision",
+      "modification_type": "clinical_decision",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Renal impairment CrCl <10 ml/min: consider dose reduction of doxorubicin in severe renal failure.",
+      "action_text": "Consider doxorubicin dose reduction (CrCl <10 ml/min)",
+      "priority": 92,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "etoposide_hepatic_50",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "30-51",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 30.0,
+      "threshold_high": 51.0,
+      "affected_drugs": [
+        "etoposide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin 30-51 µmol/L or AST/ALT 60-180 units/L — consider reducing etoposide to 50%.",
+      "action_text": "Consider reducing etoposide to 50% (bilirubin 30-51 or AST 60-180)",
+      "priority": 97,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "etoposide_hepatic_clinical",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 51",
+      "condition_type": "greater_than",
+      "threshold_value": 51.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "etoposide"
+      ],
+      "modification": "clinical_decision",
+      "modification_type": "clinical_decision",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin >51 µmol/L or AST/ALT >180 units/L — etoposide: clinical decision, discuss with consultant.",
+      "action_text": "Clinical decision for etoposide (bilirubin >51 or AST >180)",
+      "priority": 96,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "etoposide_renal_75",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "15-50",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 15.0,
+      "threshold_high": 50.0,
+      "affected_drugs": [
+        "etoposide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Renal impairment CrCl 15-50 ml/min: reduce etoposide to 75%.",
+      "action_text": "Reduce etoposide to 75% (CrCl 15-50 ml/min)",
+      "priority": 94,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "etoposide_renal_50",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "< 15",
+      "condition_type": "less_than",
+      "threshold_value": 15.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "etoposide"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Renal impairment CrCl <15 ml/min: reduce etoposide to 50%.",
+      "action_text": "Reduce etoposide to 50% (CrCl <15 ml/min)",
+      "priority": 93,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "cyclo_hepatic_clinical",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 30 or AST 80-120 units/L",
+      "condition_type": "clinical_decision",
+      "threshold_value": 30.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "cyclophosphamide"
+      ],
+      "modification": "clinical_decision",
+      "modification_type": "clinical_decision",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Cyclophosphamide hepatic impairment: bilirubin >30 µmol/L or AST/ALT 2-3×ULN — clinical decision; evidence suggests exposure to active metabolites may not be increased, suggesting dose reduction may not be necessary.",
+      "action_text": "Clinical decision for cyclophosphamide in hepatic impairment — dose reduction may not be necessary",
+      "priority": 95,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "vincristine_hepatic_50",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "30-51",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 30.0,
+      "threshold_high": 51.0,
+      "affected_drugs": [
+        "vincristine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Bilirubin 30-51 µmol/L: reduce vincristine to 50%",
+      "action_text": "Reduce vincristine to 50%",
+      "priority": 5,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "vincristine_hepatic_50_high_bili_normal_ast",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 51",
+      "condition_type": "greater_than",
+      "threshold_value": 51.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "vincristine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: bilirubin >51 µmol/L with normal AST/ALT — reduce vincristine to 50%.",
+      "action_text": "Reduce vincristine to 50% (bilirubin >51 with normal AST)",
+      "priority": 91,
+      "check_if_already_reduced": false,
+      "secondary_parameter": "ast",
+      "secondary_condition_type": "less_equal",
+      "secondary_threshold_value": 180.0,
+      "secondary_connector": "AND"
+    },
+    {
+      "rule_id": "vincristine_hepatic_omit",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 51",
+      "condition_type": "greater_than",
+      "threshold_value": 51.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "vincristine"
+      ],
+      "modification": "omit",
+      "modification_type": "omit",
+      "modification_percent": 0,
+      "delay_days": null,
+      "description": "Bilirubin >51 µmol/L AND AST >180 units/L: omit vincristine",
+      "action_text": "Omit vincristine (bilirubin >51 AND AST >180)",
+      "priority": 6,
+      "check_if_already_reduced": false,
+      "secondary_parameter": "ast",
+      "secondary_condition_type": "greater_than",
+      "secondary_threshold_value": 180.0,
+      "secondary_connector": "AND"
+    },
+    {
+      "rule_id": "doxorubicin_hepatic_50_ast_only",
+      "parameter": "ast",
+      "parameter_unit": "units/L",
+      "condition": "> 120",
+      "condition_type": "greater_than",
+      "threshold_value": 120.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: AST/ALT more than 3×ULN — reduce doxorubicin to 50%. Per PDF: bilirubin 30-50 and/or more than 3×ULN.",
+      "action_text": "Reduce doxorubicin to 50% (AST >3×ULN)",
+      "priority": 8,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "vincristine_hepatic_50_ast_only",
+      "parameter": "ast",
+      "parameter_unit": "units/L",
+      "condition": "60-180",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 60.0,
+      "threshold_high": 180.0,
+      "affected_drugs": [
+        "vincristine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Hepatic impairment: AST/ALT 60-180 units/L — reduce vincristine to 50%. Per PDF: bilirubin 30-51 or AST 60-180.",
+      "action_text": "Reduce vincristine to 50% (AST 60-180 units/L)",
+      "priority": 10,
+      "check_if_already_reduced": false
+    }
+  ],
+  "hematological_toxicity_rules": [
+    {
+      "toxicity_type": "neutropenia",
+      "grade": null,
+      "threshold": "< 1.0",
+      "threshold_value": 1.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "action": "delay",
+      "delay_days": 7,
+      "reduction_percent": null,
+      "check_drugs": [
+        "etoposide",
+        "doxorubicin",
+        "vincristine",
+        "cyclophosphamide",
+        "rituximab"
+      ],
+      "additional_notes": "DA-R-EPOCH uses dose-adjustment paradigm based on nadir counts (days 9,12,15,18) — not a standard pre-cycle ANC threshold delay. See dose_modifications for the EPOCH dose escalation/reduction rules."
+    }
+  ],
+  "non_hematological_toxicity_rules": [
+    {
+      "toxicity_type": "rituximab_infusion_reaction",
+      "grade": null,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "rituximab"
+      ],
+      "action": "hold",
+      "action_text": "Grade 3-4 CRS or anaphylaxis: stop rituximab immediately, give hydrocortisone 100mg IV and manage as anaphylaxis. Do not rechallenge if grade 4.",
+      "monitoring_frequency": "each_dose"
+    },
+    {
+      "toxicity_type": "peripheral_neuropathy",
+      "grade": 2,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "vincristine"
+      ],
+      "action": "reduce_or_omit",
+      "action_text": "Grade 2 motor neuropathy: reduce vincristine dose by 25%. Grade 3 sensory or motor neuropathy: reduce by 50%. For higher toxicity grades or if toxicity increases despite dose reduction, stop vincristine.",
+      "monitoring_frequency": "each_cycle"
+    },
+    {
+      "toxicity_type": "cardiac_toxicity",
+      "grade": null,
+      "parameter": "lvef",
+      "threshold": "< 50%",
+      "affected_drugs": [
+        "doxorubicin"
+      ],
+      "action": "omit_or_reduce",
+      "action_text": "LVEF <50%: discuss with consultant before continuing doxorubicin. Cumulative lifetime dose limit 450 mg/m² (400 mg/m² if prior mediastinal/pericardial radiotherapy).",
+      "monitoring_frequency": "baseline_and_as_indicated"
+    }
+  ],
+  "age_based_modifications": [],
+  "treatment_delay_criteria": [
+    {
+      "parameter": "neutrophils",
+      "threshold": "< 1.0",
+      "threshold_value": 1.0,
+      "delay_until": "Neutrophils ≥ 1.0×10⁹/L",
+      "max_delay_weeks": 2,
+      "action_if_not_recovered": "Discuss with consultant. Consider dose reduction per DA-EPOCH modification rules."
+    },
+    {
+      "parameter": "platelets",
+      "threshold": "< 75",
+      "threshold_value": 75.0,
+      "delay_until": "Platelets ≥ 75×10⁹/L",
+      "max_delay_weeks": 2,
+      "action_if_not_recovered": "Discuss with consultant."
+    },
+    {
+      "condition": "active_infection",
+      "parameter": "",
+      "threshold": "",
+      "delay_until": "Resolution of active infection",
+      "max_delay_weeks": null,
+      "action_if_not_recovered": "Discuss with consultant."
+    }
+  ],
+  "baseline_requirements": [
+    {
+      "test": "Hepatitis B serology (HBsAg, anti-HBc, anti-HBs)",
+      "includes": [],
+      "timing": "Before first rituximab dose",
+      "required": "true"
+    },
+    {
+      "test": "LVEF (echocardiogram or MUGA scan)",
+      "includes": [],
+      "timing": "Before first cycle — doxorubicin cumulative toxicity monitoring",
+      "required": "true"
+    },
+    {
+      "test": "FBC, renal function, LFTs",
+      "includes": [
+        "neutrophils",
+        "platelets",
+        "creatinine clearance",
+        "bilirubin",
+        "AST/ALT"
+      ],
+      "timing": "Before each cycle",
+      "required": "true"
+    },
+    {
+      "test": "Nadir ANC and nadir platelets (post-cycle)",
+      "includes": [
+        "neutrophils",
+        "platelets"
+      ],
+      "timing": "Post-nadir after each cycle — required for DA-EPOCH dose adjustment",
+      "required": "true"
+    }
+  ],
+  "pre_cycle_labs": [
+    {
+      "test": "FBC (neutrophils, platelets, haemoglobin)",
+      "timing": "Within 48 hours before each cycle",
+      "required": true
+    },
+    {
+      "test": "Renal function (creatinine clearance)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "LFTs (bilirubin, AST/ALT)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "Hepatitis B status",
+      "timing": "Before first cycle",
+      "required": true
+    },
+    {
+      "test": "LVEF assessment",
+      "timing": "Baseline and as clinically indicated (doxorubicin cumulative dose monitoring)",
+      "required": true
+    },
+    {
+      "test": "Nadir ANC and nadir platelets from previous cycle",
+      "timing": "Document before each cycle from nadir bloods on days 9, 12, 15 and 18 — required for DA-EPOCH dose adjustment",
+      "required": true
+    }
+  ],
+  "toxicities": [
+    {
+      "drug_id": "rituximab",
+      "adverse_effects": [
+        "Infusion reactions (fever, chills, urticaria, angioedema, CRS)",
+        "Progressive multifocal leukoencephalopathy (PML — rare)",
+        "Hepatitis B reactivation",
+        "Immunosuppression",
+        "Hypogammaglobulinaemia"
+      ]
+    },
+    {
+      "drug_id": "etoposide",
+      "adverse_effects": [
+        "Myelosuppression (dose-limiting)",
+        "Nausea and vomiting",
+        "Alopecia",
+        "Mucositis",
+        "Secondary leukaemia (rare)",
+        "Hypotension (with rapid infusion — not applicable with continuous infusion)"
+      ]
+    },
+    {
+      "drug_id": "doxorubicin",
+      "adverse_effects": [
+        "Cardiotoxicity (cumulative — monitor LVEF)",
+        "Myelosuppression",
+        "Nausea and vomiting",
+        "Alopecia",
+        "Mucositis",
+        "Radiation recall"
+      ]
+    },
+    {
+      "drug_id": "vincristine",
+      "adverse_effects": [
+        "Peripheral neuropathy (sensory and motor)",
+        "Constipation",
+        "Ileus (rare)",
+        "Alopecia",
+        "SIADH (rare)"
+      ]
+    },
+    {
+      "drug_id": "cyclophosphamide",
+      "adverse_effects": [
+        "Myelosuppression",
+        "Nausea and vomiting",
+        "Haemorrhagic cystitis (rare)",
+        "Alopecia",
+        "Immunosuppression"
+      ]
+    },
+    {
+      "drug_id": "prednisolone",
+      "adverse_effects": [
+        "Hyperglycaemia",
+        "Osteoporosis",
+        "GI ulceration",
+        "Mood disturbance",
+        "Immunosuppression",
+        "Hypertension"
+      ]
+    },
+    {
+      "drug_id": "filgrastim",
+      "adverse_effects": [
+        "Bone pain",
+        "Injection site reactions",
+        "Splenomegaly (rare with prolonged use)"
+      ]
+    }
+  ],
+  "monitoring": [
+    "FBC, U&Es (including electrolytes), LFTs (including albumin) before each cycle",
+    "Nadir ANC and nadir platelets must be documented after each cycle — required for DA-EPOCH dose adjustment next cycle",
+    "Regular blood glucose monitoring (prednisolone-related hyperglycaemia risk)",
+    "G-CSF (filgrastim) mandatory from day 6 until ANC ≥1.0×10⁹/L post-nadir",
+    "LVEF monitoring at baseline and as clinically indicated (cumulative doxorubicin toxicity)",
+    "Rituximab infusion vital signs monitoring (temperature, BP, pulse, O2 sats) during every infusion",
+    "Central line assessment and care throughout continuous infusion (days 1-4)",
+    "Hepatitis B monitoring if positive serology detected — expert review required",
+    "Neurological assessment before each cycle (vincristine neuropathy monitoring)"
+  ],
+  "warnings": [
+    "CENTRAL LINE MANDATORY for this protocol. Etoposide, doxorubicin and vincristine must be administered via central venous catheter — peripheral administration is contraindicated.",
+    "G-CSF (filgrastim/lenograstim) is MANDATORY from Day 6 of every cycle. Record nadir ANC and nadir platelets — required for dose adjustment next cycle.",
+    "DOSE ADJUSTMENT after every cycle based on nadir counts: escalate by 20% if nadir ANC ≥0.5 AND platelets ≥25; reduce by 20% if ANC <0.5 on >2 days OR platelets <25 on >2 days.",
+    "Check hepatitis B status before starting rituximab — risk of fatal reactivation.",
+    "PCP prophylaxis (co-trimoxazole) is MANDATORY throughout treatment and for 6 months after.",
+    "Risk of progressive multifocal leukoencephalopathy (PML) with rituximab.",
+    "Maximum lifetime cumulative doxorubicin dose: 450 mg/m² (400 mg/m² if prior mediastinal/pericardial radiotherapy).",
+    "Vincristine in this protocol has NO routine dose cap — doses based on actual body weight. ARIA automatically caps at 2.4m² and may need manual adjustment.",
+    "Cytokine release syndrome risk with rituximab — medicinal products for allergic reactions must be immediately available.",
+    "Prednisolone is a FLAT 100mg dose (NOT BSA-dosed) — patient self-administers on morning of treatment and Days 2-5 at home.",
+    "COMBINATION BAG: doxorubicin, etoposide and vincristine are mixed in the SAME 1000ml NaCl 0.9% bag. Each bag administered over 48 hours on Day 1 and Day 3. On ARIA only doxorubicin will have a volume/rate — this is by design.",
+    "Dose adjustments from cycle 2 apply to cyclophosphamide, doxorubicin and etoposide only (not vincristine). Monitored by FBC on days 9, 12, 15 and 18.",
+    "Allopurinol 300mg once daily for 7 days (cycle 1 only).",
+    "Cyclophosphamide: consider mesna in patients with pre-existing bladder disorders (oral 40% of cyclophosphamide dose at 0, 2, 6 hours).",
+    "Where significant reductions in albumin levels occur, consider reducing the dose of etoposide.",
+    "DOSE ESCALATION BELOW LEVEL 1: Where doses have been previously reduced below level 1, any subsequent dose escalations apply to cyclophosphamide ONLY — do NOT escalate doxorubicin or etoposide."
+  ],
+  "required_patient_fields": {
+    "hepatitis_b_status": "required before rituximab",
+    "lvef": "required — doxorubicin cumulative toxicity",
+    "cumulative_doxorubicin_mg_m2": "required",
+    "neutrophils": "required",
+    "platelets": "required",
+    "bilirubin": "required",
+    "creatinine_clearance": "required"
+  },
+  "source_file": "lymphoma_da_r_epoch.json",
+  "reference_url": "https://www.wessexcanceralliance.nhs.uk/protocols/lymphoma/",
+  "source": "NHS Wessex Cancer Alliance"
+}

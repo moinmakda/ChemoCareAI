@@ -213,6 +213,32 @@ export const nurseService = {
   async pauseMedication(medicationId: string, notes?: string): Promise<MedicationAPI> {
     return this.updateMedicationStatus(medicationId, 'paused', undefined, notes);
   },
+
+  // Feature 9: Shift Handover
+  async createHandover(data: { shiftDate: string; shiftType: string; patientsSummary: any[]; generalNotes?: string }): Promise<any> {
+    const response = await apiClient.post('/shift-handover', {
+      shift_date: data.shiftDate,
+      shift_type: data.shiftType,
+      patients_summary: data.patientsSummary,
+      general_notes: data.generalNotes,
+    });
+    return response.data;
+  },
+
+  async getLatestHandover(): Promise<any> {
+    const response = await apiClient.get('/shift-handover/latest');
+    return response.data;
+  },
+
+  async acknowledgeHandover(handoverId: string): Promise<any> {
+    const response = await apiClient.post(`/shift-handover/${handoverId}/acknowledge`);
+    return response.data;
+  },
+
+  async autoPopulateHandover(): Promise<any> {
+    const response = await apiClient.get('/shift-handover/auto-populate');
+    return response.data;
+  },
 };
 
 export type { PatientSummaryAPI, AppointmentAPI, VitalAPI };

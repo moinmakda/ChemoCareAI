@@ -136,7 +136,7 @@ export default function LoginScreen() {
                 style={styles.demoButton}
                 onPress={() => {
                   setEmail('patient@test.com');
-                  setPassword('test1234');
+                  setPassword('password123');
                 }}
               >
                 <Text style={styles.demoButtonText}>Patient</Text>
@@ -145,7 +145,7 @@ export default function LoginScreen() {
                 style={styles.demoButton}
                 onPress={() => {
                   setEmail('doctor@test.com');
-                  setPassword('test1234');
+                  setPassword('password123');
                 }}
               >
                 <Text style={styles.demoButtonText}>Doctor</Text>
@@ -154,7 +154,7 @@ export default function LoginScreen() {
                 style={styles.demoButton}
                 onPress={() => {
                   setEmail('nurse@test.com');
-                  setPassword('test1234');
+                  setPassword('password123');
                 }}
               >
                 <Text style={styles.demoButtonText}>Nurse</Text>

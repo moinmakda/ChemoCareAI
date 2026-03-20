@@ -18,6 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../src/constants/theme';
 import { Avatar, Badge, Card, Header } from '../../src/components';
 import { doctorService, AppointmentAPI, PatientSummaryAPI } from '../../src/services/doctorService';
+import { treatmentService } from '../../src/services/treatmentService';
 
 interface ActiveTreatment {
   id: string;
@@ -32,6 +33,7 @@ interface ActiveTreatment {
 export default function ActiveTreatmentsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const layoutPrefix = '/(doctor-opd)';
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -47,45 +49,44 @@ export default function ActiveTreatmentsScreen() {
       ]);
 
       // Filter for in-progress treatments
-      const inProgress = activeAppts.filter(a => 
-        a.status === 'in_progress' || a.status === 'checked_in'
+      const inProgress = activeAppts.filter(a =>
+        a.status === 'in_progress' || a.status === 'checked_in' || a.status === 'scheduled' || a.status === 'confirmed'
       );
 
-      // Create a map of patient_id -> treatment plan
+      // Create a map of patientId -> treatment plan
       const treatmentPlansMap: Record<string, any> = {};
       for (const plan of treatmentPlans) {
-        // Use patient_id from API response
-        const patientId = plan.patient_id || plan.patientId;
+        const patientId = plan.patientId;
         if (patientId && !treatmentPlansMap[patientId]) {
           treatmentPlansMap[patientId] = plan;
         }
       }
-      
+
       const activeTreatments: ActiveTreatment[] = inProgress.map((apt) => {
         const patient = patients.find(p => p.id === apt.patientId) || null;
         const checkedInTime = apt.checkedInAt ? new Date(apt.checkedInAt) : new Date();
         const elapsedMins = Math.floor((Date.now() - checkedInTime.getTime()) / 60000);
         const progressPercent = Math.min(100, Math.round((elapsedMins / apt.durationMins) * 100));
-        
-        // Get drug info from treatment plan's custom_protocol
+
+        // Get drug info from treatment plan's customProtocol
         let drugName = 'Unknown Drug';
         let infusionRate = 'N/A';
-        
+
         const plan = treatmentPlansMap[apt.patientId];
         if (plan) {
-          const protocol = plan.custom_protocol || plan.customProtocol;
+          const protocol = plan.customProtocol;
           if (protocol?.drugs && protocol.drugs.length > 0) {
-            // Protocol drug objects use `drug`, `name`, or `drug_name` key
-            const drugNames = protocol.drugs.map((d: any) => d.drug || d.name || d.drug_name).filter(Boolean);
+            // Protocol drug objects use `drug`, `name`, or `drugName` key
+            const drugNames = protocol.drugs.map((d: any) => d.drug || d.name || d.drugName).filter(Boolean);
             drugName = drugNames.join(' + ') || 'Chemotherapy';
-          } else if (plan.protocol_name || plan.protocolName) {
-            const name = plan.protocol_name || plan.protocolName;
+          } else if (plan.protocolName) {
+            const name = plan.protocolName;
             drugName = name.split('(')[0].trim();
           }
           // Show protocol name as infusion label — actual rate is set by pharmacy
           infusionRate = 'Per protocol';
         }
-        
+
         return {
           id: apt.id,
           appointment: apt,
@@ -107,7 +108,7 @@ export default function ActiveTreatmentsScreen() {
 
   useEffect(() => {
     fetchData();
-    
+
     // Refresh every 30 seconds for real-time updates
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
@@ -120,21 +121,35 @@ export default function ActiveTreatmentsScreen() {
   }, [fetchData]);
 
   // Handle treatment completion
-  const completeTreatment = async (treatmentId: string) => {
+  const completeTreatment = async (treatment: ActiveTreatment) => {
     Alert.alert(
       'Complete Treatment',
-      'Mark this infusion as completed?',
+      'Mark this infusion as completed? A discharge summary will be generated.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
           text: 'Complete',
           onPress: async () => {
             try {
-              await doctorService.updateAppointmentStatus(treatmentId, 'completed');
-              await fetchData();
-              Alert.alert('Success', 'Treatment marked as completed');
+              // Mark appointment as completed
+              await doctorService.updateAppointmentStatus(treatment.id, 'completed');
+
+              // If there is a cycle linked, complete it and get the discharge summary
+              const cycleId = treatment.appointment.cycleId;
+              if (cycleId) {
+                await treatmentService.completeCycle(cycleId);
+                await fetchData();
+                // Navigate to discharge summary screen
+                router.push({
+                  pathname: `${layoutPrefix}/discharge-summary` as any,
+                  params: { cycleId },
+                });
+              } else {
+                await fetchData();
+                Alert.alert('Success', 'Treatment marked as completed');
+              }
             } catch (error) {
-              Alert.alert('Error', 'Failed to update treatment status');
+              Alert.alert('Error', 'Failed to complete treatment');
             }
           },
         },
@@ -160,10 +175,10 @@ export default function ActiveTreatmentsScreen() {
   };
 
   const renderTreatment = ({ item }: { item: ActiveTreatment }) => {
-    const patientName = item.patient 
+    const patientName = item.patient
       ? `${item.patient.firstName} ${item.patient.lastName}`
       : 'Unknown Patient';
-    
+
     return (
       <Card variant="default" padding="medium" style={styles.treatmentCard}>
         <View style={styles.cardHeader}>
@@ -178,10 +193,18 @@ export default function ActiveTreatmentsScreen() {
               <Text style={styles.drugName}>{item.drugName}</Text>
             </View>
           </View>
-          <Badge 
-            label={item.appointment.status === 'in_progress' ? 'Infusing' : 'Ready'} 
-            variant={item.appointment.status === 'in_progress' ? 'success' : 'info'} 
-            size="small" 
+          <Badge
+            label={
+              item.appointment.status === 'in_progress' ? 'Infusing' :
+              item.appointment.status === 'checked_in' ? 'Checked In' :
+              'Scheduled'
+            }
+            variant={
+              item.appointment.status === 'in_progress' ? 'success' :
+              item.appointment.status === 'checked_in' ? 'info' :
+              'neutral'
+            }
+            size="small"
           />
         </View>
 
@@ -192,14 +215,14 @@ export default function ActiveTreatmentsScreen() {
             <Text style={styles.progressPercent}>{item.progressPercent}%</Text>
           </View>
           <View style={styles.progressBarBg}>
-            <View 
+            <View
               style={[
-                styles.progressBarFill, 
-                { 
+                styles.progressBarFill,
+                {
                   width: `${item.progressPercent}%`,
                   backgroundColor: getProgressColor(item.progressPercent),
                 }
-              ]} 
+              ]}
             />
           </View>
           <View style={styles.progressMeta}>
@@ -220,14 +243,14 @@ export default function ActiveTreatmentsScreen() {
         <View style={styles.cardActions}>
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => item.patient && router.push({ pathname: '/(doctor-daycare)/patient-vitals', params: { patientId: item.patient.id, patientName } })}
+            onPress={() => item.patient && router.push({ pathname: '/(doctor-opd)/patient-detail' as any, params: { patientId: item.patient.id } })}
           >
             <Ionicons name="pulse-outline" size={18} color={Colors.primary} />
             <Text style={styles.actionText}>Vitals</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.actionButton, styles.completeButton]}
-            onPress={() => completeTreatment(item.id)}
+            onPress={() => completeTreatment(item)}
           >
             <Ionicons name="checkmark-circle-outline" size={18} color={Colors.success} />
             <Text style={[styles.actionText, { color: Colors.success }]}>Complete</Text>
@@ -249,7 +272,7 @@ export default function ActiveTreatmentsScreen() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <Header title="Active Treatments" />
-      
+
       {/* Stats Row */}
       <View style={styles.statsRow}>
         <View style={styles.statItem}>

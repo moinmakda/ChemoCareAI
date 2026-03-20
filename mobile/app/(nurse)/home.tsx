@@ -166,10 +166,31 @@ export default function NurseHomeScreen() {
         {/* Pending Approvals */}
         <PendingApprovalsCard userRole="nurse" />
 
+        {/* Shift Handover Card (Feature 9) */}
+        <TouchableOpacity
+          style={styles.handoverCard}
+          onPress={() => router.push('/(nurse)/shift-handover')}
+          activeOpacity={0.8}
+          accessibilityLabel="Shift handover"
+          accessibilityRole="button"
+        >
+          <View style={[styles.statIcon, { backgroundColor: Colors.warningLight }]}>
+            <Ionicons name="swap-horizontal" size={20} color={Colors.warning} />
+          </View>
+          <View style={{ flex: 1, marginLeft: Spacing.md }}>
+            <Text style={styles.patientName}>Shift Handover</Text>
+            <Text style={styles.patientStatus}>Create or review handover reports</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={Colors.textTertiary} />
+        </TouchableOpacity>
+
         {/* Quick Action - New Protocol Request */}
         <TouchableOpacity
           style={styles.quickActionButton}
           onPress={() => router.push('/(nurse)/protocol-request')}
+          activeOpacity={0.8}
+          accessibilityLabel="New protocol request"
+          accessibilityRole="button"
         >
           <Ionicons name="add-circle" size={24} color="#FFF" />
           <Text style={styles.quickActionBtnText}>New Protocol Request</Text>
@@ -183,7 +204,8 @@ export default function NurseHomeScreen() {
         {activeAppointments.length === 0 ? (
           <Card variant="default" padding="large" style={styles.emptyCard}>
             <Ionicons name="bed-outline" size={48} color={Colors.textSecondary} />
-            <Text style={styles.emptyText}>No active patients</Text>
+            <Text style={styles.emptyTitle}>No active patients</Text>
+            <Text style={styles.emptySubtext}>Patients will appear here once they are checked in</Text>
           </Card>
         ) : (
           activeAppointments.map((apt) => (
@@ -205,11 +227,35 @@ export default function NurseHomeScreen() {
                 />
               </View>
               <View style={styles.patientActions}>
-                <TouchableOpacity style={styles.actionBtn} onPress={() => router.push({ pathname: '/(nurse)/vitals', params: { patientId: apt.patientId } })}>
+                <TouchableOpacity
+                  style={styles.actionBtn}
+                  onPress={() => router.push({ pathname: '/(nurse)/vitals', params: { patientId: apt.patientId } })}
+                  activeOpacity={0.6}
+                  accessibilityLabel="Record vitals"
+                  accessibilityRole="button"
+                >
                   <Ionicons name="pulse" size={18} color={Colors.primary} />
                   <Text style={styles.actionText}>Vitals</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.actionBtn} onPress={() => handleCheckOut(apt.id)}>
+                {apt.cycleId && (
+                  <TouchableOpacity
+                    style={styles.actionBtn}
+                    onPress={() => router.push({ pathname: '/(nurse)/treatment-admin', params: { cycleId: apt.cycleId!, patientId: apt.patientId } })}
+                    activeOpacity={0.6}
+                    accessibilityLabel="Start treatment"
+                    accessibilityRole="button"
+                  >
+                    <Ionicons name="flask" size={18} color={Colors.success} />
+                    <Text style={[styles.actionText, { color: Colors.success }]}>Treatment</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity
+                  style={styles.actionBtn}
+                  onPress={() => handleCheckOut(apt.id)}
+                  activeOpacity={0.6}
+                  accessibilityLabel="Check out patient"
+                  accessibilityRole="button"
+                >
                   <Ionicons name="exit-outline" size={18} color={Colors.warning} />
                   <Text style={styles.actionText}>Checkout</Text>
                 </TouchableOpacity>
@@ -226,7 +272,8 @@ export default function NurseHomeScreen() {
         {awaitingAppointments.length === 0 ? (
           <Card variant="default" padding="large" style={styles.emptyCard}>
             <Ionicons name="time-outline" size={48} color={Colors.textSecondary} />
-            <Text style={styles.emptyText}>No patients waiting</Text>
+            <Text style={styles.emptyTitle}>No patients waiting</Text>
+            <Text style={styles.emptySubtext}>Scheduled patients will appear here when it is time for check-in</Text>
           </Card>
         ) : (
           awaitingAppointments.slice(0, 5).map((apt) => (
@@ -247,29 +294,77 @@ export default function NurseHomeScreen() {
                   size="small"
                   onPress={() => handleCheckIn(apt.id)}
                 />
+                {apt.cycleId && (
+                  <TouchableOpacity
+                    style={styles.actionBtn}
+                    onPress={() => router.push({ pathname: '/(nurse)/treatment-admin', params: { cycleId: apt.cycleId!, patientId: apt.patientId } })}
+                    activeOpacity={0.6}
+                    accessibilityLabel="View treatment"
+                    accessibilityRole="button"
+                  >
+                    <Ionicons name="flask" size={18} color={Colors.success} />
+                    <Text style={[styles.actionText, { color: Colors.success }]}>Treatment</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </Card>
           ))
         )}
+
+        {/* Discharge Summaries */}
+        <TouchableOpacity
+          style={styles.handoverCard}
+          onPress={() => router.push('/(nurse)/discharge-summary')}
+          activeOpacity={0.8}
+          accessibilityLabel="Discharge summaries"
+          accessibilityRole="button"
+        >
+          <View style={[styles.statIcon, { backgroundColor: Colors.primaryLight }]}>
+            <Ionicons name="document-text" size={20} color={Colors.primary} />
+          </View>
+          <View style={{ flex: 1, marginLeft: Spacing.md }}>
+            <Text style={styles.patientName}>Discharge Summaries</Text>
+            <Text style={styles.patientStatus}>View completed cycles & download PDFs</Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={Colors.textTertiary} />
+        </TouchableOpacity>
 
         {/* Quick Actions */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Quick Actions</Text>
         </View>
         <View style={styles.quickActionsRow}>
-          <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/(nurse)/vitals')}>
+          <TouchableOpacity
+            style={styles.quickAction}
+            onPress={() => router.push('/(nurse)/vitals')}
+            activeOpacity={0.7}
+            accessibilityLabel="Record vitals"
+            accessibilityRole="button"
+          >
             <View style={[styles.quickActionIcon, { backgroundColor: Colors.primaryLight }]}>
               <Ionicons name="pulse" size={24} color={Colors.primary} />
             </View>
             <Text style={styles.quickActionText}>Record Vitals</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/(nurse)/medications')}>
+          <TouchableOpacity
+            style={styles.quickAction}
+            onPress={() => router.push('/(nurse)/medications')}
+            activeOpacity={0.7}
+            accessibilityLabel="Medications"
+            accessibilityRole="button"
+          >
             <View style={[styles.quickActionIcon, { backgroundColor: Colors.successLight }]}>
               <Ionicons name="medical" size={24} color={Colors.success} />
             </View>
             <Text style={styles.quickActionText}>Medications</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickAction} onPress={() => router.push('/(nurse)/patients')}>
+          <TouchableOpacity
+            style={styles.quickAction}
+            onPress={() => router.push('/(nurse)/patients')}
+            activeOpacity={0.7}
+            accessibilityLabel="All patients"
+            accessibilityRole="button"
+          >
             <View style={[styles.quickActionIcon, { backgroundColor: Colors.infoLight }]}>
               <Ionicons name="people" size={24} color={Colors.info} />
             </View>
@@ -297,8 +392,10 @@ const styles = StyleSheet.create({
   statLabel: { fontFamily: Typography.fontFamily.regular, fontSize: Typography.fontSize.xs, color: Colors.textSecondary },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md, marginTop: Spacing.md },
   sectionTitle: { fontFamily: Typography.fontFamily.semiBold, fontSize: Typography.fontSize.md, color: Colors.textPrimary },
-  emptyCard: { alignItems: 'center', marginBottom: Spacing.md },
+  emptyCard: { alignItems: 'center', marginBottom: Spacing.md, gap: Spacing.sm },
+  emptyTitle: { color: Colors.textPrimary, fontSize: Typography.fontSize.md, fontWeight: '600' as const },
   emptyText: { marginTop: Spacing.md, color: Colors.textSecondary, fontSize: Typography.fontSize.sm },
+  emptySubtext: { color: Colors.textSecondary, fontSize: Typography.fontSize.xs, textAlign: 'center' as const, paddingHorizontal: Spacing.lg },
   patientCard: { marginBottom: Spacing.sm },
   patientHeader: { flexDirection: 'row', alignItems: 'center' },
   chairBadge: { width: 36, height: 36, borderRadius: 18, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginRight: Spacing.md },
@@ -309,8 +406,9 @@ const styles = StyleSheet.create({
   patientName: { fontFamily: Typography.fontFamily.semiBold, fontSize: Typography.fontSize.md, color: Colors.textPrimary },
   patientStatus: { fontFamily: Typography.fontFamily.regular, fontSize: Typography.fontSize.xs, color: Colors.textSecondary },
   patientActions: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.md, paddingTop: Spacing.sm, borderTopWidth: 1, borderTopColor: Colors.border },
-  actionBtn: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
+  actionBtn: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs, paddingVertical: Spacing.xs, paddingHorizontal: Spacing.sm, minHeight: 36 },
   actionText: { fontFamily: Typography.fontFamily.medium, fontSize: Typography.fontSize.sm, color: Colors.primary },
+  handoverCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.md, marginBottom: Spacing.lg, ...Shadows.small },
   quickActionsRow: { flexDirection: 'row', gap: Spacing.md },
   quickAction: { flex: 1, alignItems: 'center', backgroundColor: Colors.white, borderRadius: BorderRadius.lg, padding: Spacing.lg, ...Shadows.small },
   quickActionIcon: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.sm },

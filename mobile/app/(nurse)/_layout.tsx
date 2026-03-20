@@ -85,6 +85,24 @@ export default function NurseLayout() {
           href: null, // Hide from tab bar
         }}
       />
+      <Tabs.Screen
+        name="treatment-admin"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
+      <Tabs.Screen
+        name="discharge-summary"
+        options={{
+          href: null, // Hide from tab bar
+        }}
+      />
+      <Tabs.Screen
+        name="shift-handover"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

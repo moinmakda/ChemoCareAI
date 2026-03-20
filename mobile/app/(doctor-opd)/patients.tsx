@@ -11,7 +11,6 @@ import {
   RefreshControl,
   ActivityIndicator,
   TextInput,
-  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -85,14 +84,10 @@ export default function DoctorOPDPatientsScreen() {
   const renderPatient = ({ item }: { item: PatientSummaryAPI }) => (
     <TouchableOpacity
       style={styles.patientCard}
-      onPress={() => Alert.alert(
-        `${item.firstName} ${item.lastName}`,
-        [
-          item.cancerType && `Cancer Type: ${item.cancerType}`,
-          item.cancerStage && `Stage: ${item.cancerStage}`,
-        ].filter(Boolean).join('\n') || 'No additional details available.',
-        [{ text: 'Close' }]
-      )}
+      onPress={() => router.push({
+        pathname: '/(doctor-opd)/patient-detail',
+        params: { patientId: item.id },
+      })}
     >
       <Avatar 
         name={`${item.firstName} ${item.lastName}`}

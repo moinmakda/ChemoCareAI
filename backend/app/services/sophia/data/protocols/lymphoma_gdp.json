@@ -1,0 +1,773 @@
+{
+  "protocol_id": "lymphoma_gdp",
+  "protocol_name": "GDP",
+  "protocol_code": "GDP",
+  "full_name": "Cisplatin-Dexamethasone-Gemcitabine (GDP)",
+  "indication": "Relapsed or refractory Hodgkin Lymphoma — salvage therapy",
+  "cycle_length_days": 21,
+  "total_cycles": 3,
+  "version": "1.0",
+  "treatment_intent": "curative",
+  "drugs": [
+    {
+      "drug_id": "dexamethasone",
+      "drug_name": "Dexamethasone",
+      "dose": 40.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily in the morning",
+      "special_instructions": "Take in the morning with or after food. Monitor blood glucose regularly.",
+      "prn": false
+    },
+    {
+      "drug_id": "cisplatin",
+      "drug_name": "Cisplatin",
+      "dose": 75.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1
+      ],
+      "duration_minutes": 120,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 1000,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Infuse with 20mmol potassium chloride over 120 minutes. Maximum infusion rate 1mg cisplatin/minute. Dose banded at 1mg/ml. Exfoliant — extravasation risk. Adequate pre- and post-hydration required. Patients should drink at least 3 litres of fluid in 24 hours after cisplatin.",
+      "prn": false
+    },
+    {
+      "drug_id": "gemcitabine",
+      "drug_name": "Gemcitabine",
+      "dose": 1000.0,
+      "dose_unit": "mg/m²",
+      "route": "IV infusion",
+      "days": [
+        1,
+        8
+      ],
+      "duration_minutes": 30,
+      "diluent": "Sodium chloride 0.9%",
+      "diluent_volume_ml": 250,
+      "administration_order": 3,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": null,
+      "special_instructions": "Dose banded at 100mg/ml. Day 8 dose subject to count check (see dose modifications).",
+      "prn": false
+    },
+    {
+      "drug_id": "gcsf",
+      "drug_name": "G-CSF (filgrastim or lenograstim)",
+      "dose": 300.0,
+      "dose_unit": "mcg",
+      "route": "SC",
+      "days": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 4,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily for 7 days from day 9",
+      "special_instructions": "Filgrastim 300mcg once daily OR lenograstim 263mcg once daily subcutaneously for 7 days from day 9.",
+      "prn": false
+    }
+  ],
+  "pre_medications": [
+    {
+      "drug_id": "aprepitant",
+      "drug_name": "Aprepitant",
+      "dose": 125.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "15-30 minutes prior to chemotherapy on day 1",
+      "frequency": null,
+      "special_instructions": "Day 1 only. Part of highly emetogenic chemotherapy (cisplatin) prophylaxis.",
+      "prn": false
+    },
+    {
+      "drug_id": "ondansetron",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "15-30 minutes prior to chemotherapy",
+      "frequency": null,
+      "special_instructions": "May be given orally.",
+      "prn": false
+    },
+    {
+      "drug_id": "metoclopramide_d8",
+      "drug_name": "Metoclopramide",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        8
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "15-30 minutes prior to gemcitabine on day 8",
+      "frequency": null,
+      "special_instructions": "May be given orally.",
+      "prn": false
+    },
+    {
+      "drug_id": "furosemide",
+      "drug_name": "Furosemide",
+      "dose": 40.0,
+      "dose_unit": "mg",
+      "route": "IV bolus",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 3,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Before pre-cisplatin hydration",
+      "frequency": null,
+      "special_instructions": "May be given orally if patient is not fluid overloaded.",
+      "prn": false
+    },
+    {
+      "drug_id": "nacl_prehydration",
+      "drug_name": "Sodium chloride 0.9% (pre-hydration)",
+      "dose": 1000.0,
+      "dose_unit": "ml",
+      "route": "IV infusion",
+      "days": [
+        1
+      ],
+      "duration_minutes": 60,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 4,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "Before cisplatin",
+      "frequency": null,
+      "special_instructions": "With 20mmol potassium chloride and 16mmol magnesium sulphate over 60 minutes.",
+      "prn": false
+    },
+    {
+      "drug_id": "nacl_posthydration",
+      "drug_name": "Sodium chloride 0.9% (post-hydration)",
+      "dose": 1000.0,
+      "dose_unit": "ml",
+      "route": "IV infusion",
+      "days": [
+        1
+      ],
+      "duration_minutes": 60,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 5,
+      "is_core_drug": true,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": "After cisplatin",
+      "frequency": null,
+      "special_instructions": "With 20mmol potassium chloride and 16mmol magnesium sulphate over 60 minutes.",
+      "prn": false
+    }
+  ],
+  "take_home_medicines": [
+    {
+      "drug_id": "aprepitant_tho",
+      "drug_name": "Aprepitant",
+      "dose": 80.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        2,
+        3
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily on days 2 and 3",
+      "special_instructions": "Part of triple antiemetic prophylaxis for highly emetogenic cisplatin. Take with food.",
+      "prn": false
+    },
+    {
+      "drug_id": "metoclopramide_tho",
+      "drug_name": "Metoclopramide",
+      "dose": 10.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Three times daily when required",
+      "special_instructions": "Take-home antiemetic PRN.",
+      "prn": true
+    },
+    {
+      "drug_id": "ondansetron_tho",
+      "drug_name": "Ondansetron",
+      "dose": 8.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1,
+        2,
+        3
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Twice daily for 3 days starting evening of day 1",
+      "special_instructions": "Take-home antiemetic.",
+      "prn": false
+    },
+    {
+      "drug_id": "aciclovir",
+      "drug_name": "Aciclovir",
+      "dose": 400.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Twice daily throughout treatment",
+      "special_instructions": "Antiviral prophylaxis.",
+      "prn": false
+    },
+    {
+      "drug_id": "co_trimoxazole",
+      "drug_name": "Co-trimoxazole",
+      "dose": 960.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 1,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily on Monday, Wednesday and Friday",
+      "special_instructions": "PCP prophylaxis.",
+      "prn": false
+    },
+    {
+      "drug_id": "allopurinol",
+      "drug_name": "Allopurinol",
+      "dose": 300.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        1
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 2,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily",
+      "special_instructions": "Cycle 1 only for 7 days — tumour lysis prophylaxis.",
+      "prn": false
+    },
+    {
+      "drug_id": "dexamethasone_tho",
+      "drug_name": "Dexamethasone",
+      "dose": 40.0,
+      "dose_unit": "mg",
+      "route": "Oral",
+      "days": [
+        2,
+        3,
+        4
+      ],
+      "duration_minutes": null,
+      "diluent": null,
+      "diluent_volume_ml": null,
+      "administration_order": 0,
+      "is_core_drug": false,
+      "is_optional": false,
+      "max_dose": null,
+      "max_dose_unit": null,
+      "timing": null,
+      "frequency": "Once daily on days 2, 3 and 4",
+      "special_instructions": "Take-home dexamethasone 40mg once daily oral for 3 days starting on day 2 of treatment. Take with or after food.",
+      "prn": false
+    }
+  ],
+  "rescue_medications": [],
+  "cycle_variations": [],
+  "dose_modifications": [
+    {
+      "rule_id": "cisplatin_renal_75",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "40-59",
+      "condition_type": "range",
+      "threshold_value": null,
+      "threshold_low": 40.0,
+      "threshold_high": 59.0,
+      "affected_drugs": [
+        "cisplatin"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Renal impairment CrCl 40-59 ml/min: reduce cisplatin to 75%.",
+      "action_text": "Reduce cisplatin to 75%",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "cisplatin_renal_omit",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "< 40",
+      "condition_type": "less_than",
+      "threshold_value": 40.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "cisplatin"
+      ],
+      "modification": "omit",
+      "modification_type": "omit",
+      "modification_percent": 0,
+      "delay_days": null,
+      "description": "Renal impairment CrCl <40 ml/min: omit cisplatin — consider alternative agent.",
+      "action_text": "Omit cisplatin (CrCl <40 ml/min) — consider alternative",
+      "priority": 1,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "gemcitabine_hepatic",
+      "parameter": "bilirubin",
+      "parameter_unit": "µmol/L",
+      "condition": "> 30",
+      "condition_type": "greater_than",
+      "threshold_value": 30.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "gemcitabine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 80,
+      "delay_days": null,
+      "description": "Hepatic impairment bilirubin >30 µmol/L: initiate gemcitabine at 800 mg/m² (80% of 1000 mg/m²).",
+      "action_text": "Reduce gemcitabine to 800 mg/m² (hepatic impairment)",
+      "priority": 2,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "gemcitabine_renal_reduce",
+      "parameter": "creatinine_clearance",
+      "parameter_unit": "ml/min",
+      "condition": "< 30",
+      "condition_type": "less_than",
+      "threshold_value": 30.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "gemcitabine"
+      ],
+      "modification": "clinical_decision",
+      "modification_type": "clinical_decision",
+      "modification_percent": null,
+      "delay_days": null,
+      "description": "Renal impairment CrCl <30 ml/min: consider dose reduction of gemcitabine. No specific percentage stated in protocol.",
+      "action_text": "Consider gemcitabine dose reduction (CrCl <30 ml/min)",
+      "priority": 3,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "both_grade3_nonhaem",
+      "parameter": "non_haematological_toxicity",
+      "parameter_unit": "grade",
+      "condition": ">= 3",
+      "condition_type": "greater_equal",
+      "threshold_value": 3.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "cisplatin",
+        "gemcitabine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 75,
+      "delay_days": null,
+      "description": "Grade 3 non-haematological toxicity: reduce both cisplatin and gemcitabine to 75%.",
+      "action_text": "Reduce cisplatin and gemcitabine to 75% (grade 3 toxicity)",
+      "priority": 4,
+      "check_if_already_reduced": false
+    },
+    {
+      "rule_id": "both_grade4_nonhaem",
+      "parameter": "non_haematological_toxicity",
+      "parameter_unit": "grade",
+      "condition": "= 4",
+      "condition_type": "equals",
+      "threshold_value": 4.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "affected_drugs": [
+        "cisplatin",
+        "gemcitabine"
+      ],
+      "modification": "reduce",
+      "modification_type": "reduce",
+      "modification_percent": 50,
+      "delay_days": null,
+      "description": "Grade 4 non-haematological toxicity: reduce both cisplatin and gemcitabine to 50%.",
+      "action_text": "Reduce cisplatin and gemcitabine to 50% (grade 4 toxicity)",
+      "priority": 4,
+      "check_if_already_reduced": false
+    }
+  ],
+  "hematological_toxicity_rules": [
+    {
+      "toxicity_type": "neutropenia_day8",
+      "grade": null,
+      "threshold": "0.5-0.9",
+      "threshold_value": null,
+      "threshold_low": 0.5,
+      "threshold_high": 0.9,
+      "action": "reduce",
+      "delay_days": null,
+      "reduction_percent": 75,
+      "check_drugs": [
+        "gemcitabine"
+      ],
+      "additional_notes": "Day 8 only: neutrophils 0.5-0.9×10⁹/L — give 100% with G-CSF support OR reduce gemcitabine to 75% of original dose."
+    },
+    {
+      "toxicity_type": "thrombocytopenia_day8",
+      "grade": null,
+      "threshold": "50-75",
+      "threshold_value": null,
+      "threshold_low": 50.0,
+      "threshold_high": 75.0,
+      "action": "reduce",
+      "delay_days": null,
+      "reduction_percent": 75,
+      "check_drugs": [
+        "gemcitabine"
+      ],
+      "additional_notes": "Day 8 only: platelets 50-75×10⁹/L — give gemcitabine at 75% of original dose."
+    },
+    {
+      "toxicity_type": "neutropenia_or_thrombocytopenia_day8_severe",
+      "grade": null,
+      "threshold": "< 0.5 or < 50",
+      "threshold_value": null,
+      "threshold_low": null,
+      "threshold_high": null,
+      "action": "hold",
+      "delay_days": null,
+      "reduction_percent": null,
+      "check_drugs": [
+        "gemcitabine"
+      ],
+      "additional_notes": "Day 8 only: neutrophils <0.5×10⁹/L OR platelets <50×10⁹/L — omit day 8 gemcitabine dose."
+    },
+    {
+      "toxicity_type": "neutropenia_day1",
+      "grade": null,
+      "threshold": "< 1.0",
+      "threshold_value": 1.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "action": "delay",
+      "delay_days": 7,
+      "reduction_percent": null,
+      "check_drugs": [
+        "cisplatin",
+        "gemcitabine"
+      ],
+      "additional_notes": "Day 1: neutrophils <1×10⁹/L — delay 1 week. If neutrophils ≥0.5 after delay, give 100% with G-CSF. If neutrophils <0.5 after delay, hold and recheck every 3 days."
+    },
+    {
+      "toxicity_type": "thrombocytopenia_day1",
+      "grade": null,
+      "threshold": "< 75",
+      "threshold_value": 75.0,
+      "threshold_low": null,
+      "threshold_high": null,
+      "action": "delay",
+      "delay_days": 7,
+      "reduction_percent": null,
+      "check_drugs": [
+        "cisplatin",
+        "gemcitabine"
+      ],
+      "additional_notes": "Day 1: platelets <75×10⁹/L — delay 1 week. If platelets ≥50 after delay, give 100% with platelet transfusion support. If <50, hold and recheck every 3 days."
+    }
+  ],
+  "non_hematological_toxicity_rules": [
+    {
+      "toxicity_type": "ototoxicity",
+      "grade": 2,
+      "parameter": null,
+      "threshold": null,
+      "affected_drugs": [
+        "cisplatin"
+      ],
+      "action": "consider_modification",
+      "action_text": "Grade 2 or above ototoxicity: discuss with consultant — cisplatin dose may need to be reduced.",
+      "monitoring_frequency": "each_cycle"
+    },
+    {
+      "toxicity_type": "nephrotoxicity",
+      "grade": null,
+      "parameter": "creatinine_clearance",
+      "threshold": "< 40",
+      "affected_drugs": [
+        "cisplatin"
+      ],
+      "action": "hold",
+      "action_text": "CrCl <40 ml/min: omit cisplatin and consider alternative salvage agent.",
+      "monitoring_frequency": "each_cycle"
+    }
+  ],
+  "metabolic_monitoring": [
+    {
+      "parameter": "blood_glucose",
+      "baseline_required": true,
+      "change_threshold_percent": null,
+      "action_on_change": "alert",
+      "action_text": "Monitor blood glucose regularly due to high-dose dexamethasone. Consider insulin or oral hypoglycaemic agents as required."
+    }
+  ],
+  "treatment_delay_criteria": [
+    {
+      "parameter": "creatinine_clearance",
+      "threshold": "< 60",
+      "threshold_value": 60.0,
+      "delay_until": "CrCl ≥60 ml/min or reduce cisplatin dose",
+      "max_delay_weeks": 2,
+      "action_if_not_recovered": "Discuss with consultant; consider replacing cisplatin with carboplatin."
+    }
+  ],
+  "baseline_requirements": [
+    {
+      "test": "EDTA or Cockcroft-Gault creatinine clearance",
+      "includes": [],
+      "timing": "Before day 1 each cycle",
+      "required": "true"
+    },
+    {
+      "test": "Audiological assessment",
+      "includes": [],
+      "timing": "Before starting treatment and if ototoxicity suspected",
+      "required": "conditional",
+      "condition": "Formal audiology if clinically indicated"
+    },
+    {
+      "test": "Hodgkin Lymphoma TA-GVHD alert card",
+      "includes": [],
+      "timing": "Before first cycle",
+      "required": "true"
+    }
+  ],
+  "pre_cycle_labs": [
+    {
+      "test": "FBC (neutrophils, platelets, haemoglobin)",
+      "timing": "Within 48 hours before day 1 and before day 8",
+      "required": true
+    },
+    {
+      "test": "Renal function (creatinine clearance)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "LFTs (bilirubin, AST/ALT)",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "Blood glucose",
+      "timing": "Before each cycle",
+      "required": true
+    },
+    {
+      "test": "Electrolytes (potassium, magnesium)",
+      "timing": "Before each cycle",
+      "required": true
+    }
+  ],
+  "toxicities": [
+    {
+      "drug_id": "cisplatin",
+      "adverse_effects": [
+        "Nephrotoxicity",
+        "Ototoxicity",
+        "Nausea and vomiting (highly emetogenic)",
+        "Peripheral neuropathy",
+        "Myelosuppression",
+        "Hypomagnesaemia",
+        "Hyponatraemia",
+        "Extravasation injury (exfoliant)"
+      ]
+    },
+    {
+      "drug_id": "gemcitabine",
+      "adverse_effects": [
+        "Myelosuppression",
+        "Flu-like syndrome",
+        "Nausea",
+        "Hepatotoxicity (transaminase rise)",
+        "Rash",
+        "Peripheral oedema"
+      ]
+    },
+    {
+      "drug_id": "dexamethasone",
+      "adverse_effects": [
+        "Hyperglycaemia",
+        "Insomnia",
+        "Mood disturbance",
+        "GI disturbance",
+        "Immunosuppression"
+      ]
+    }
+  ],
+  "monitoring": [
+    "FBC, U&Es, LFTs, and blood glucose before each cycle and before day 8",
+    "EDTA creatinine clearance before each cycle — cisplatin dose reduced to 75% if CrCl 40-59, omitted if CrCl <40 ml/min",
+    "Audiological assessment if ototoxicity suspected",
+    "Adequate hydration monitoring — patient must drink ≥3 litres per day after cisplatin"
+  ],
+  "warnings": [
+    "Hodgkin Lymphoma patients carry a LIFELONG risk of TA-GVHD. IRRADIATED blood products must be used for life. Notify transfusion department immediately and issue patient alert card.",
+    "Cisplatin is highly emetogenic — triple antiemetic prophylaxis with aprepitant, 5-HT3 antagonist, and dexamethasone required.",
+    "Cisplatin nephrotoxicity: EDTA or calculated CrCl required before day 1. Reduce to 75% if CrCl 40-59, omit if CrCl <40 ml/min.",
+    "Adequate pre- and post-cisplatin hydration mandatory. Patients must drink ≥3 litres of fluid per 24 hours after cisplatin.",
+    "Monitor electrolytes carefully — cisplatin causes hypomagnesaemia and hypokalaemia.",
+    "Cisplatin is ototoxic — consider formal audiology testing.",
+    "Cisplatin extravasation risk: classified as exfoliant.",
+    "Regular blood glucose monitoring required due to high-dose dexamethasone.",
+    "Protocol permits 3 to 6 cycles (3 cycles set in ARIA). Clinical decision for additional cycles."
+  ],
+  "required_patient_fields": {
+    "creatinine_clearance": "MANDATORY — cisplatin reduced to 75% if CrCl 40-59, omitted if CrCl <40 ml/min",
+    "neutrophil_count": "Required for day 1 and day 8 count check",
+    "platelet_count": "Required for day 1 and day 8 count check",
+    "bilirubin": "Required for gemcitabine dose modification",
+    "blood_glucose": "Required due to high-dose dexamethasone"
+  },
+  "source_file": "lymphoma-5.json",
+  "reference_url": "https://www.wessexcanceralliance.nhs.uk/protocols/lymphoma/",
+  "source": "NHS Wessex Cancer Alliance"
+}
